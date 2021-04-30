@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: FranzDiebold/github-env-vars-action@v1.2.0
+
+    - uses: joelwmale/webhook-action@master
+      with:
+        url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        headers: '{"Content-Type": "application/json"}'
+        body: "{  \"username\": \"Dan Bot\", \"avatar_url\": \"https://i.imgur.com/Hrbi1Ht.jpg\", \"embeds\": [{ \"author\": {\"name\": \"Github\",\"url\": \"https://github.com/Poss111/clash-bot\",\"icon_url\": \"https://img.icons8.com/ios-filled/344/github-2.png\"      },      \"title\": \"Clash Bot Deployment Notification\",      \"url\": \"https://github.com/Poss111/clash-bot/actions/runs/${{ github.run_id }}\",      \"description\": \"Starting Github build...\",      \"color\": 15258703,      \"fields\": [{  \"name\": \"Build #\",  \"value\": \"${{ github.run_id }}\",  \"inline\": true},{  \"name\": \"Branch\",  \"value\": \"${{ github.ref }}\",  \"inline\": true}, { \"name\": \"SHA\", \"value\": \"${{ github.sha }}\", \"inline\": false},{  \"name\": \"Triggered By\",  \"value\": \"${{ github.actor }}\",  \"inline\": false}      ]    }  ]}"
+
+    - name: Check
+      run : echo build $GITHUB_RUN_NUMBER
+
+    - uses: actions/checkout@v2
+
+    - name: Cache node modules
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+
+    - name: Install Dependencies
+      run: npm i
+
+    - name: Run Tests
+      run: npm test
+
+    - name: Folder Structure
+      run: ls -ltr
+
+    - name: Build Docker Image
+      uses: docker/build-push-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        repository: poss11111/clash-bot
+        tags: latest
+
+    - name: Send failure webhook
+      uses: joelwmale/webhook-action@master
+      if: ${{ failure() }}
+      with:
+        url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        headers: '{"Content-Type": "application/json"}'
+        body: "{\"username\": \"Dan Bot\", \"avatar_url\": \"https://i.imgur.com/Hrbi1Ht.jpg\", \"embeds\": [{\"author\": {\"name\": \"Github\", \"url\": \"https://github.com/Poss111/clash-bot\", \"icon_url\": \"https://img.icons8.com/ios-filled/344/github-2.png\"}, \"title\": \"Clash Bot Deployment Notification\", \"url\": \"https://github.com/Poss111/clash-bot/actions/runs/${{ github.run_id }}\", \"description\": \"Github build failed!\", \"color\": 16711680, \"fields\": [{\"name\": \"Build #\", \"value\": \"${{ github.run_id }}\", \"inline\": true}, {\"name\": \"Branch\", \"value\": \"${{ github.ref }}\", \"inline\": true}, {\"name\": \"SHA\", \"value\": \"${{ github.sha }}\", \"inline\": false}, {\"name\": \"Triggered By\", \"value\": \"${{ github.actor }}\", \"inline\": false}]}]}"
+
+
+    - name: Send success webhook
+      uses: joelwmale/webhook-action@master
+      if: ${{ success() }}
+      with:
+        url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        headers: '{"Content-Type": "application/json"}'
+        body: "{\"username\": \"Dan Bot\", \"avatar_url\": \"https://i.imgur.com/Hrbi1Ht.jpg\", \"embeds\": [{\"author\": {\"name\": \"Github\", \"url\": \"https://github.com/Poss111/clash-bot\", \"icon_url\": \"https://img.icons8.com/ios-filled/344/github-2.png\"}, \"title\": \"Clash Bot  Deployment Notification\", \"url\": \"https://github.com/Poss111/clash-bot/actions/runs/${{ github.run_id }}\", \"description\": \"Github build succeeded!\", \"color\": 65345, \"fields\": [{\"name\": \"Build #\", \"value\": \"${{ github.run_id }}\", \"inline\": true}, {\"name\": \"Branch\", \"value\": \"${{ github.ref }}\", \"inline\": true}, {\"name\": \"SHA\", \"value\": \"${{ github.sha }}\", \"inline\": false}, {\"name\": \"Triggered By\", \"value\": \"${{ github.actor }}\", \"inline\": false}]}]}"
