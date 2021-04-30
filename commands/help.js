@@ -1,4 +1,3 @@
-const Discord = require('discord.js');
 const helpMenu = require('../help-menu.js');
 module.exports = {
     name: 'help',
