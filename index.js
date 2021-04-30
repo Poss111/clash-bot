@@ -17,7 +17,7 @@ bot.on('ready', () => {
 });
 
 bot.on('message', msg => {
-    if(msg.channel.name === 'league' && msg.content.startsWith('!clash')) {
+    if (msg.channel.name === 'league' && msg.content.startsWith('!clash')) {
         msg.content = msg.content.replace('!clash ', '');
         const args = msg.content.split(/ +/);
         const command = args.shift().toLowerCase();
@@ -26,7 +26,7 @@ bot.on('message', msg => {
         if (!bot.commands.has(command)) return;
 
         try {
-                bot.commands.get(command).execute(msg, args);
+            bot.commands.get(command).execute(msg, args);
         } catch (error) {
             console.error(error);
             msg.reply('there was an error trying to execute that command!');
@@ -34,14 +34,3 @@ bot.on('message', msg => {
 
     }
 });
-
-
-// bot.on('message', msg => {
-//     if (msg.channel.name === 'league' && msg.content === 'clash help') {
-//         msg.channel.send(helpMenu);
-//     }
-//     if (msg.channel.name === 'league' && msg.content === 'clash signup') {
-//         console.info(`Ping received from channel ('${msg.channel.id}') by ('${msg.author.username}')`)
-//         msg.reply('Signing you up for the Clash team. --- This bot is a work in progress. If you notice any issues reach out to @Roïdräge');
-//     }
-// });

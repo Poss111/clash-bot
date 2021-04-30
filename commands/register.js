@@ -1,7 +1,14 @@
+const dbUtils = require('../team-impl');
 module.exports = {
     name: 'register',
     description: 'Used to register the user to an available Clash team.',
-    execute(msg, args) {
-        msg.reply('Command is still being implemented. Please reach out to Roïdräge for the latest info.')
+    execute: function (msg, args) {
+        msg.channel.send(`Registering ${msg.author.username}...`)
+        let team = dbUtils.registerPlayer(msg.author.username);
+        if (team.exist) {
+            msg.reply(`You are already registered to ${team.name} your Team consists so far of ${team.players}`);
+        } else {
+            msg.reply(`Registered on ${team.name} your Team consists so far of ${team.players}`);
+        }
     },
 };
