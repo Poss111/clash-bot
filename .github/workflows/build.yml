@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: FranzDiebold/github-env-vars-action@v1.2.0
+    - uses: FranzDiebold/github-env-vars-action@v2.1.0
 
     - uses: joelwmale/webhook-action@master
       with:
