@@ -3,6 +3,7 @@ const Discord = require('discord.js');
 const bot = new Discord.Client();
 bot.commands = new Discord.Collection();
 const botCommands = require('./commands');
+const leagueApi = require('./utility/LeagueApi')
 const TOKEN = process.env.TOKEN;
 
 Object.keys(botCommands).map(key => {
