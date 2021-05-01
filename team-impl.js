@@ -1,10 +1,11 @@
 class TeamUtils {
     clashTeams = [];
+    tentative = [];
 
     constructor() {}
 
     registerPlayer(playerName) {
-        let teams = this.getTeams();
+        let teams = this.clashTeams;
         console.log(teams);
         let team = teams.filter(team => team.players.includes(playerName));
         if (team.length === 0) {
@@ -26,7 +27,7 @@ class TeamUtils {
     }
 
     deregisterPlayer(playerName) {
-        let teams = this.getTeams();
+        let teams = this.clashTeams;
         let found;
         teams.forEach(team => {
             if (team.players.includes(playerName)) {
@@ -37,16 +38,25 @@ class TeamUtils {
         return found;
     }
 
-    getTeams() {
-        return this.clashTeams;
-    }
-
     createNewTeam(playerName, number) {
         return {
             name: `Team ${number}`,
             players: [playerName],
             clashDate: new Date(),
         };
+    }
+
+    placeOnTentative(playerName) {
+        this.deregisterPlayer(playerName);
+        this.tentative.push(playerName);
+    }
+
+    getTeams() {
+        return JSON.parse(JSON.stringify(this.clashTeams));
+    }
+
+    getTentative() {
+        return JSON.parse(JSON.stringify(this.tentative));
     }
 }
 module.exports = new TeamUtils;

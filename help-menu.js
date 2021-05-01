@@ -22,6 +22,10 @@ module.exports = {
         {
             name: "teams",
             value: "Asks the bot to print a list of Teams for the latest clash."
+        },
+        {
+            name: "tentative",
+            value: "Asks the bot to place your name on the tentative queue. Will be removed from a team if you have been assigned one."
         }
     ],
     footer: {
