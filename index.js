@@ -29,7 +29,7 @@ bot.on('message', msg => {
             bot.commands.get(command).execute(msg, args);
         } catch (error) {
             console.error(error);
-            msg.reply('there was an error trying to execute that command!');
+            msg.channel.send('there was an error trying to execute that command! Please reach out to <@299370234228506627>.');
         }
 
     }

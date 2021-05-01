@@ -8,6 +8,7 @@ class TeamUtils {
         let teams = this.clashTeams;
         console.log(teams);
         let team = teams.filter(team => team.players.includes(playerName));
+        this.removeFromTentative(playerName);
         if (team.length === 0) {
             let availableTeams = teams.filter(team => team.players.length < 5);
 
@@ -33,8 +34,11 @@ class TeamUtils {
             if (team.players.includes(playerName)) {
                 team.players = team.players.filter(name => name !== playerName);
                 found = true;
+            } if (team.players.length < 1) {
+                teams = teams.filter((playerTeam) => playerTeam !== team);
             }
-        })
+        });
+        this.clashTeams = teams;
         return found;
     }
 
@@ -49,6 +53,21 @@ class TeamUtils {
     placeOnTentative(playerName) {
         this.deregisterPlayer(playerName);
         this.tentative.push(playerName);
+    }
+
+    removeFromTentative(playerName) {
+        this.tentative = this.tentative.filter((player) => player !== playerName);
+    }
+
+    handleTentative(playerName) {
+        let player = this.tentative.filter((player) => player === playerName);
+        if (player.length > 0) {
+            this.removeFromTentative(playerName);
+            return true;
+        } else {
+            this.placeOnTentative(playerName);
+            return false;
+        }
     }
 
     getTeams() {

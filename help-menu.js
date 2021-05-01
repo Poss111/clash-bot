@@ -25,7 +25,7 @@ module.exports = {
         },
         {
             name: "tentative",
-            value: "Asks the bot to place your name on the tentative queue. Will be removed from a team if you have been assigned one."
+            value: "Asks the bot to place your name on the tentative queue, if you are already belong in the queue, you will be removed from it. You will be removed from a team if you have been assigned one."
         }
     ],
     footer: {
