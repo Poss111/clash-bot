@@ -7,7 +7,6 @@ const leagueApi = require('./utility/LeagueApi');
 const TOKEN = process.env.TOKEN;
 
 Object.keys(botCommands).map(key => {
-    console.log(`Key ${key}`);
     bot.commands.set(botCommands[key].name, botCommands[key]);
 });
 

@@ -26,6 +26,10 @@ module.exports = {
         {
             name: "tentative",
             value: "Asks the bot to place your name on the tentative queue, if you are already belong in the queue, you will be removed from it. You will be removed from a team if you have been assigned one."
+        },
+        {
+            name: "time",
+            value: "Prints out the times for the clash from the Riot API."
         }
     ],
     footer: {
