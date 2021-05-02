@@ -5,4 +5,5 @@ module.exports = {
     Register: require('./register'),
     Unregister: require('./unregister'),
     Tentative: require('./tentative'),
+    Time: require('./time'),
 };

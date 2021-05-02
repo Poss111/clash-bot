@@ -3,7 +3,7 @@ const Discord = require('discord.js');
 const bot = new Discord.Client();
 bot.commands = new Discord.Collection();
 const botCommands = require('./commands');
-const leagueApi = require('./utility/LeagueApi')
+const leagueApi = require('./utility/LeagueApi');
 const TOKEN = process.env.TOKEN;
 
 Object.keys(botCommands).map(key => {
@@ -32,6 +32,5 @@ bot.on('message', msg => {
             console.error(error);
             msg.channel.send('there was an error trying to execute that command! Please reach out to <@299370234228506627>.');
         }
-
     }
 });

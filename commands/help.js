@@ -1,4 +1,4 @@
-const helpMenu = require('../help-menu.js');
+const helpMenu = require('../templates/help-menu.js');
 module.exports = {
     name: 'help',
     description: 'A simple help menu to be displayed for understanding how to use this bot.',

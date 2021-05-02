@@ -1,5 +1,5 @@
 const dbUtils = require('../team-impl');
-const teamsCard = require('../teams');
+const teamsCard = require('../templates/teams');
 module.exports = {
     name: 'teams',
     description: 'Used to return a human readable response of the current Clash team status.',
