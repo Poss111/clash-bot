@@ -1,6 +1,7 @@
 const moment = require('moment');
 const http = require('https');
 const RIOT_TOKEN = process.env.RIOT_TOKEN;
+const TOKEN = process.env.TOKEN;
 
 class LeagueApi {
 
@@ -11,6 +12,9 @@ class LeagueApi {
     }
 
     initializeLeagueData() {
+        console.log(`RIOT_TOKEN => ${RIOT_TOKEN}`);
+        console.log(`TOKEN => ${TOKEN}`);
+
         try {
             let promise = new Promise((resolve, reject) => {
                 const options = {
