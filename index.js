@@ -33,3 +33,18 @@ bot.on('message', msg => {
         }
     }
 });
+
+process.on('beforeExit', () => {
+    console.log('Process terminated');
+    process.exit(0);
+});
+
+process.on('SIGTERM', () => {
+    console.log('Process closed');
+    process.exit(0);
+});
+
+process.on('SIGINT', () => {
+    console.log('Process interrupted');
+    process.exit(0);
+});

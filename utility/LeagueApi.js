@@ -46,13 +46,13 @@ class LeagueApi {
                         data.forEach((data) => {
                             data.startTime = data.startTime.format(dateFormat);
                             data.registrationTime = data.registrationTime.format(dateFormat);
-                        })
+                        });
                         console.log('League Clash times loaded.')
                         resolve(data)
                     });
 
                     response.on('error', function (err) {
-                        console.error('Failed to make request', err)
+                        console.error('Failed to make request', err);
                         reject(err);
                     })
                 }).end();
