@@ -4,11 +4,12 @@ const names = require('../random-names');
 
 class DynamoDBUtils {
     Team;
+    tentative = [];
 
     constructor() {
     }
 
-    async init() {
+    initializeClashBotDB() {
         return new Promise((resolve, reject) => {
             dynamodb.AWS.config.loadFromPath('./credentials.json');
             this.Team = dynamodb.define('NewTeam', {
@@ -23,11 +24,9 @@ class DynamoDBUtils {
             });
             dynamodb.createTables(function (err) {
                 if (err) {
-                    console.error('Error creating tables: ', err);
                     reject(err);
                 } else {
-                    console.log('Successfully created table.');
-                    resolve();
+                    resolve('Successfully initialized Database.');
                 }
             });
         })
@@ -40,6 +39,9 @@ class DynamoDBUtils {
                 console.log(teams);
                 let foundTeam = teams.filter(team => team.players.includes(playerName));
                 let availableTeams = teams.filter(team => team.players.length < 5);
+                this.handleTentative(playerName).then((data) => {
+                    if (data) console.log('Pulled off tentative');
+                });
                 if (teams.length === 0 || availableTeams.length < 1) {
                     console.log(`Creating new team for ${playerName} since there are no available teams.`);
                     foundTeam = this.createNewTeam(playerName, serverName, teams.length + 1);
@@ -66,19 +68,23 @@ class DynamoDBUtils {
     }
 
     deregisterPlayer(playerName, serverName) {
-        this.getTeams(serverName).then((data) => {
-            const filter = data.filter(record => record.players.includes(playerName));
-            if (filter.length !== 0) {
-                console.log(`Unregistering ${playerName} from team ${filter[0].teamName}...`);
-                const playersLeft = filter[0].players.filter(player => player !== playerName);
-                this.Team.update({key: this.getKey(filter[0].teamName, serverName), players: playersLeft}, function(err, data) {
-                    if (err) {
-                        console.error('Failed to deregister player due to error.', err);
-                    } else {
-                        console.log('Unregistered.');
-                    }
-                });
-            }
+        return new Promise((resolve, reject) => {
+            this.getTeams(serverName).then((data) => {
+                const filter = data.filter(record => record.players.includes(playerName));
+                if (filter.length !== 0) {
+                    console.log(`Unregistering ${playerName} from team ${filter[0].teamName}...`);
+                    const playersLeft = filter[0].players.filter(player => player !== playerName);
+                    this.Team.update({key: this.getKey(filter[0].teamName, serverName), players: playersLeft}, function(err, data) {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(true);
+                        }
+                    });
+                } else {
+                    resolve(false);
+                }
+            });
         });
     }
 
@@ -115,8 +121,24 @@ class DynamoDBUtils {
         return createTeam;
     }
 
+    handleTentative(playerName) {
+        return new Promise((resolve, reject) => {
+            const filteredTentativeList = this.tentative.filter((name) => name !== playerName);
+            if (filteredTentativeList.length < this.tentative.length) {
+                this.tentative = filteredTentativeList;
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+        });
+    }
+
     getKey(teamName, serverName) {
         return `${teamName}#${serverName}`;
+    }
+
+    getTentative() {
+        return this.tentative;
     }
 }
 

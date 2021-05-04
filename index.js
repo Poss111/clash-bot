@@ -1,5 +1,5 @@
 require('dotenv').config();
-// const db = require('./dynamo-db-impl');
+const database = require('./dynamo-db-impl');
 // db.init().then(r => {
 //     console.log('Initialized DynamoDB Table');
 //     const registerPlayer = db.registerPlayer('test7', 'Simple Served');
@@ -19,7 +19,10 @@ Object.keys(botCommands).map(key => {
     bot.commands.set(botCommands[key].name, botCommands[key]);
 });
 
-bot.login(TOKEN).then(r => {
+bot.login(TOKEN).then(database.initializeClashBotDB()
+    .then(data => console.log(data))
+    .catch(err => console.error('DynamoDb initialization failed ', err)))
+.then(r => {
     bot.on('ready', () => {
         console.info(`Logged in as ${bot.user.tag}!`);
     });
