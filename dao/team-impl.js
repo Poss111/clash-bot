@@ -1,3 +1,5 @@
+const names = require('../random-names')
+
 class TeamUtils {
     clashTeams = [];
     tentative = [];
@@ -43,8 +45,9 @@ class TeamUtils {
     }
 
     createNewTeam(playerName, number) {
+        let name = names[number];
         return {
-            name: `Team ${number}`,
+            name: `Team ${name}`,
             players: [playerName],
             clashDate: new Date(),
         };

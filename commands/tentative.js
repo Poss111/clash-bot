@@ -1,4 +1,4 @@
-const dbUtils = require('../team-impl');
+const dbUtils = require('../dao/team-impl');
 module.exports = {
     name: 'tentative',
     description: 'Places a player on tentative. Will deregister them if they belong to a team.',

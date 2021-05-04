@@ -1,4 +1,4 @@
-const dbUtils = require('../team-impl');
+const dbUtils = require('../dao/team-impl');
 const teamsCard = require('../templates/teams');
 module.exports = {
     name: 'teams',

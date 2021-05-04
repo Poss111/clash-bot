@@ -1,4 +1,4 @@
-const dbUtils = require('../team-impl');
+const dbUtils = require('../dao/team-impl');
 module.exports = {
     name: 'register',
     description: 'Used to register the user to an available Clash team.',
