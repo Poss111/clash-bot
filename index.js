@@ -11,6 +11,7 @@ Object.keys(botCommands).map(key => {
 });
 
 leagueApi.initializeLeagueData().then(data => {
+    leagueApi.setLeagueTimes(data);
     bot.login(TOKEN).then(information => {
 
         bot.on('ready', () => {
