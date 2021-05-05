@@ -9,7 +9,9 @@ module.exports = {
             let copy = JSON.parse(JSON.stringify(teamsCard));
             if (data.length !== 0) {
                 data.forEach((team) => {
-                    copy.fields.push({name: team.name, value: team.players});
+                    if (team.players && team.players.length > 0) {
+                        copy.fields.push({name: team.teamName, value: team.players});
+                    }
                 });
             } if (tentative.length > 0) {
                 copy.fields.push({name: 'Tentative Queue', value: tentative});

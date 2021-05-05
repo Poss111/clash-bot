@@ -37,8 +37,19 @@ class DynamoDBUtils {
             this.getTeams(serverName).then((data) => {
                 let teams = data;
                 console.log(teams);
-                let foundTeam = teams.filter(team => team.players.includes(playerName));
-                let availableTeams = teams.filter(team => team.players.length < 5);
+                let foundTeam = [];
+                let availableTeams = [];
+                teams.forEach(team => {
+                    if (team.players) {
+                        if (team.players.includes(playerName)) {
+                            foundTeam.push(team);
+                        } if (team.players.length < 5) {
+                            availableTeams.push(team);
+                        }
+                    } else {
+                        availableTeams.push(team);
+                    }
+                });
                 this.handleTentative(playerName).then((data) => {
                     if (data) console.log('Pulled off tentative');
                 });
@@ -73,8 +84,14 @@ class DynamoDBUtils {
                 const filter = data.filter(record => record.players.includes(playerName));
                 if (filter.length !== 0) {
                     console.log(`Unregistering ${playerName} from team ${filter[0].teamName}...`);
-                    const playersLeft = filter[0].players.filter(player => player !== playerName);
-                    this.Team.update({key: this.getKey(filter[0].teamName, serverName), players: playersLeft}, function(err, data) {
+                    let params = {};
+                    params.UpdateExpression = 'DELETE players :playerName';
+                    params.ConditionExpression = 'teamName = :nameOfTeam';
+                    params.ExpressionAttributeValues = {
+                        ':playerName': dynamodb.documentClient().createSet(playerName),
+                        ':nameOfTeam': filter[0].teamName,
+                    };
+                    this.Team.update({key: this.getKey(filter[0].teamName, serverName)}, params, function(err, data) {
                         if (err) {
                             reject(err);
                         } else {
@@ -125,13 +142,15 @@ class DynamoDBUtils {
         return createTeam;
     }
 
-    handleTentative(playerName) {
+    handleTentative(playerName, serverName) {
         return new Promise((resolve, reject) => {
             const filteredTentativeList = this.tentative.filter((name) => name !== playerName);
             if (filteredTentativeList.length < this.tentative.length) {
                 this.tentative = filteredTentativeList;
                 resolve(true);
             } else {
+                this.deregisterPlayer(playerName, serverName);
+                this.tentative.push(playerName);
                 resolve(false);
             }
         });
@@ -142,7 +161,7 @@ class DynamoDBUtils {
     }
 
     getTentative() {
-        return this.tentative;
+        return JSON.parse(JSON.stringify(this.tentative));
     }
 }
 

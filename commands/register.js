@@ -4,11 +4,11 @@ module.exports = {
     description: 'Used to register the user to an available Clash team.',
     execute: function (msg, args) {
         msg.channel.send(`Registering ${msg.author.username}...`)
-        let team = dbUtils.registerPlayer(msg.author.username, msg.guild.name).then(data => {
+        dbUtils.registerPlayer(msg.author.username, msg.guild.name).then(data => {
             if (data.exist) {
-                msg.reply(`You are already registered to ${team.name} your Team consists so far of ${team.players}`);
+                msg.reply(`You are already registered to ${data.teamName} your Team consists so far of ${data.players}`);
             } else {
-                msg.reply(`Registered on ${team.name} your Team consists so far of ${team.players}`);
+                msg.reply(`Registered on ${data.teamName} your Team consists so far of ${data.players}`);
             }
         }).catch(err => {
             console.error(err);
