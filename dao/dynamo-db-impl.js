@@ -13,11 +13,12 @@ class DynamoDBUtils {
     constructor() {}
 
     initializeClashBotDB() {
-        const tableName = 'ClashTeam';
+        let tableName = 'ClashTeam';
         return new Promise((resolve, reject) => {
             if (LOCAL) {
                 console.log('Loading credentials from local.');
                 dynamodb.AWS.config.loadFromPath('./credentials.json');
+                tableName = `${tableName}-local`;
             } else {
                 console.log('Loading credentials from remote.');
                 dynamo.AWS.config.update({
@@ -65,30 +66,33 @@ class DynamoDBUtils {
                         availableTeams.push(team);
                     }
                 });
-                this.handleTentative(playerName).then((data) => {
-                    if (data) console.log('Pulled off tentative');
-                });
-                if (teams.length === 0 || availableTeams.length < 1) {
+                if (this.tentative.includes(playerName)) {
+                    this.handleTentative(playerName).then((data) => {
+                        if (data) console.log('Pulled off tentative');
+                    });
+                } if (teams.length === 0 || availableTeams.length < 1) {
                     console.log(`Creating new team for ${playerName} since there are no available teams.`);
                     foundTeam = this.createNewTeam(playerName, serverName, teams.length + 1);
+                    resolve(foundTeam);
                 } else if (foundTeam.length === 0) {
                     console.log(`Adding ${playerName} to first available team ${availableTeams[0].teamName}...`);
                     let params = {};
                     params.UpdateExpression = 'ADD players :playerName';
-                    params.ConditionExpression = 'teamName = :nameOfTeam';
                     params.ExpressionAttributeValues = {
-                        ':playerName': dynamodb.documentClient().createSet(playerName),
-                        ':nameOfTeam': availableTeams[0].teamName,
+                        ':playerName': dynamodb.Set([playerName], 'S')
                     };
                     foundTeam = availableTeams[0];
-                    this.Team.update({key: this.getKey(foundTeam.teamName, foundTeam.serverName)}, params, function (err) {
+                    this.Team.update({key: this.getKey(foundTeam.teamName, foundTeam.serverName)}, params, function (err, record) {
                         if (err) reject(err);
+                        else {
+                            console.log(`Added ${playerName} to ${record.attrs.teamName}.`);
+                            resolve(record.attrs);
+                        }
                     });
-                    console.log(`Added.`);
                 } else {
                     foundTeam.exist = true;
+                    resolve(foundTeam);
                 }
-                resolve(foundTeam);
             });
         });
     }
@@ -96,8 +100,13 @@ class DynamoDBUtils {
     deregisterPlayer(playerName, serverName) {
         return new Promise((resolve, reject) => {
             this.getTeams(serverName).then((data) => {
-                const filter = data.filter(record => record.players.includes(playerName));
-                if (filter.length !== 0) {
+                let filter = [];
+                data.forEach(record => {
+                    if (record.players && record.players.includes(playerName)) {
+                        filter.push(record);
+                    }
+                });
+                if (filter.length > 0) {
                     console.log(`Unregistering ${playerName} from team ${filter[0].teamName}...`);
                     let params = {};
                     params.UpdateExpression = 'DELETE players :playerName';
@@ -175,8 +184,7 @@ class DynamoDBUtils {
     }
 
     getKey(teamName, serverName) {
-        return `${teamName}
-            #${serverName}`;
+        return `${teamName}#${serverName}`;
     }
 
     getTentative() {

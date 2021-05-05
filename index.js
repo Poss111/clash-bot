@@ -15,7 +15,7 @@ leagueApi.initializeLeagueData().then(data => {
     leagueApi.setLeagueTimes(data);
     database.initializeClashBotDB().then(data => {
         console.log(data);
-        bot.login(TOKEN).then(information => {
+        bot.login(TOKEN).then(() => {
 
             bot.on('ready', () => {
                 console.info(`Logged in as ${bot.user.tag}!`);
