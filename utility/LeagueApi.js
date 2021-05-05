@@ -8,26 +8,27 @@ class LeagueApi {
     leagueTimes;
 
     constructor() {
-        this.initializeLeagueData();
+        this.leagueTimes = [];
     }
 
     initializeLeagueData() {
-        console.log(`RIOT_TOKEN => ${RIOT_TOKEN}`);
-        console.log(`TOKEN => ${TOKEN}`);
-
-        try {
-            let promise = new Promise((resolve, reject) => {
-                const options = {
-                    host: 'na1.api.riotgames.com',
-                    path: '/lol/clash/v1/tournaments',
-                    method: 'GET',
-                    headers: {
-                        'Accept-Language': 'en-US,en;q=0.9',
-                        'Accept-Charset': 'application/x-www-form-urlencoded; charset=UTF-8',
-                        'X-Riot-Token': RIOT_TOKEN,
-                        'Origin': 'https://developer.riotgames.com',
-                    }
-                };
+        return new Promise((resolve, reject) => {
+            const options = {
+                host: 'na1.api.riotgames.com',
+                path: '/lol/clash/v1/tournaments',
+                method: 'GET',
+                headers: {
+                    'Accept-Language': 'en-US,en;q=0.9',
+                    'Accept-Charset': 'application/x-www-form-urlencoded; charset=UTF-8',
+                    'X-Riot-Token': RIOT_TOKEN,
+                    'Origin': 'https://developer.riotgames.com',
+                }
+            };
+            if (!RIOT_TOKEN) {
+                reject(`RIOT_TOKEN not found.`)
+            } else if (!TOKEN) {
+                reject(`TOKEN not found.`)
+            } else {
                 http.request(options, function (response) {
                     let str = ''
                     response.on('data', function (chunk) {
@@ -53,8 +54,8 @@ class LeagueApi {
                             data.startTime = data.startTime.format(dateFormat);
                             data.registrationTime = data.registrationTime.format(dateFormat);
                         });
-                        console.log('League Clash times loaded.')
-                        resolve(data)
+                        console.log('League Clash times loaded.');
+                        resolve(data);
                     });
 
                     response.on('error', function (err) {
@@ -62,10 +63,15 @@ class LeagueApi {
                         reject(err);
                     })
                 }).end();
+            }
+        });
+    }
+
+    setLeagueTimes(times) {
+        if (times) {
+            times.forEach((value) => {
+                this.leagueTimes.push(value);
             });
-            promise.then(data => this.leagueTimes = data).catch(err => console.error(err));
-        } catch (error) {
-            console.error('Failed to make request.', error)
         }
     }
 
