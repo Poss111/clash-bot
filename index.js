@@ -35,7 +35,10 @@ leagueApi.initializeLeagueData().then(data => {
             }
         });
     })
-}).catch(err => console.error(`Failed to initialize Clash-Bot ${err}`));
+}).catch(err => {
+    console.error(`Failed to initialize Clash-Bot due to Error ('${err}')`);
+    process.exit(1);
+});
 
 process.on('beforeExit', () => {
     console.log('Process terminated');
