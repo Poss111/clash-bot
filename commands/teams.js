@@ -1,5 +1,6 @@
 const dbUtils = require('../dao/dynamo-db-impl');
 const teamsCard = require('../templates/teams');
+const errorHandler = require('../utility/ErrorHandling');
 module.exports = {
     name: 'teams',
     description: 'Used to return a human readable response of the current Clash team status.',
@@ -19,9 +20,6 @@ module.exports = {
                 copy.fields.push({name: 'No Existing Teams. Please register!', value: 'Emptay'})
             }
             msg.reply({embed: copy});
-        }).catch(err => {
-            console.error(err);
-            msg.reply('Failed to retrieve the current Clash Teams status. Please reach out to <@299370234228506627>.')
-        });
+        }).catch(err => errorHandler.handleError(this.name, err, msg, 'Failed to retrieve the current Clash Teams status.'));
     },
 };

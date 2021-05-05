@@ -1,18 +1,32 @@
 const dynamodb = require('dynamodb');
 const Joi = require('joi');
 const names = require('../random-names');
+const ACCESS_ID = process.env.ACCESS_ID;
+const ACCESS_KEY = process.env.ACCESS_KEY;
+const REGION = process.env.REGION;
+const LOCAL = process.env.LOCAL;
 
 class DynamoDBUtils {
     Team;
     tentative = [];
 
-    constructor() {
-    }
+    constructor() {}
 
     initializeClashBotDB() {
+        const tableName = 'ClashTeam';
         return new Promise((resolve, reject) => {
-            dynamodb.AWS.config.loadFromPath('./credentials.json');
-            this.Team = dynamodb.define('NewTeam', {
+            if (LOCAL) {
+                console.log('Loading credentials from local.');
+                dynamodb.AWS.config.loadFromPath('./credentials.json');
+            } else {
+                console.log('Loading credentials from remote.');
+                dynamo.AWS.config.update({
+                    accessKeyId: `${ACCESS_ID}`,
+                    secretAccessKey: `${ACCESS_KEY}`,
+                    region: `${REGION}`
+                });
+            }
+            this.Team = dynamodb.define(tableName, {
                 hashKey: 'key',
                 timestamps: true,
                 schema: {
@@ -43,7 +57,8 @@ class DynamoDBUtils {
                     if (team.players) {
                         if (team.players.includes(playerName)) {
                             foundTeam.push(team);
-                        } if (team.players.length < 5) {
+                        }
+                        if (team.players.length < 5) {
                             availableTeams.push(team);
                         }
                     } else {
@@ -66,7 +81,7 @@ class DynamoDBUtils {
                         ':nameOfTeam': availableTeams[0].teamName,
                     };
                     foundTeam = availableTeams[0];
-                    this.Team.update({key: this.getKey(foundTeam.teamName, foundTeam.serverName)}, params, function (err, data) {
+                    this.Team.update({key: this.getKey(foundTeam.teamName, foundTeam.serverName)}, params, function (err) {
                         if (err) reject(err);
                     });
                     console.log(`Added.`);
@@ -91,7 +106,7 @@ class DynamoDBUtils {
                         ':playerName': dynamodb.documentClient().createSet(playerName),
                         ':nameOfTeam': filter[0].teamName,
                     };
-                    this.Team.update({key: this.getKey(filter[0].teamName, serverName)}, params, function(err, data) {
+                    this.Team.update({key: this.getKey(filter[0].teamName, serverName)}, params, function (err) {
                         if (err) {
                             reject(err);
                         } else {
@@ -136,7 +151,7 @@ class DynamoDBUtils {
             players: [playerName]
         };
         createTeam.key = this.getKey(createTeam.teamName, serverName);
-        this.Team.update(createTeam, function(err, data) {
+        this.Team.update(createTeam, function (err) {
             if (err) console.error('Failed to create due to error.', err);
         });
         return createTeam;
@@ -149,15 +164,19 @@ class DynamoDBUtils {
                 this.tentative = filteredTentativeList;
                 resolve(true);
             } else {
-                this.deregisterPlayer(playerName, serverName);
-                this.tentative.push(playerName);
-                resolve(false);
+                this.deregisterPlayer(playerName, serverName)
+                    .then(() => {
+                        this.tentative.push(playerName);
+                        resolve(false);
+                    })
+                    .catch(err => reject(err));
             }
         });
     }
 
     getKey(teamName, serverName) {
-        return `${teamName}#${serverName}`;
+        return `${teamName}
+            #${serverName}`;
     }
 
     getTentative() {
