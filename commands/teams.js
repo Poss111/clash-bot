@@ -11,7 +11,7 @@ module.exports = {
             teams.forEach((team) => {
                 copy.fields.push({name: team.name, value: team.players});
             });
-        } else if (tentative.length > 0) {
+        } if (tentative.length > 0) {
             copy.fields.push({name: 'Tentative Queue', value: tentative});
         } else {
             copy.fields.push({name: 'No Existing Teams. Please register!', value: 'Emptay'})
