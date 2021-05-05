@@ -1,4 +1,4 @@
-const moment = require('moment');
+const moment = require('moment-timezone');
 const http = require('https');
 const RIOT_TOKEN = process.env.RIOT_TOKEN;
 const TOKEN = process.env.TOKEN;
@@ -38,7 +38,9 @@ class LeagueApi {
                     response.on('end', function () {
                         let parse = JSON.parse(str);
                         let data = [];
-                        const dateFormat = 'MMMM DD yyyy hh:mm a';
+                        const dateFormat = 'MMMM DD yyyy hh:mm a z';
+                        const timeZone = 'America/Los_Angeles';
+                        moment.tz.setDefault(timeZone);
                         parse.forEach((tourney) => {
                             data.push({
                                 name: tourney.nameKey,
