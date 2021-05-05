@@ -91,7 +91,11 @@ class DynamoDBUtils {
     getTeams(serverName) {
         return new Promise((resolve, reject) => {
             let teams = [];
-            let callback = this.Team.scan().where("serverName").equals(serverName).exec();
+            let callback = this.Team.scan()
+                .filterExpression('#serverName = :name')
+                .expressionAttributeValues({':name': `${serverName}`})
+                .expressionAttributeNames({'#serverName': 'serverName'})
+                .exec();
             callback.on('readable', function () {
                 let read = callback.read();
                 if (read) {

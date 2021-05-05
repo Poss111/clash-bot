@@ -4,7 +4,7 @@ module.exports = {
     name: 'teams',
     description: 'Used to return a human readable response of the current Clash team status.',
     execute: async function (msg, args) {
-        dbUtils.getTeams().then(data => {
+        dbUtils.getTeams(msg.guild.name).then(data => {
             let tentative = dbUtils.getTentative();
             let copy = JSON.parse(JSON.stringify(teamsCard));
             if (data.length !== 0) {

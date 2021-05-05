@@ -1,11 +1,5 @@
 require('dotenv').config();
-const database = require('./dynamo-db-impl');
-// db.init().then(r => {
-//     console.log('Initialized DynamoDB Table');
-//     const registerPlayer = db.registerPlayer('test7', 'Simple Served');
-//     registerPlayer.then(data =>console.log(`Created Already ? ${data.exist}`)).catch(err => console.error('Failed to register player due to error.', err));
-//     db.deregisterPlayer('test3', 'Simple Served');
-// }).catch(err => console.error('Failed to initilize DynamoDB Table', err));
+const database = require('./dao/dynamo-db-impl');
 const Discord = require('discord.js');
 const bot = new Discord.Client();
 bot.commands = new Discord.Collection();
