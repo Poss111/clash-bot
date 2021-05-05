@@ -7,16 +7,10 @@ class LeagueApi {
 
     leagueTimes;
 
-    constructor() {
-        this.initializeLeagueData();
-    }
+    constructor() {}
 
     initializeLeagueData() {
-        console.log(`RIOT_TOKEN => ${RIOT_TOKEN}`);
-        console.log(`TOKEN => ${TOKEN}`);
-
-        try {
-            let promise = new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
                 const options = {
                     host: 'na1.api.riotgames.com',
                     path: '/lol/clash/v1/tournaments',
@@ -28,43 +22,46 @@ class LeagueApi {
                         'Origin': 'https://developer.riotgames.com',
                     }
                 };
-                http.request(options, function (response) {
-                    let str = ''
-                    response.on('data', function (chunk) {
-                        str += chunk;
-                    });
+                if (!RIOT_TOKEN) {
+                    reject(`RIOT_TOKEN not found.`)
+                } else if (!TOKEN) {
+                    reject(`TOKEN not found.`)
+                } else {
+                    http.request(options, function (response) {
+                        let str = ''
+                        response.on('data', function (chunk) {
+                            str += chunk;
+                        });
 
-                    response.on('end', function () {
-                        let parse = JSON.parse(str);
-                        let data = [];
-                        const dateFormat = 'MMMM DD yyyy hh:mm a';
-                        parse.forEach((tourney) => {
-                            data.push({
-                                name: tourney.nameKey,
-                                nameSecondary: tourney.nameKeySecondary,
-                                startTime: new moment(tourney.schedule[0].startTime),
-                                registrationTime: new moment(tourney.schedule[0].registrationTime)
+                        response.on('end', function () {
+                            let parse = JSON.parse(str);
+                            let data = [];
+                            const dateFormat = 'MMMM DD yyyy hh:mm a';
+                            parse.forEach((tourney) => {
+                                data.push({
+                                    name: tourney.nameKey,
+                                    nameSecondary: tourney.nameKeySecondary,
+                                    startTime: new moment(tourney.schedule[0].startTime),
+                                    registrationTime: new moment(tourney.schedule[0].registrationTime)
+                                });
                             });
+                            data.sort((dateOne, dateTwo) => dateOne.startTime.diff(dateTwo.startTime));
+                            data.forEach((data) => {
+                                data.startTime = data.startTime.format(dateFormat);
+                                data.registrationTime = data.registrationTime.format(dateFormat);
+                            });
+                            console.log('League Clash times loaded.');
+                            this.leagueTimes = data;
+                            resolve(data);
                         });
-                        data.sort((dateOne, dateTwo) => dateOne.startTime.diff(dateTwo.startTime));
-                        data.forEach((data) => {
-                            data.startTime = data.startTime.format(dateFormat);
-                            data.registrationTime = data.registrationTime.format(dateFormat);
-                        });
-                        console.log('League Clash times loaded.')
-                        resolve(data)
-                    });
 
-                    response.on('error', function (err) {
-                        console.error('Failed to make request', err);
-                        reject(err);
-                    })
-                }).end();
+                        response.on('error', function (err) {
+                            console.error('Failed to make request', err);
+                            reject(err);
+                        })
+                    }).end();
+                }
             });
-            promise.then(data => this.leagueTimes = data).catch(err => console.error(err));
-        } catch (error) {
-            console.error('Failed to make request.', error)
-        }
     }
 
     getLeagueTimes() {
