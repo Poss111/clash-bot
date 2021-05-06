@@ -1,13 +1,13 @@
 {
   "name": "clash-bot",
   "version": "1.0.0",
-  "description": "",
+  "description": "A Discord bot for League of Legends Clash team management.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "Daniel Poss",
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.898.0",
