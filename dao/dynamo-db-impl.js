@@ -21,7 +21,7 @@ class DynamoDBUtils {
                 tableName = `${tableName}-local`;
             } else {
                 console.log('Loading credentials from remote.');
-                dynamo.AWS.config.update({
+                dynamodb.AWS.config.update({
                     accessKeyId: `${ACCESS_ID}`,
                     secretAccessKey: `${ACCESS_KEY}`,
                     region: `${REGION}`
