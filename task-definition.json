@@ -3,7 +3,6 @@
     "containerDefinitions": [
         {
             "name": "clash-bot-latest",
-            "image": "poss11111/clash-bot:latest",
             "cpu": 0,
             "portMappings": [
                 {
