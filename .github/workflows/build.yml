@@ -27,28 +27,28 @@ jobs:
     - name: Find and Replace
       uses: jacobtomlinson/gha-find-replace@master
       with:
-        find: "\{\{DISCORD_KEY\}\}"
+        find: "\\{\\{DISCORD_KEY\\}\\}"
         replace: "{{DISCORD_KEY}}"
         include: "task-definition.json"
 
     - name: Find and Replace
       uses: jacobtomlinson/gha-find-replace@master
       with:
-        find: "\{\{RIOT_API_KEY\}\}"
+        find: "\\{\\{RIOT_API_KEY\\}\\}"
         replace: "{{RIOT_API_KEY}}"
         include: "task-definition.json"
 
     - name: Find and Replace
       uses: jacobtomlinson/gha-find-replace@master
       with:
-        find: "\{\{AWS_SECRET_KEY\}\}"
+        find: "\\{\\{AWS_SECRET_KEY\\}\\}"
         replace: "{{AWS_SECRET_KEY}}"
         include: "task-definition.json"
 
     - name: Find and Replace
       uses: jacobtomlinson/gha-find-replace@master
       with:
-        find: "\{\{AWS_SECRET_ID\}\}"
+        find: "\\{\\{AWS_SECRET_ID\\}\\}"
         replace: "{{AWS_SECRET_ID}}"
         include: "task-definition.json"
 
