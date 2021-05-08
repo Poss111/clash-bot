@@ -2,7 +2,7 @@
     "taskDefinitionArn": "arn:aws:ecs:us-east-1:816923827429:task-definition/clash-bot-task-dynamo:1",
     "containerDefinitions": [
         {
-            "name": "clash-bot-latest",
+            "name": "clash-bot-dynamic",
             "cpu": 0,
             "portMappings": [
                 {
