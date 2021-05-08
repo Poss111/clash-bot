@@ -1,0 +1,89 @@
+{
+    "taskDefinitionArn": "arn:aws:ecs:us-east-1:816923827429:task-definition/clash-bot-task-dynamo:1",
+    "containerDefinitions": [
+        {
+            "name": "clash-bot-latest",
+            "image": "poss11111/clash-bot:latest",
+            "cpu": 0,
+            "portMappings": [
+                {
+                    "containerPort": 8080,
+                    "hostPort": 8080,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "environment": [
+                {
+                    "name": "ACCESS_ID",
+                    "value": "{{AWS_SECRET_ID}}"
+                },
+                {
+                    "name": "TOKEN",
+                    "value": "{{DISCORD_KEY}}"
+                },
+                {
+                    "name": "RIOT_TOKEN",
+                    "value": "{{RIOT_API_KEY}"
+                },
+                {
+                    "name": "ACCESS_KEY",
+                    "value": "{{AWS_SECRET_KEY}}"
+                },
+                {
+                    "name": "REGION",
+                    "value": "us-east-1"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/clash-bot-task-dynamo",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            }
+        }
+    ],
+    "family": "clash-bot-task-dynamo",
+    "taskRoleArn": "arn:aws:iam::816923827429:role/ecsDynamoDbSecrets",
+    "executionRoleArn": "arn:aws:iam::816923827429:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "revision": 1,
+    "volumes": [],
+    "status": "ACTIVE",
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+        },
+        {
+            "name": "ecs.capability.execution-role-awslogs"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.task-iam-role"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+        },
+        {
+            "name": "ecs.capability.task-eni"
+        }
+    ],
+    "placementConstraints": [],
+    "compatibilities": [
+        "EC2",
+        "FARGATE"
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "256",
+    "memory": "512",
+    "registeredAt": "2021-05-05T21:14:22.496000-05:00",
+    "registeredBy": "arn:aws:iam::816923827429:root"
+}
