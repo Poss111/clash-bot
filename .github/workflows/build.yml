@@ -34,7 +34,7 @@ jobs:
     - name: Find and Replace
       uses: jacobtomlinson/gha-find-replace@master
       with:
-        find: "\\{\\{RIOT_API_KEY--"
+        find: "--RIOT_API_KEY--"
         replace: "${{ secrets.RIOT_API_KEY }}"
         include: "task-definition.json"
 
