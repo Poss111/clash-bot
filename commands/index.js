@@ -6,4 +6,5 @@ module.exports = {
     Unregister: require('./unregister'),
     Tentative: require('./tentative'),
     Time: require('./time'),
+    Dance: require('./dance'),
 };
