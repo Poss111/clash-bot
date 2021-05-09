@@ -15,19 +15,19 @@
             "environment": [
                 {
                     "name": "ACCESS_ID",
-                    "value": "{{AWS_SECRET_ID}}"
+                    "value": "--AWS_SECRET_ID--"
                 },
                 {
                     "name": "TOKEN",
-                    "value": "{{DISCORD_KEY}}"
+                    "value": "--DISCORD_KEY--"
                 },
                 {
                     "name": "RIOT_TOKEN",
-                    "value": "{{RIOT_API_KEY}"
+                    "value": "--RIOT_API_KEY--"
                 },
                 {
                     "name": "ACCESS_KEY",
-                    "value": "{{AWS_SECRET_KEY}}"
+                    "value": "--AWS_SECRET_KEY--"
                 },
                 {
                     "name": "REGION",
