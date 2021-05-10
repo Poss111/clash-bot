@@ -30,6 +30,10 @@ module.exports = {
         {
             name: "time",
             value: "Prints out the times for the clash from the Riot API."
+        },
+        {
+            name: "dance",
+            value: "It is a secret."
         }
     ],
     footer: {
