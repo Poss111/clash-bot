@@ -1,11 +1,11 @@
-const register = require('./register');
-const dynamoDBUtils = require('../dao/dynamo-db-impl');
+const unregister = require('./unregister');
+const dynamoDbUtils = require('../dao/dynamo-db-impl');
 const errorHandler = require('../utility/error-handling');
 
 jest.mock('../dao/dynamo-db-impl');
 jest.mock('../utility/error-handling');
 
-test('If a user is successfully register, then a reply stating the Team that the User has been registered to should be returned.', (done) => {
+test('When a player exists on a team is unregistered, the player should be notified that we have successfully removed them.', (done) => {
     let messagePassed = '';
     let sendMessage = '';
     let msg = {
@@ -20,21 +20,20 @@ test('If a user is successfully register, then a reply stating the Team that the
             name: 'TestServer'
         }
     };
-    const sampleRegisterReturn = { teamName: 'SampleTeam', players: [msg.author.username, 'Player2']};
     function callback() {
         try {
-            expect(messagePassed).toEqual(`Registered on ${sampleRegisterReturn.teamName} your Team consists so far of ${sampleRegisterReturn.players}`);
+            expect(messagePassed).toEqual(`Removed you from your Team. Please use !clash register if you would like to join again. Thank you!`);
             done();
         } catch(error) {
             done(error);
         }
     }
-    dynamoDBUtils.registerPlayer.mockResolvedValue(sampleRegisterReturn);
-    register.execute(msg, callback);
-    expect(sendMessage).toEqual(`Registering ${msg.author.username}...`)
+    dynamoDbUtils.deregisterPlayer.mockResolvedValue(true);
+    unregister.execute(msg, callback);
+    expect(sendMessage).toEqual(`Unregistering ${msg.author.username}...`)
 })
 
-test('If a user is already on a team, then a reply stating the Team that the User has been registered to should be returned.', (done) => {
+test('When a player does not exist on a team is unregistered, the player should be notified that we have not successfully removed them.', (done) => {
     let messagePassed = '';
     let sendMessage = '';
     let msg = {
@@ -49,18 +48,17 @@ test('If a user is already on a team, then a reply stating the Team that the Use
             name: 'TestServer'
         }
     };
-    const sampleRegisterReturn = { exist: true, teamName: 'ExistingTeam', players: [msg.author.username, 'Player2']};
     function callback() {
         try {
-            expect(messagePassed).toEqual(`You are already registered to ${sampleRegisterReturn.teamName} your Team consists so far of ${sampleRegisterReturn.players}`);
+            expect(messagePassed).toEqual(`We did not find you on an existing Team. Please use !clash register if you would like to join again. Thank you!`);
             done();
         } catch(error) {
             done(error);
         }
     }
-    dynamoDBUtils.registerPlayer.mockResolvedValue(sampleRegisterReturn);
-    register.execute(msg, callback);
-    expect(sendMessage).toEqual(`Registering ${msg.author.username}...`)
+    dynamoDbUtils.deregisterPlayer.mockResolvedValue(false);
+    unregister.execute(msg, callback);
+    expect(sendMessage).toEqual(`Unregistering ${msg.author.username}...`)
 })
 
 test('If an error occurs, the error handler will be invoked.', (done) => {
@@ -86,7 +84,7 @@ test('If an error occurs, the error handler will be invoked.', (done) => {
             done(error);
         }
     }
-    dynamoDBUtils.registerPlayer.mockRejectedValue('Some error occurred.');
-    register.execute(msg, callback);
-    expect(sendMessage).toEqual(`Registering ${msg.author.username}...`)
+    dynamoDbUtils.deregisterPlayer.mockRejectedValue('Some error occurred.');
+    unregister.execute(msg, callback);
+    expect(sendMessage).toEqual(`Unregistering ${msg.author.username}...`)
 })
