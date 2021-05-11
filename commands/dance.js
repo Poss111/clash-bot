@@ -1,4 +1,4 @@
-const throttleHandling = require('../utility/ThrottleHandling');
+const throttleHandling = require('../utility/throttle-handling');
 
 module.exports = {
     name: 'dance',
