@@ -3,7 +3,7 @@ const throttleHandling = require('../utility/throttle-handling');
 module.exports = {
     name: 'dance',
     description: 'Just a command to dance!',
-    execute(msg) {
+    execute(msg, callback) {
         if (!throttleHandling.isThrottled(this.name)) {
             throttleHandling.placeThrottle(this.name, 30000);
             setTimeout(() => {
@@ -32,10 +32,12 @@ module.exports = {
             }, 7000);
             setTimeout(() => {
                 msg.channel.send('_0.0|');
+                return callback();
             }, 7500);
         } else {
             console.log(`('${msg.author.username}') is trying to spam this resource.`);
-            msg.reply('I see you know the ways of the spam. If you want me to dance again, you must wait 30 seconds ;)')
+            msg.reply('I see you know the ways of the spam. If you want me to dance again, you must wait 30 seconds ;)');
+            return callback();
         }
     },
 };
