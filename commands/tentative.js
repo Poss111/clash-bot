@@ -10,10 +10,14 @@ module.exports = {
             } else {
                 msg.reply(`We placed you into the tentative queue. If you were on a team, you have been removed. tip: Use '!clash teams' to view current team status`);
             }
-            return callback();
+            if (callback && typeof callback === 'function') {
+                callback();
+            }
         }).catch(err => {
             errorHandler.handleError(this.name, err, msg, 'Failed to place you on tentative.');
-            return callback();
+            if (callback && typeof callback === 'function') {
+                callback();
+            }
         });
     },
 };

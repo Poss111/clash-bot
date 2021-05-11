@@ -9,7 +9,7 @@ module.exports = {
             let tentative = dbUtils.getTentative();
             let copy = JSON.parse(JSON.stringify(teamsCard));
 
-            if (!data || data.length <= 0) {
+            if (!data || data.length <= 0 || !data[0].players) {
                 copy.fields.push({name: 'No Existing Teams. Please register!', value: 'Emptay'})
             } else {
                 data.forEach((team) => {
@@ -21,10 +21,14 @@ module.exports = {
                 copy.fields.push({name: 'Tentative Queue', value: tentative});
             }
             msg.reply({embed: copy});
-            return callback();
+            if (callback && typeof callback === 'function') {
+                callback();
+            }
         }).catch(err => {
             errorHandler.handleError(this.name, err, msg, 'Failed to retrieve the current Clash Teams status.')
-            return callback();
+            if (callback && typeof callback === 'function') {
+                callback();
+            }
         });
     },
 };

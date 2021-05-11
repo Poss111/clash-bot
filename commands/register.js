@@ -11,7 +11,9 @@ module.exports = {
             } else {
                 msg.reply(`Registered on ${data.teamName} your Team consists so far of ${data.players}`);
             }
-            return callback();
+            if (callback && typeof callback === 'function') {
+                callback();
+            }
         }).catch(err => {
             errorHandler.handleError(this.name, err, msg, 'Failed to register you to team.');
             callback();

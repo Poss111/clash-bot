@@ -87,6 +87,36 @@ test('When undefined teams are passed back, it should be populate the not existi
     teams.execute(msg, callback);
 })
 
+test('When a team are passed back but no players, it should be populate the not existing teams message.', (done) => {
+    let messagePassed = '';
+    let msg = {
+        reply: (value) => messagePassed = value,
+        author: {
+            username: 'TestPlayer'
+        },
+        guild: {
+            name: 'TestServer'
+        }
+    };
+    const sampleTeamTwoPlayers = [{
+        key: `TestTeam#${msg.guild.name}`,
+        teamName: 'TestTeam',
+        serverName: `${msg.guild.name}`
+    }];
+    function callback() {
+        try {
+            expect(messagePassed.embed.fields.length).toEqual(1);
+            expect(messagePassed.embed.fields[0].name).toEqual('No Existing Teams. Please register!');
+            expect(messagePassed.embed.fields[0].value).toEqual('Emptay');
+            done();
+        } catch(error) {
+            done(error);
+        }
+    }
+    dynamoDBUtils.getTeams.mockResolvedValue(sampleTeamTwoPlayers);
+    teams.execute(msg, callback);
+})
+
 test('When tentative players and no teams are passed back, it should populate the tentative list with an empty teams message.', (done) => {
     let messagePassed = '';
     let msg = {

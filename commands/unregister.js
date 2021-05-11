@@ -11,10 +11,14 @@ module.exports = {
             } else {
                 msg.reply(`We did not find you on an existing Team. Please use !clash register if you would like to join again. Thank you!`);
             }
-            return callback();
+            if (callback && typeof callback === 'function') {
+                callback();
+            }
         }).catch(err => {
             errorHandler.handleError(this.name, err, msg, 'Failed to unregister you.');
-            return callback();
+            if (callback && typeof callback === 'function') {
+                callback();
+            }
         });
     },
 };
