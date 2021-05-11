@@ -4,8 +4,8 @@ const errorHandler = require('../utility/error-handling');
 module.exports = {
     name: 'teams',
     description: 'Used to return a human readable response of the current Clash team status.',
-    execute: async function (msg, callback) {
-        dbUtils.getTeams(msg.guild.name).then(data => {
+    execute: async function (msg) {
+        await dbUtils.getTeams(msg.guild.name).then(data => {
             let tentative = dbUtils.getTentative();
             let copy = JSON.parse(JSON.stringify(teamsCard));
 
@@ -21,14 +21,6 @@ module.exports = {
                 copy.fields.push({name: 'Tentative Queue', value: tentative});
             }
             msg.reply({embed: copy});
-            if (callback && typeof callback === 'function') {
-                callback();
-            }
-        }).catch(err => {
-            errorHandler.handleError(this.name, err, msg, 'Failed to retrieve the current Clash Teams status.')
-            if (callback && typeof callback === 'function') {
-                callback();
-            }
-        });
+        }).catch(err => errorHandler.handleError(this.name, err, msg, 'Failed to retrieve the current Clash Teams status.'));
     },
 };

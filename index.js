@@ -31,7 +31,7 @@ leagueApi.initializeLeagueData().then(data => {
                     if (!bot.commands.has(command)) return;
 
                     try {
-                        bot.commands.get(command).execute(msg, args);4
+                        bot.commands.get(command).execute(msg, args);
                     } catch (error) {
                         console.error(error);
                         msg.channel.send('there was an error trying to execute that command! Please reach out to <@299370234228506627>.');

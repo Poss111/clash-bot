@@ -5,7 +5,7 @@ const errorHandling = require('../../utility/error-handling');
 jest.mock('../../dao/dynamo-db-impl');
 jest.mock('../../utility/error-handling');
 
-test('When a team is passed back, it should be populated as a field in the embedded property of the reply.', (done) => {
+test('When a team is passed back, it should be populated as a field in the embedded property of the reply.', async () => {
     let messagePassed = '';
     let msg = {
         reply: (value) => messagePassed = value,
@@ -22,21 +22,14 @@ test('When a team is passed back, it should be populated as a field in the embed
         serverName: `${msg.guild.name}`,
         players: ['Player1', 'Player2']
     }];
-    function callback() {
-        try {
-            expect(messagePassed.embed.fields.length).toEqual(1);
-            expect(messagePassed.embed.fields[0].name).toEqual(sampleTeamTwoPlayers[0].teamName);
-            expect(messagePassed.embed.fields[0].value).toEqual(sampleTeamTwoPlayers[0].players);
-            done();
-        } catch(error) {
-            done(error);
-        }
-    }
     dynamoDBUtils.getTeams.mockResolvedValue(sampleTeamTwoPlayers);
-    teams.execute(msg, callback);
+    await teams.execute(msg);
+    expect(messagePassed.embed.fields.length).toEqual(1);
+    expect(messagePassed.embed.fields[0].name).toEqual(sampleTeamTwoPlayers[0].teamName);
+    expect(messagePassed.embed.fields[0].value).toEqual(sampleTeamTwoPlayers[0].players);
 })
 
-test('When no teams are passed back, it should be populate the not existing teams message.', (done) => {
+test('When no teams are passed back, it should be populate the not existing teams message.', async () => {
     let messagePassed = '';
     let msg = {
         reply: (value) => messagePassed = value,
@@ -48,21 +41,14 @@ test('When no teams are passed back, it should be populate the not existing team
         }
     };
     const sampleTeamTwoPlayers = [];
-    function callback() {
-        try {
-            expect(messagePassed.embed.fields.length).toEqual(1);
-            expect(messagePassed.embed.fields[0].name).toEqual('No Existing Teams. Please register!');
-            expect(messagePassed.embed.fields[0].value).toEqual('Emptay');
-            done();
-        } catch(error) {
-            done(error);
-        }
-    }
     dynamoDBUtils.getTeams.mockResolvedValue(sampleTeamTwoPlayers);
-    teams.execute(msg, callback);
+    await teams.execute(msg);
+    expect(messagePassed.embed.fields.length).toEqual(1);
+    expect(messagePassed.embed.fields[0].name).toEqual('No Existing Teams. Please register!');
+    expect(messagePassed.embed.fields[0].value).toEqual('Emptay');
 })
 
-test('When undefined teams are passed back, it should be populate the not existing teams message.', (done) => {
+test('When undefined teams are passed back, it should be populate the not existing teams message.', async () => {
     let messagePassed = '';
     let msg = {
         reply: (value) => messagePassed = value,
@@ -73,21 +59,14 @@ test('When undefined teams are passed back, it should be populate the not existi
             name: 'TestServer'
         }
     };
-    function callback() {
-        try {
-            expect(messagePassed.embed.fields.length).toEqual(1);
-            expect(messagePassed.embed.fields[0].name).toEqual('No Existing Teams. Please register!');
-            expect(messagePassed.embed.fields[0].value).toEqual('Emptay');
-            done();
-        } catch(error) {
-            done(error);
-        }
-    }
     dynamoDBUtils.getTeams.mockResolvedValue(undefined);
-    teams.execute(msg, callback);
+    await teams.execute(msg);
+    expect(messagePassed.embed.fields.length).toEqual(1);
+    expect(messagePassed.embed.fields[0].name).toEqual('No Existing Teams. Please register!');
+    expect(messagePassed.embed.fields[0].value).toEqual('Emptay');
 })
 
-test('When a team are passed back but no players, it should be populate the not existing teams message.', (done) => {
+test('When a team are passed back but no players, it should be populate the not existing teams message.', async () => {
     let messagePassed = '';
     let msg = {
         reply: (value) => messagePassed = value,
@@ -103,21 +82,14 @@ test('When a team are passed back but no players, it should be populate the not 
         teamName: 'TestTeam',
         serverName: `${msg.guild.name}`
     }];
-    function callback() {
-        try {
-            expect(messagePassed.embed.fields.length).toEqual(1);
-            expect(messagePassed.embed.fields[0].name).toEqual('No Existing Teams. Please register!');
-            expect(messagePassed.embed.fields[0].value).toEqual('Emptay');
-            done();
-        } catch(error) {
-            done(error);
-        }
-    }
     dynamoDBUtils.getTeams.mockResolvedValue(sampleTeamTwoPlayers);
-    teams.execute(msg, callback);
+    await teams.execute(msg);
+    expect(messagePassed.embed.fields.length).toEqual(1);
+    expect(messagePassed.embed.fields[0].name).toEqual('No Existing Teams. Please register!');
+    expect(messagePassed.embed.fields[0].value).toEqual('Emptay');
 })
 
-test('When tentative players and no teams are passed back, it should populate the tentative list with an empty teams message.', (done) => {
+test('When tentative players and no teams are passed back, it should populate the tentative list with an empty teams message.', async () => {
     let messagePassed = '';
     let msg = {
         reply: (value) => messagePassed = value,
@@ -130,24 +102,17 @@ test('When tentative players and no teams are passed back, it should populate th
     };
     const sampleTeamTwoPlayers = [];
     const sampleTentativeList = ['Player1'];
-    function callback() {
-        try {
-            expect(messagePassed.embed.fields.length).toEqual(2);
-            expect(messagePassed.embed.fields[0].name).toEqual('No Existing Teams. Please register!');
-            expect(messagePassed.embed.fields[0].value).toEqual('Emptay');
-            expect(messagePassed.embed.fields[1].name).toEqual('Tentative Queue');
-            expect(messagePassed.embed.fields[1].value).toEqual(sampleTentativeList);
-            done();
-        } catch(error) {
-            done(error);
-        }
-    }
     dynamoDBUtils.getTeams.mockResolvedValue(sampleTeamTwoPlayers);
     dynamoDBUtils.getTentative.mockReturnValue(sampleTentativeList);
-    teams.execute(msg, callback);
+    await teams.execute(msg);
+    expect(messagePassed.embed.fields.length).toEqual(2);
+    expect(messagePassed.embed.fields[0].name).toEqual('No Existing Teams. Please register!');
+    expect(messagePassed.embed.fields[0].value).toEqual('Emptay');
+    expect(messagePassed.embed.fields[1].name).toEqual('Tentative Queue');
+    expect(messagePassed.embed.fields[1].value).toEqual(sampleTentativeList);
 })
 
-test('When tentative players and a team are passed back, it should populate the tentative list with the existing team.', (done) => {
+test('When tentative players and a team are passed back, it should populate the tentative list with the existing team.', async () => {
     let messagePassed = '';
     let msg = {
         reply: (value) => messagePassed = value,
@@ -165,24 +130,18 @@ test('When tentative players and a team are passed back, it should populate the 
         players: ['Player1', 'Player2']
     }];
     const sampleTentativeList = ['Player1'];
-    function callback() {
-        try {
-            expect(messagePassed.embed.fields.length).toEqual(2);
-            expect(messagePassed.embed.fields[0].name).toEqual(sampleTeamTwoPlayers[0].teamName);
-            expect(messagePassed.embed.fields[0].value).toEqual(sampleTeamTwoPlayers[0].players);
-            expect(messagePassed.embed.fields[1].name).toEqual('Tentative Queue');
-            expect(messagePassed.embed.fields[1].value).toEqual(sampleTentativeList);
-            done();
-        } catch(error) {
-            done(error);
-        }
-    }
     dynamoDBUtils.getTeams.mockResolvedValue(sampleTeamTwoPlayers);
     dynamoDBUtils.getTentative.mockReturnValue(sampleTentativeList);
-    teams.execute(msg, callback);
+    await teams.execute(msg);
+    expect(messagePassed.embed.fields.length).toEqual(2);
+    expect(messagePassed.embed.fields[0].name).toEqual(sampleTeamTwoPlayers[0].teamName);
+    expect(messagePassed.embed.fields[0].value).toEqual(sampleTeamTwoPlayers[0].players);
+    expect(messagePassed.embed.fields[1].name).toEqual('Tentative Queue');
+    expect(messagePassed.embed.fields[1].value).toEqual(sampleTentativeList);
 })
 
-test('If an error occurs, the error handler will be invoked.', (done) => {
+test('If an error occurs, the error handler will be invoked.', async () => {
+    errorHandling.handleError = jest.fn();
     let messagePassed = '';
     let msg = {
         reply: (value) => messagePassed = value,
@@ -193,14 +152,7 @@ test('If an error occurs, the error handler will be invoked.', (done) => {
             name: 'TestServer'
         }
     };
-    function callback() {
-        try {
-            done();
-        } catch(error) {
-            expect(errorHandling.mock.calls.length).toEqual(1);
-            done(error);
-        }
-    }
     dynamoDBUtils.getTeams.mockRejectedValue('Some error occurred.');
-    teams.execute(msg, callback);
+    await teams.execute(msg);
+    expect(errorHandling.handleError.mock.calls.length).toEqual(1);
 })
