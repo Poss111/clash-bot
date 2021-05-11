@@ -1,5 +1,5 @@
 const dbUtils = require('../dao/dynamo-db-impl');
-const errorHandler = require('../utility/ErrorHandling');
+const errorHandler = require('../utility/error-handling');
 module.exports = {
     name: 'tentative',
     description: 'Places a player on tentative. Will deregister them if they belong to a team.',

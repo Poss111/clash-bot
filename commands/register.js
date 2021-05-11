@@ -1,5 +1,5 @@
 const dbUtils = require('../dao/dynamo-db-impl');
-const errorHandler = require('../utility/ErrorHandling');
+const errorHandler = require('../utility/error-handling');
 module.exports = {
     name: 'register',
     description: 'Used to register the user to an available Clash team.',

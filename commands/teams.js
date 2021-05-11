@@ -1,6 +1,6 @@
 const dbUtils = require('../dao/dynamo-db-impl');
 const teamsCard = require('../templates/teams');
-const errorHandler = require('../utility/ErrorHandling');
+const errorHandler = require('../utility/error-handling');
 module.exports = {
     name: 'teams',
     description: 'Used to return a human readable response of the current Clash team status.',
