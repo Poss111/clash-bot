@@ -1,4 +1,4 @@
-const errorHandler = require('./error-handling');
+const errorHandler = require('../error-handling');
 
 test('Should respond with a generic message based on the command passed.', () => {
     let messagePassed = '';

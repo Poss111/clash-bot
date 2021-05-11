@@ -1,4 +1,4 @@
-const ping = require('./ping');
+const ping = require('../ping');
 
 test('ping will return with a pong for the message.', () => {
     let messagePassed = '';

@@ -1,9 +1,9 @@
-const teams = require('./teams');
-const dynamoDBUtils = require('../dao/dynamo-db-impl');
-const errorHandling = require('../utility/error-handling');
+const teams = require('../teams');
+const dynamoDBUtils = require('../../dao/dynamo-db-impl');
+const errorHandling = require('../../utility/error-handling');
 
-jest.mock('../dao/dynamo-db-impl');
-jest.mock('../utility/error-handling');
+jest.mock('../../dao/dynamo-db-impl');
+jest.mock('../../utility/error-handling');
 
 test('When a team is passed back, it should be populated as a field in the embedded property of the reply.', (done) => {
     let messagePassed = '';

@@ -1,4 +1,4 @@
-const ThrottleHandling = require('./throttle-handling');
+const ThrottleHandling = require('../throttle-handling');
 
 test('Should register a resource to timeout after 5 seconds.', () => {
     ThrottleHandling.placeThrottle('testing', 5000);

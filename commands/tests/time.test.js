@@ -1,7 +1,7 @@
-const time = require('./time');
-const leagueApi = require('../utility/LeagueApi');
+const time = require('../time');
+const leagueApi = require('../../utility/LeagueApi');
 
-jest.mock('../utility/LeagueApi');
+jest.mock('../../utility/LeagueApi');
 
 test('When league times returns successfully, there should be a formatted time for each available clash returned.', () => {
     let messagePassed = '';

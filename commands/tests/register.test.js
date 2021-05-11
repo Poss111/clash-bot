@@ -1,9 +1,9 @@
-const register = require('./register');
-const dynamoDBUtils = require('../dao/dynamo-db-impl');
-const errorHandler = require('../utility/error-handling');
+const register = require('../register');
+const dynamoDBUtils = require('../../dao/dynamo-db-impl');
+const errorHandler = require('../../utility/error-handling');
 
-jest.mock('../dao/dynamo-db-impl');
-jest.mock('../utility/error-handling');
+jest.mock('../../dao/dynamo-db-impl');
+jest.mock('../../utility/error-handling');
 
 test('If a user is successfully register, then a reply stating the Team that the User has been registered to should be returned.', (done) => {
     let messagePassed = '';

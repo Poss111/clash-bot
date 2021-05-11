@@ -1,9 +1,9 @@
-const unregister = require('./unregister');
-const dynamoDbUtils = require('../dao/dynamo-db-impl');
-const errorHandler = require('../utility/error-handling');
+const unregister = require('../unregister');
+const dynamoDbUtils = require('../../dao/dynamo-db-impl');
+const errorHandler = require('../../utility/error-handling');
 
-jest.mock('../dao/dynamo-db-impl');
-jest.mock('../utility/error-handling');
+jest.mock('../../dao/dynamo-db-impl');
+jest.mock('../../utility/error-handling');
 
 test('When a player exists on a team is unregistered, the player should be notified that we have successfully removed them.', (done) => {
     let messagePassed = '';

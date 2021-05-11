@@ -1,4 +1,4 @@
-const help = require('./help');
+const help = require('../help');
 
 test('help should return an embedded object to be posted in discord.', () => {
     let messagePassed = '';
