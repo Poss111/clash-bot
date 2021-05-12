@@ -2,3 +2,10 @@
 /.idea
 logs.txt
 *.iml
+.env
+.prodenv
+common-commands.txt
+credentials.json
+local-credentials.json
+aws-resources.txt
+.github/workflows/discord*

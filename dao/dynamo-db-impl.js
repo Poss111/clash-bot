@@ -1,10 +1,6 @@
 const dynamodb = require('dynamodb');
 const Joi = require('joi');
 const names = require('../random-names');
-const ACCESS_ID = process.env.ACCESS_ID;
-const ACCESS_KEY = process.env.ACCESS_KEY;
-const REGION = process.env.REGION;
-const LOCAL = process.env.LOCAL;
 
 class DynamoDBUtils {
     Team;
@@ -15,16 +11,16 @@ class DynamoDBUtils {
     initializeClashBotDB() {
         let tableName = 'ClashTeam';
         return new Promise((resolve, reject) => {
-            if (LOCAL) {
+            if (process.env.LOCAL) {
                 console.log('Loading credentials from local.');
                 dynamodb.AWS.config.loadFromPath('./credentials.json');
                 tableName = `${tableName}-local`;
             } else {
                 console.log('Loading credentials from remote.');
                 dynamodb.AWS.config.update({
-                    accessKeyId: `${ACCESS_ID}`,
-                    secretAccessKey: `${ACCESS_KEY}`,
-                    region: `${REGION}`
+                    accessKeyId: `${process.env.ACCESS_ID}`,
+                    secretAccessKey: `${process.env.ACCESS_KEY}`,
+                    region: `${process.env.REGION}`
                 });
             }
             this.Team = dynamodb.define(tableName, {
@@ -37,13 +33,14 @@ class DynamoDBUtils {
                     players: dynamodb.types.stringSet()
                 }
             });
-            dynamodb.createTables(function (err) {
+            const dbCallback = (err) => {
                 if (err) {
                     reject(err);
                 } else {
                     resolve('Successfully initialized Database.');
                 }
-            });
+            };
+            dynamodb.createTables(dbCallback);
         })
     }
 
@@ -132,23 +129,23 @@ class DynamoDBUtils {
     getTeams(serverName) {
         return new Promise((resolve, reject) => {
             let teams = [];
-            let callback = this.Team.scan()
+            let stream = this.Team.scan()
                 .filterExpression('#serverName = :name')
                 .expressionAttributeValues({':name': `${serverName}`})
                 .expressionAttributeNames({'#serverName': 'serverName'})
                 .exec();
-            callback.on('readable', function () {
-                let read = callback.read();
+            stream.on('readable', function () {
+                let read = stream.read();
                 if (read) {
                     read.Items.forEach((data) => {
                         teams.push(data.attrs)
                     });
                 }
             });
-            callback.on('end', function () {
+            stream.on('end', function () {
                 resolve(teams);
             });
-            callback.on('error', (err) => reject(err));
+            stream.on('error', (err) => reject(err));
         });
     }
 

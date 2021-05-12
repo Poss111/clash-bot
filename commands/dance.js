@@ -1,4 +1,4 @@
-const throttleHandling = require('../utility/ThrottleHandling');
+const throttleHandling = require('../utility/throttle-handling');
 
 module.exports = {
     name: 'dance',
@@ -35,7 +35,7 @@ module.exports = {
             }, 7500);
         } else {
             console.log(`('${msg.author.username}') is trying to spam this resource.`);
-            msg.reply('I see you know the ways of the spam. If you want me to dance again, you must wait 30 seconds ;)')
+            msg.reply('I see you know the ways of the spam. If you want me to dance again, you must wait 30 seconds ;)');
         }
     },
 };
