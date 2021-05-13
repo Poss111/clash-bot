@@ -4,7 +4,7 @@
   "description": "A Discord bot for League of Legends Clash team management.",
   "main": "index.js",
   "scripts": {
-    "test": "jest --coverage --coverageReporters=\"json\" --coverageReporters=\"json-summary\" --coverageReporters=\"lcov\" --coverageReporters=\"text\" --onlyChanged"
+    "test": "jest --coverage --coverageReporters=\"json\" --coverageReporters=\"json-summary\" --coverageReporters=\"lcov\" --coverageReporters=\"text\" --changedSince master"
   },
   "keywords": [],
   "author": "Daniel Poss",
