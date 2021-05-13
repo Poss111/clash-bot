@@ -69,6 +69,18 @@ class LeagueApi {
         });
     }
 
+    findTournament(tournamentName, dayNumber) {
+        tournamentName = tournamentName.toLowerCase();
+        let filter = (data) => data.name.toLowerCase().includes(tournamentName);
+        if (dayNumber) {
+            filter = (data) => data.name.toLowerCase().includes(tournamentName) && data.nameSecondary.includes(dayNumber);
+        }
+        let foundData = this.getLeagueTimes().filter(filter);
+        if (foundData.length !== 0) {
+            return foundData[0];
+        }
+    }
+
     setLeagueTimes(times) {
         if (times) {
             times.forEach((value) => {
