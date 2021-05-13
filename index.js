@@ -26,11 +26,11 @@ leagueApi.initializeLeagueData().then(data => {
                     msg.content = msg.content.replace('!clash ', '');
                     const args = msg.content.split(/ +/);
                     const command = args.shift().toLowerCase();
-                    console.info(`Called command: ${command}`);
 
                     if (!bot.commands.has(command)) return;
 
                     try {
+                        console.info(`Called command: ${command}`);
                         bot.commands.get(command).execute(msg, args);
                     } catch (error) {
                         console.error(error);
