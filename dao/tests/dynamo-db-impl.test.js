@@ -251,9 +251,9 @@ describe('Register Player', () => {
         return dynamoDBUtils.registerPlayer('Player2', 'Sample Server').then(result => {
             expect(result).toBeTruthy();
             expect(result.exist).toBeTruthy();
-            expect(result[0].teamName).toEqual(value.Items[0].attrs.teamName);
-            expect(result[0].players.length).toEqual(2);
-            expect(result[0].players).toContain('Player2');
+            expect(result.teamName).toEqual(value.Items[0].attrs.teamName);
+            expect(result.players.length).toEqual(2);
+            expect(result.players).toContain('Player2');
         });
     })
 

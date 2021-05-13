@@ -87,8 +87,8 @@ class DynamoDBUtils {
                         }
                     });
                 } else {
-                    foundTeam.exist = true;
-                    resolve(foundTeam);
+                    foundTeam[0].exist = true;
+                    resolve(foundTeam[0]);
                 }
             });
         });
