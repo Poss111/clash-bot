@@ -70,13 +70,19 @@ class LeagueApi {
     }
 
     findTournament(tournamentName, dayNumber) {
-        tournamentName = tournamentName.toLowerCase();
-        let filter = (data) => data.name.toLowerCase().includes(tournamentName)
-            && new Date(data.startTime) > new Date();
-        if (dayNumber) {
+        let filter;
+        if (tournamentName) {
+            tournamentName = tournamentName.toLowerCase()
             filter = (data) => data.name.toLowerCase().includes(tournamentName)
-                && data.nameSecondary.includes(dayNumber)
                 && new Date(data.startTime) > new Date();
+            if (tournamentName && dayNumber) {
+                filter = (data) => data.name.toLowerCase().includes(tournamentName)
+                    && data.nameSecondary.includes(dayNumber)
+                    && new Date(data.startTime) > new Date();
+            }
+        } else {
+            filter = (data) => new Date(data.startTime) > new Date();
+            return this.getLeagueTimes().filter(filter);
         }
         let foundData = this.getLeagueTimes().filter(filter);
         if (foundData.length !== 0) {

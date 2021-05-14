@@ -17,7 +17,8 @@ module.exports = {
                 return;
             }
         } else {
-            msg.channel.send(`Registering ${msg.author.username}...`);
+            msg.channel.send(`Registering ${msg.author.username} for the first available tournament you are not already registered to...`);
+            tournament = leagueApi.findTournament();
         }
         await dbUtils.registerPlayer(msg.author.username, msg.guild.name, tournament).then(data => {
             if (data.exist) {

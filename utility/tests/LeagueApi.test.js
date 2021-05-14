@@ -207,21 +207,47 @@ describe('Find Tournament', () => {
         expect(LeagueApi.findTournament('MSI')).toEqual(LeagueApi.leagueTimes[0]);
     })
 
-    test('I should be able to return the first available tournament if nothing is passed', () => {
+    test('I should be able to return the all available tournaments based on the current date if nothing is passed', () => {
+        const currentDate = new Date();
+        currentDate.setDate(currentDate.getDate() - 1);
+        const currentDateTwo = new Date();
+        currentDateTwo.setDate(currentDateTwo.getDate() + 1);
         LeagueApi.leagueTimes = [
             {
                 "name": "msi2021",
                 "nameSecondary": "day_3",
-                "startTime": "May 29 2021 07:00 pm PDT",
+                "startTime": currentDate,
                 "registrationTime": "May 29 2021 04:15 pm PDT"
             },
             {
                 "name": "msi2021",
                 "nameSecondary": "day_4",
-                "startTime": "May 30 2021 07:00 pm PDT",
+                "startTime": currentDateTwo.toDateString(),
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
         ];
-        expect(LeagueApi.findTournament()).toEqual(LeagueApi.leagueTimes[0]);
+        expect(LeagueApi.findTournament()).toEqual([LeagueApi.leagueTimes[1]]);
+    })
+
+    test('I should be able to return no tournaments if there are none available for the current date if nothing is passed.', () => {
+        const currentDate = new Date();
+        currentDate.setDate(currentDate.getDate() - 2);
+        const currentDateTwo = new Date();
+        currentDateTwo.setDate(currentDateTwo.getDate() - 1);
+        LeagueApi.leagueTimes = [
+            {
+                "name": "msi2021",
+                "nameSecondary": "day_3",
+                "startTime": currentDate,
+                "registrationTime": "May 29 2021 04:15 pm PDT"
+            },
+            {
+                "name": "msi2021",
+                "nameSecondary": "day_4",
+                "startTime": currentDateTwo,
+                "registrationTime": "May 30 2021 04:15 pm PDT"
+            }
+        ];
+        expect(LeagueApi.findTournament()).toHaveLength(0);
     })
 })
