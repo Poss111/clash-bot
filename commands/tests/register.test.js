@@ -39,7 +39,8 @@ test('If a user is successfully register, then a reply stating the Team that the
     const sampleRegisterReturn = {teamName: 'SampleTeam', players: [msg.author.username, 'Player2'], tournament: 'msi2021', tournamentDay: '3'};
     dynamoDBUtils.registerPlayer.mockResolvedValue(sampleRegisterReturn);
     await register.execute(msg);
-    expect(sendMessage).toEqual(`Registering ${msg.author.username}...`);
+
+    expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[0]}...`);
     expect(messagePassed.embed.fields[0].name).toEqual(sampleRegisterReturn.tournament);
     expect(messagePassed.embed.fields[0].value).toEqual(sampleRegisterReturn.tournamentDay);
     expect(messagePassed.embed.fields[1].name).toEqual(sampleRegisterReturn.teamName);
@@ -143,7 +144,8 @@ test('The user should be able to pass the tournament and day that they want to b
     const sampleRegisterReturn = { teamName: 'SampleTeam', players: [msg.author.username, 'Player2'], tournament: args[0], tournamentDay: args[1]};
     dynamoDBUtils.registerPlayer.mockResolvedValue(sampleRegisterReturn);
     await register.execute(msg, args);
-    expect(sendMessage).toEqual(`Registering ${msg.author.username}...`);
+
+    expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[0]}...`);
     expect(messagePassed.embed.fields[0].name).toEqual(args[0]);
     expect(messagePassed.embed.fields[0].value).toEqual(args[1]);
     expect(messagePassed.embed.fields[1].name).toEqual(sampleRegisterReturn.teamName);
@@ -169,7 +171,8 @@ test('If a user is already on a team, then a reply stating the Team that the Use
     const sampleRegisterReturn = { exist: true, teamName: 'ExistingTeam', players: [msg.author.username, 'Player2'], tournament: args[0], tournamentDay: args[1]};
     dynamoDBUtils.registerPlayer.mockResolvedValue(sampleRegisterReturn);
     await register.execute(msg);
-    expect(sendMessage).toEqual(`Registering ${msg.author.username}...`);
+
+    expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[0]}...`);
     expect(messagePassed).toEqual(`You are already registered to ${sampleRegisterReturn.teamName} for Tournament ${sampleRegisterReturn.tournament} Day ${sampleRegisterReturn.tournamentDay} your Team consists so far of ${sampleRegisterReturn.players}`);
 })
 
@@ -191,6 +194,7 @@ test('If an error occurs, the error handler will be invoked.',  async () => {
     };
     dynamoDBUtils.registerPlayer.mockRejectedValue('Some error occurred.');
     await register.execute(msg);
-    expect(sendMessage).toEqual(`Registering ${msg.author.username}...`);
+
+    expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[0]}...`);
     expect(errorHandling.handleError.mock.calls.length).toEqual(1);
 })

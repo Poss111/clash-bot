@@ -71,9 +71,12 @@ class LeagueApi {
 
     findTournament(tournamentName, dayNumber) {
         tournamentName = tournamentName.toLowerCase();
-        let filter = (data) => data.name.toLowerCase().includes(tournamentName);
+        let filter = (data) => data.name.toLowerCase().includes(tournamentName)
+            && new Date(data.startTime) > new Date();
         if (dayNumber) {
-            filter = (data) => data.name.toLowerCase().includes(tournamentName) && data.nameSecondary.includes(dayNumber);
+            filter = (data) => data.name.toLowerCase().includes(tournamentName)
+                && data.nameSecondary.includes(dayNumber)
+                && new Date(data.startTime) > new Date();
         }
         let foundData = this.getLeagueTimes().filter(filter);
         if (foundData.length !== 0) {

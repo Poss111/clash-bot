@@ -109,6 +109,50 @@ describe('Find Tournament', () => {
         expect(LeagueApi.findTournament('abcde')).toBeFalsy();
     })
 
+    test('I should be returned an empty value if a tournament name match is not found due to date being in the past.', () => {
+        const currentDate = new Date();
+        currentDate.setDate(currentDate.getDate() - 1);
+        const currentDateTwo = new Date();
+        currentDateTwo.setDate(currentDateTwo.getDate() - 2);
+        LeagueApi.leagueTimes = [
+            {
+                "name": "msi2021",
+                "nameSecondary": "day_3",
+                "startTime": currentDate,
+                "registrationTime": "May 29 2021 04:15 pm PDT"
+            },
+            {
+                "name": "msi2021",
+                "nameSecondary": "day_4",
+                "startTime": currentDateTwo,
+                "registrationTime": "May 30 2021 04:15 pm PDT"
+            }
+        ];
+        expect(LeagueApi.findTournament('msi2021')).toBeFalsy();
+    })
+
+    test('I should be returned an empty value if a tournament name and day match is not found due to date being in the past.', () => {
+        const currentDate = new Date();
+        currentDate.setDate(currentDate.getDate() - 1);
+        const currentDateTwo = new Date();
+        currentDateTwo.setDate(currentDateTwo.getDate() - 2);
+        LeagueApi.leagueTimes = [
+            {
+                "name": "msi2021",
+                "nameSecondary": "day_3",
+                "startTime": currentDate,
+                "registrationTime": "May 29 2021 04:15 pm PDT"
+            },
+            {
+                "name": "msi2021",
+                "nameSecondary": "day_4",
+                "startTime": currentDateTwo,
+                "registrationTime": "May 30 2021 04:15 pm PDT"
+            }
+        ];
+        expect(LeagueApi.findTournament('msi2021', '3')).toBeFalsy();
+    })
+
     test('I should be able to search for a tournament and a day.', () => {
         LeagueApi.leagueTimes = [
             {
@@ -161,5 +205,23 @@ describe('Find Tournament', () => {
             }
         ];
         expect(LeagueApi.findTournament('MSI')).toEqual(LeagueApi.leagueTimes[0]);
+    })
+
+    test('I should be able to return the first available tournament if nothing is passed', () => {
+        LeagueApi.leagueTimes = [
+            {
+                "name": "msi2021",
+                "nameSecondary": "day_3",
+                "startTime": "May 29 2021 07:00 pm PDT",
+                "registrationTime": "May 29 2021 04:15 pm PDT"
+            },
+            {
+                "name": "msi2021",
+                "nameSecondary": "day_4",
+                "startTime": "May 30 2021 07:00 pm PDT",
+                "registrationTime": "May 30 2021 04:15 pm PDT"
+            }
+        ];
+        expect(LeagueApi.findTournament()).toEqual(LeagueApi.leagueTimes[0]);
     })
 })
