@@ -30,7 +30,9 @@ class DynamoDBUtils {
                     key: Joi.string(),
                     teamName: Joi.string(),
                     serverName: Joi.string(),
-                    players: dynamodb.types.stringSet()
+                    players: dynamodb.types.stringSet(),
+                    tournamentName: Joi.string(),
+                    tournamentDay: Joi.string()
                 }
             });
             const dbCallback = (err) => {
@@ -44,51 +46,41 @@ class DynamoDBUtils {
         })
     }
 
-    registerPlayer(playerName, serverName) {
+    registerPlayer(playerName, serverName, tournaments) {
         return new Promise((resolve, reject) => {
             this.getTeams(serverName).then((data) => {
                 let teams = data;
-                console.log(teams);
-                let foundTeam = [];
-                let availableTeams = [];
-                teams.forEach(team => {
-                    if (team.players) {
-                        if (team.players.includes(playerName)) {
-                            foundTeam.push(team);
-                        }
-                        if (team.players.length < 5) {
-                            availableTeams.push(team);
-                        }
-                    } else {
-                        availableTeams.push(team);
-                    }
-                });
-                if (this.tentative.includes(playerName)) {
+                console.log(JSON.stringify(teams));
+                let teamJoined = [];
+                const playerAvailableTournaments = this.filterAvailableTournaments(tournaments, playerName, teams);
+                let availableTeam = this.findFirstAvailableTeam(playerName, tournaments, teams);
+                if (Array.isArray(playerAvailableTournaments) && !playerAvailableTournaments.length) {
+                    resolve(availableTeam);
+                } if (this.tentative.includes(playerName)) {
                     this.handleTentative(playerName).then((data) => {
                         if (data) console.log('Pulled off tentative');
                     });
-                } if (teams.length === 0 || availableTeams.length < 1) {
-                    console.log(`Creating new team for ${playerName} since there are no available teams.`);
-                    foundTeam = this.createNewTeam(playerName, serverName, teams.length + 1);
-                    resolve(foundTeam);
-                } else if (foundTeam.length === 0) {
-                    console.log(`Adding ${playerName} to first available team ${availableTeams[0].teamName}...`);
+                } if (!availableTeam) {
+                    console.log(`Creating new team for ${playerName} and Tournament ${playerAvailableTournaments[0].tournamentName} and Day ${playerAvailableTournaments[0].tournamentDay} since there are no available teams.`);
+                    teamJoined = this.createNewTeam(playerName, serverName, playerAvailableTournaments[0], teams.length + 1);
+                    resolve(teamJoined);
+                } else if (!Array.isArray(availableTeam)) {
+                    console.log(`Adding ${playerName} to first available team ${availableTeam.teamName}...`);
                     let params = {};
                     params.UpdateExpression = 'ADD players :playerName';
                     params.ExpressionAttributeValues = {
                         ':playerName': dynamodb.Set([playerName], 'S')
                     };
-                    foundTeam = availableTeams[0];
-                    this.Team.update({key: this.getKey(foundTeam.teamName, foundTeam.serverName)}, params, function (err, record) {
+                    this.Team.update({key: this.getKey(availableTeam.teamName,
+                            availableTeam.serverName,
+                            availableTeam.tournamentName,
+                            availableTeam.tournamentDay)}, params, function (err, record) {
                         if (err) reject(err);
                         else {
                             console.log(`Added ${playerName} to ${record.attrs.teamName}.`);
                             resolve(record.attrs);
                         }
                     });
-                } else {
-                    foundTeam[0].exist = true;
-                    resolve(foundTeam[0]);
                 }
             });
         });
@@ -149,14 +141,16 @@ class DynamoDBUtils {
         });
     }
 
-    createNewTeam(playerName, serverName, number) {
+    createNewTeam(playerName, serverName, tournament, number) {
         let name = names[number];
         let createTeam = {
             teamName: `Team ${name}`,
             serverName: serverName,
-            players: [playerName]
+            players: [playerName],
+            tournamentName: tournament.tournamentName,
+            tournamentDay: tournament.tournamentDay
         };
-        createTeam.key = this.getKey(createTeam.teamName, serverName);
+        createTeam.key = this.getKey(createTeam.teamName, serverName, tournament.tournamentName, tournament.tournamentDay);
         this.Team.update(createTeam, function (err) {
             if (err) console.error('Failed to create due to error.', err);
         });
@@ -180,12 +174,57 @@ class DynamoDBUtils {
         });
     }
 
-    getKey(teamName, serverName) {
-        return `${teamName}#${serverName}`;
+    getKey(teamName, serverName, tournamentName, tournamentDay) {
+        return `${teamName}#${serverName}#${tournamentName}#${tournamentDay}`;
     }
 
     getTentative() {
         return JSON.parse(JSON.stringify(this.tentative));
+    }
+
+    findFirstAvailableTeam(playerName, tournaments, teams) {
+        if (teams && teams.length > 0) {
+            const tournamentTeams = teams.filter(data =>
+                tournaments.some(record =>
+                    record.tournamentName === data.tournamentName && record.tournamentDay === data.tournamentDay));
+            let i;
+            for (i = 0; i < tournamentTeams.length; i++) {
+                if (!tournamentTeams[i].players
+                    || (tournamentTeams[i].players
+                        && tournamentTeams[i].players.length < 5
+                        && !tournamentTeams[i].players.includes(playerName))) {
+                    return tournamentTeams[i];
+                } else {
+                    tournamentTeams[i].exist = true;
+                }
+            }
+            return tournamentTeams;
+        }
+    }
+
+    filterAvailableTournaments(tournaments, playerName, teams) {
+        if(teams && teams.length > 0) {
+            let availableTournaments = [];
+            let tournamentToPlayersMap = new Map();
+            teams.forEach((team) => {
+               if (team.players) {
+                   let key = `${team.tournamentName}#${team.tournamentDay}`;
+                   if (tournamentToPlayersMap.get(key)) {
+                       tournamentToPlayersMap.get(key).push(...team.players);
+                   } else {
+                       tournamentToPlayersMap.set(key, team.players);
+                   }
+               }
+            });
+            tournaments.forEach((tournament) => {
+                const players = tournamentToPlayersMap.get(`${tournament.tournamentName}#${tournament.tournamentDay}`);
+                if (!players || !players.includes(playerName)) {
+                    availableTournaments.push(tournament);
+                }
+            });
+            return availableTournaments;
+        }
+        return tournaments;
     }
 }
 

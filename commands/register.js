@@ -9,7 +9,7 @@ module.exports = {
     execute: async function (msg, args) {
         const startTime = process.hrtime.bigint();
         let tournament;
-        if (args) {
+        if (args && args.length) {
             msg.channel.send(`Registering ${msg.author.username} for Tournament ${args[0]}...`)
             tournament = leagueApi.findTournament(args[0], args[1]);
             if (!tournament) {
@@ -20,15 +20,32 @@ module.exports = {
             msg.channel.send(`Registering ${msg.author.username} for the first available tournament you are not already registered to...`);
             tournament = leagueApi.findTournament();
         }
+
+        function buildTournamentDetails(team) {
+            return {
+                name: 'Tournament Details',
+                value: `${team.tournamentName} Day ${team.tournamentDay}`,
+                inline: true
+            };
+        }
+
         await dbUtils.registerPlayer(msg.author.username, msg.guild.name, tournament).then(data => {
-            if (data.exist) {
-                msg.reply(`You are already registered to ${data.teamName} for Tournament ${data.tournament} Day ${data.tournamentDay} your Team consists so far of ${data.players}`);
+            let copy = JSON.parse(JSON.stringify(registerReply));
+            if (Array.isArray(data) && data[0].exist) {
+                copy.description = 'You are already registered to the following Teams.';
+                let i;
+                for (i = 0; i < data.length; i++) {
+                    copy.fields.push({name: data[i].teamName, value: data[i].players, inline: true});
+                    copy.fields.push(buildTournamentDetails(data[i]));
+                    if (i < data.length - 1) {
+                        copy.fields.push({name: '\u200B', value: '\u200B'});
+                    }
+                }
             } else {
-                let copy = JSON.parse(JSON.stringify(registerReply));
-                copy.fields.push({name: data.tournament, value: data.tournamentDay});
-                copy.fields.push({name: data.teamName, value: data.players});
-                msg.reply({ embed: copy});
+                copy.fields.push({name: data.teamName, value: data.players, inline: true});
+                copy.fields.push(buildTournamentDetails(data));
             }
+            msg.reply({embed: copy});
         }).catch(err => errorHandling.handleError(this.name, err, msg, 'Failed to register you to team.'))
             .finally(() => {
                 timeTracker.endExecution(this.name, startTime);

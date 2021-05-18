@@ -50,7 +50,8 @@ describe('Initialize Database connection and tables', () => {
     })
 })
 
-describe('Register Player', () => {
+describe('Retrieve Teams', () => {
+
     test('I should retrieve all teams for a server when getTeams is called with a single team.', () => {
         const value = {
             Items: [{
@@ -58,7 +59,9 @@ describe('Register Player', () => {
                     key: 'Sample Team#Sample Server',
                     teamName: 'Sample Team',
                     serverName: 'Sample Server',
-                    players: ['Player1', 'Player2']
+                    players: ['Player1', 'Player2'],
+                    tournamentName: 'msi2021',
+                    tournamentDay: 'day_2'
                 }
             }
             ]
@@ -85,7 +88,9 @@ describe('Register Player', () => {
                     key: 'Sample Team#Sample Server',
                     teamName: 'Sample Team',
                     serverName: 'Sample Server',
-                    players: ['Player1', 'Player2']
+                    players: ['Player1', 'Player2'],
+                    tournamentName: 'msi2021',
+                    tournamentDay: 'day_2'
                 }
             },
                 {
@@ -93,7 +98,9 @@ describe('Register Player', () => {
                         key: 'Sample Team2#Sample Server',
                         teamName: 'Sample Team2',
                         serverName: 'Sample Server',
-                        players: ['Player3', 'Player4']
+                        players: ['Player3', 'Player4'],
+                        tournamentName: 'msi2021',
+                        tournamentDay: 'day_2'
                     }
                 }
             ]
@@ -112,6 +119,9 @@ describe('Register Player', () => {
             expect(data).toEqual([value.Items[0].attrs, value.Items[1].attrs]);
         });
     })
+})
+
+describe('Register Player', () => {
 
     test('I should return an error with getTeams if I receive an error from the stream.', () => {
         const value = {
@@ -131,23 +141,33 @@ describe('Register Player', () => {
             .catch((err) => expect(err).toEqual([value]));
     })
 
-    test('I should register a player and add him to a Team if a teams exist with less than 4 players.', () => {
+    test('I should register a player and add him to a Team with the specified tournament and day if a teams exist with less than 4 players.', () => {
         const value = {
             Items: [{
                 attrs: {
                     key: 'Sample Team#Sample Server',
                     teamName: 'Team Sample',
                     serverName: 'Sample Server',
-                    players: ['Player1', 'Player2']
+                    players: ['Player1', 'Player2'],
+                    tournamentName: 'msi2021',
+                    tournamentDay: 'day_2'
+                }
+            }, {
+                attrs: {
+                    key: 'Sample Team#Sample Server',
+                    teamName: 'Team Sample',
+                    serverName: 'Sample Server',
+                    players: undefined,
+                    tournamentName: 'msi2021',
+                    tournamentDay: 'day_3'
                 }
             }
             ]
         };
         const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
         let expectedPlayers = [];
-        expectedPlayers.push(value.Items[0].attrs.players[0]);
-        expectedPlayers.push(value.Items[0].attrs.players[1]);
-        expectedPlayers.push('Player3');
+        const expectedPlayerName = 'Player3';
+        expectedPlayers.push(expectedPlayerName);
         dynamoDBUtils.Team = jest.fn();
         dynamoDBUtils.Team.update = jest.fn();
         dynamoDBUtils.Team = {
@@ -167,14 +187,24 @@ describe('Register Player', () => {
                 });
             })
         }
+        dynamodb.Set = jest.fn().mockReturnValue(expectedPlayers);
 
-        return dynamoDBUtils.registerPlayer('Player3', 'Sample Server').then(result => {
+        let foundTeam = value.Items[1].attrs;
+        let key = dynamoDBUtils.getKey(foundTeam.teamName, foundTeam.serverName, foundTeam.tournamentName, foundTeam.tournamentDay);
+        let tournament = [{ tournamentName: 'msi2021', tournamentDay: 'day_3'}];
+        return dynamoDBUtils.registerPlayer(expectedPlayerName, 'Sample Server', tournament).then(result => {
             expect(result).toBeTruthy();
             expect(result.teamName).toEqual(value.Items[0].attrs.teamName);
-            expect(result.players.length).toEqual(3);
-            expect(result.players).toContain('Player3');
+            expect(result.players.length).toEqual(1);
+            expect(result.players).toContain(expectedPlayerName);
             expect(dynamoDBUtils.Team.update.mock.calls.length).toEqual(1);
-        }).catch(err => expect(err).toBeFalsy());
+            expect(dynamoDBUtils.Team.update).toBeCalledWith({key: key}, {
+                ExpressionAttributeValues: {
+                    ':playerName': expectedPlayers
+                },
+                UpdateExpression: 'ADD players :playerName'
+            }, expect.any(Function));
+        });
     })
 
     test('I should register a player and add him to a Team if a teams exist with less than 4 players and remove him from tentative if he is on it.', () => {
@@ -184,7 +214,9 @@ describe('Register Player', () => {
                     key: 'Sample Team#Sample Server',
                     teamName: 'Team Sample',
                     serverName: 'Sample Server',
-                    players: ['Player1', 'Player2']
+                    players: ['Player1', 'Player2'],
+                    tournamentName: 'msi2021',
+                    tournamentDay: 'day_3'
                 }
             }
             ]
@@ -214,15 +246,24 @@ describe('Register Player', () => {
                 });
             })
         }
+        dynamodb.Set = jest.fn().mockReturnValue(expectedPlayers);
 
-        return dynamoDBUtils.registerPlayer('Player3', 'Sample Server').then(result => {
+        let foundTeam = value.Items[0].attrs;
+        let key = dynamoDBUtils.getKey(foundTeam.teamName, foundTeam.serverName, foundTeam.tournamentName, foundTeam.tournamentDay);
+        let tournament = [{ tournamentName: 'msi2021', tournamentDay: 'day_3'}];
+        return dynamoDBUtils.registerPlayer('Player3', 'Sample Server', tournament).then(result => {
             expect(result).toBeTruthy();
             expect(result.teamName).toEqual(value.Items[0].attrs.teamName);
             expect(result.players.length).toEqual(3);
             expect(result.players).toContain('Player3');
-            expect(dynamoDBUtils.tentative.length).toEqual(0)
-            expect(dynamoDBUtils.Team.update.mock.calls.length).toEqual(1);
-        }).catch(err => expect(err).toBeFalsy());
+            expect(dynamoDBUtils.tentative.length).toEqual(0);
+            expect(dynamoDBUtils.Team.update).toBeCalledWith({key: key}, {
+                ExpressionAttributeValues: {
+                    ':playerName': expectedPlayers
+                },
+                UpdateExpression: 'ADD players :playerName'
+            }, expect.any(Function));
+        });
     })
 
     test('I should not register a player that already exists in a team', () => {
@@ -232,7 +273,9 @@ describe('Register Player', () => {
                     key: 'Sample Team#Sample Server',
                     teamName: 'Team Sample',
                     serverName: 'Sample Server',
-                    players: ['Player1', 'Player2']
+                    players: ['Player1', 'Player2'],
+                    tournamentName: 'msi2021',
+                    tournamentDay: 'day_3'
                 }
             }
             ]
@@ -248,12 +291,13 @@ describe('Register Player', () => {
             exec: mockStream
         }
 
-        return dynamoDBUtils.registerPlayer('Player2', 'Sample Server').then(result => {
+        let tournament = [{ tournamentName: 'msi2021', tournamentDay: 'day_3'}];
+        return dynamoDBUtils.registerPlayer('Player2', 'Sample Server', tournament).then(result => {
             expect(result).toBeTruthy();
-            expect(result.exist).toBeTruthy();
-            expect(result.teamName).toEqual(value.Items[0].attrs.teamName);
-            expect(result.players.length).toEqual(2);
-            expect(result.players).toContain('Player2');
+            expect(result[0].exist).toBeTruthy();
+            expect(result[0].teamName).toEqual(value.Items[0].attrs.teamName);
+            expect(result[0].players.length).toEqual(2);
+            expect(result[0].players).toContain('Player2');
         });
     })
 
@@ -263,7 +307,9 @@ describe('Register Player', () => {
                 attrs: {
                     key: 'Sample Team#Sample Server',
                     teamName: 'Team Sample',
-                    serverName: 'Sample Server'
+                    serverName: 'Sample Server',
+                    tournamentName: 'msi2021',
+                    tournamentDay: 'day_3'
                 }
             }
             ]
@@ -291,7 +337,8 @@ describe('Register Player', () => {
             })
         }
 
-        return dynamoDBUtils.registerPlayer('Player2', 'Sample Server').then(result => {
+        let tournament = [{ tournamentName: 'msi2021', tournamentDay: 'day_3'}];
+        return dynamoDBUtils.registerPlayer('Player2', 'Sample Server', tournament).then(result => {
             expect(result).toBeTruthy();
             expect(result.teamName).toEqual(value.Items[0].attrs.teamName);
             expect(result.players.length).toEqual(1);
@@ -315,12 +362,13 @@ describe('Register Player', () => {
             update: jest.fn()
         }
 
-        return dynamoDBUtils.registerPlayer('Player1', 'Sample Server').then(result => {
+        let tournament = [{ tournamentName: 'msi2021', tournamentDay: 'day_3'}];
+        return dynamoDBUtils.registerPlayer('Player1', 'Sample Server', tournament).then(result => {
             expect(result).toBeTruthy();
             expect(result.teamName).toEqual(`Team ${randomNames[1]}`);
             expect(result.players).toEqual(['Player1']);
             expect(dynamoDBUtils.Team.update.mock.calls.length).toEqual(1);
-        }).catch(err => expect(err).toBeFalsy());
+        });
     })
 })
 
@@ -530,13 +578,411 @@ describe('Create New Team', () => {
                 callback('Failed to update.');
             })
         }
-        const newTeam = dynamoDBUtils.createNewTeam('Player1', 'Sample Server', 0);
+        let tournament = {
+            tournamentName: 'msi2021',
+            tournamentDay: 'day_2'
+        }
+        const newTeam = dynamoDBUtils.createNewTeam('Player1', 'Sample Server', tournament, 0);
         expect(newTeam.teamName).toBeTruthy();
+    })
+
+    test('I should be able to successfully create a team with the following details: Player Name, Server Name, Tournament Details, and Team Number', () => {
+        dynamoDBUtils.Team = jest.fn();
+        dynamoDBUtils.Team = {
+            update: jest.fn().mockImplementation((key, callback) => {
+                callback();
+            })
+        }
+        let tournament = {
+            tournamentName: 'msi2021',
+            tournamentDay: 'day_2'
+        }
+        const newTeam = dynamoDBUtils.createNewTeam('Player1', 'Sample Server', tournament, 0);
+        expect(newTeam.teamName).toBeTruthy();
+        expect(newTeam.key).toEqual(`Team Abomasnow#Sample Server#${tournament.tournamentName}#${tournament.tournamentDay}`);
+        expect(newTeam.tournamentName).toEqual(tournament.tournamentName);
+        expect(newTeam.tournamentDay).toEqual(tournament.tournamentDay);
+    })
+})
+
+describe('Filter Available Team', () => {
+
+    test('I should be able to receive an available Team if the player passed does not belong to the team.', () => {
+        let teams = [
+            {
+                key: 'Sample Team#Sample Server#msi2021#day2',
+                teamName: 'Sample Team',
+                serverName: 'Sample Server',
+                players: ['Player1'],
+                tournamentName: 'msi2021',
+                tournamentDay: 'day2'
+            },
+            {
+                key: 'Sample Team1#Sample Server#msi2021#day3',
+                teamName: 'Sample Team1',
+                serverName: 'Sample Server',
+                players: undefined,
+                tournamentName: 'msi2021',
+                tournamentDay: 'day3'
+            }
+        ];
+        let tournaments = [{
+            tournamentName: 'msi2021',
+            tournamentDay: 'day2'
+        }, {
+            tournamentName: 'msi2021',
+            tournamentDay: 'day3'
+        }, {
+            tournamentName: 'shurima2022',
+            tournamentDay: 'day3'
+        }]
+        expect(dynamoDBUtils.findFirstAvailableTeam('Player1', tournaments, teams)).toEqual(teams[1]);
+    })
+
+    test('I should be able to receive an available Team if the player passed does not belong to the team and the tournament.', () => {
+        let teams = [
+            {
+                key: 'Sample Team#Sample Server#msi2021#day2',
+                teamName: 'Sample Team',
+                serverName: 'Sample Server',
+                players: undefined,
+                tournamentName: 'msi2021',
+                tournamentDay: 'day2'
+            },
+            {
+                key: 'Sample Team1#Sample Server#msi2022#day3',
+                teamName: 'Sample Team1',
+                serverName: 'Sample Server',
+                players: undefined,
+                tournamentName: 'msi2022',
+                tournamentDay: 'day3'
+            }
+        ];
+        let tournaments = [{
+            tournamentName: 'msi2022',
+            tournamentDay: 'day3'
+        }, {
+            tournamentName: 'shurima2022',
+            tournamentDay: 'day3'
+        }]
+        expect(dynamoDBUtils.findFirstAvailableTeam('Player1', tournaments, teams)).toEqual(teams[1]);
+    })
+
+    test('I should be able to receive an available Team if the player passed does not belong to the team and the first available tournament.', () => {
+        let teams = [
+            {
+                key: 'Sample Team#Sample Server#msi2021#day3',
+                teamName: 'Sample Team',
+                serverName: 'Sample Server',
+                players: ['Player1'],
+                tournamentName: 'msi2021',
+                tournamentDay: 'day3'
+            },
+            {
+                key: 'Sample Team1#Sample Server#msi2022#day1',
+                teamName: 'Sample Team1',
+                serverName: 'Sample Server',
+                players: undefined,
+                tournamentName: 'msi2022',
+                tournamentDay: 'day1'
+            },
+            {
+                key: 'Sample Team#Sample Server#shurima2022#day3',
+                teamName: 'Sample Team',
+                serverName: 'Sample Server',
+                players: undefined,
+                tournamentName: 'shurima2022',
+                tournamentDay: 'day3'
+            },
+        ];
+        let tournaments = [{
+            tournamentName: 'msi2021',
+            tournamentDay: 'day3'
+        }, {
+            tournamentName: 'msi2022',
+            tournamentDay: 'day1'
+        }, {
+            tournamentName: 'shurima2022',
+            tournamentDay: 'day3'
+        }]
+        expect(dynamoDBUtils.findFirstAvailableTeam('Player1', tournaments, teams)).toEqual(teams[1]);
+    })
+
+    test('I should be able to receive an available Team if the player passed does not belong to the team and the first available tournament and day.', () => {
+        let teams = [
+            {
+                key: 'Sample Team#Sample Server#msi2021#day1',
+                teamName: 'Sample Team',
+                serverName: 'Sample Server',
+                players: ['Player1'],
+                tournamentName: 'msi2021',
+                tournamentDay: 'day1'
+            },
+            {
+                key: 'Sample Team1#Sample Server#msi2021#day2',
+                teamName: 'Sample Team1',
+                serverName: 'Sample Server',
+                players: undefined,
+                tournamentName: 'msi2021',
+                tournamentDay: 'day2'
+            },
+            {
+                key: 'Sample Team#Sample Server#shurima2022#day3',
+                teamName: 'Sample Team',
+                serverName: 'Sample Server',
+                players: undefined,
+                tournamentName: 'shurima2022',
+                tournamentDay: 'day3'
+            },
+        ];
+        let tournaments = [{
+            tournamentName: 'msi2021',
+            tournamentDay: 'day1'
+        }, {
+            tournamentName: 'msi2021',
+            tournamentDay: 'day2'
+        }, {
+            tournamentName: 'shurima2022',
+            tournamentDay: 'day3'
+        }]
+        expect(dynamoDBUtils.findFirstAvailableTeam('Player1', tournaments, teams)).toEqual(teams[1]);
+    })
+
+    test('I should be able to receive an available Team if the player passed does not belong to the team and the first available tournament and day with less than 5 players.', () => {
+        let teams = [
+            {
+                key: 'Sample Team#Sample Server#msi2021#day1',
+                teamName: 'Sample Team',
+                serverName: 'Sample Server',
+                players: ['Player1','Player2','Player3','Player4','Player5'],
+                tournamentName: 'msi2021',
+                tournamentDay: 'day1'
+            },
+            {
+                key: 'Sample Team1#Sample Server#msi2021#day2',
+                teamName: 'Sample Team1',
+                serverName: 'Sample Server',
+                players: undefined,
+                tournamentName: 'msi2021',
+                tournamentDay: 'day2'
+            },
+            {
+                key: 'Sample Team#Sample Server#shurima2022#day3',
+                teamName: 'Sample Team',
+                serverName: 'Sample Server',
+                players: undefined,
+                tournamentName: 'shurima2022',
+                tournamentDay: 'day3'
+            },
+        ];
+        let tournaments = [{
+            tournamentName: 'msi2021',
+            tournamentDay: 'day1'
+        }, {
+            tournamentName: 'msi2021',
+            tournamentDay: 'day2'
+        }, {
+            tournamentName: 'shurima2022',
+            tournamentDay: 'day3'
+        }]
+        expect(dynamoDBUtils.findFirstAvailableTeam('Player6', tournaments, teams)).toEqual(teams[1]);
+    })
+
+    test('I should receive a Team with the exist value populated if the player passed belongs to the tournament and tournament day passed', () => {
+        let teams = [
+            {
+                key: 'Sample Team#Sample Server#msi2021#day1',
+                teamName: 'Sample Team',
+                serverName: 'Sample Server',
+                players: ['Player1','Player2','Player3','Player4','Player5'],
+                tournamentName: 'msi2021',
+                tournamentDay: 'day1'
+            }
+        ];
+        let tournaments = [{
+            tournamentName: 'msi2021',
+            tournamentDay: 'day1'
+        }]
+        const foundTeam = dynamoDBUtils.findFirstAvailableTeam('Player1', tournaments, teams);
+        teams[0].exist = true;
+        expect(foundTeam).toEqual(teams);
+    })
+
+    test('I should receive all Teams with the exist value populated if the player passed belongs to the tournament and tournament day passed', () => {
+        let teams = [
+            {
+                key: 'Sample Team#Sample Server#msi2021#day1',
+                teamName: 'Sample Team',
+                serverName: 'Sample Server',
+                players: ['Player1','Player2','Player3','Player4','Player5'],
+                tournamentName: 'msi2021',
+                tournamentDay: 'day1'
+            },
+            {
+                key: 'Sample Team#Sample Server#msi2021#day1',
+                teamName: 'Sample Team',
+                serverName: 'Sample Server',
+                players: ['Player1','Player2','Player3'],
+                tournamentName: 'msi2021',
+                tournamentDay: 'day2'
+            }
+        ];
+        let tournaments = [{
+            tournamentName: 'msi2021',
+            tournamentDay: 'day1'
+        },{
+            tournamentName: 'msi2021',
+            tournamentDay: 'day2'
+        }];
+        const foundTeam = dynamoDBUtils.findFirstAvailableTeam('Player1', tournaments, teams);
+        teams[0].exist = true;
+        teams[1].exist = true;
+        expect(foundTeam).toEqual(teams);
+    })
+
+    test('I should receive a single team if a player passed does not belong to one of the tournaments and tournament days passed.', () => {
+        let teams = [
+            {
+                key: 'Sample Team#Sample Server#msi2021#day1',
+                teamName: 'Sample Team',
+                serverName: 'Sample Server',
+                players: ['Player1','Player2','Player3','Player4','Player5'],
+                tournamentName: 'msi2021',
+                tournamentDay: 'day1'
+            },
+            {
+                key: 'Sample Team#Sample Server#msi2021#day1',
+                teamName: 'Sample Team',
+                serverName: 'Sample Server',
+                players: ['Player1','Player2','Player3'],
+                tournamentName: 'msi2021',
+                tournamentDay: 'day2'
+            }
+        ];
+        let tournaments = [{
+            tournamentName: 'msi2021',
+            tournamentDay: 'day1'
+        },{
+            tournamentName: 'msi2021',
+            tournamentDay: 'day2'
+        }];
+        const foundTeam = dynamoDBUtils.findFirstAvailableTeam('Player4', tournaments, teams);
+        expect(foundTeam).toEqual(teams[1]);
+    })
+
+    test('I should receive an undefined if there are no Teams currently available.', () => {
+        let teams = [];
+        let tournaments = [{
+            tournamentName: 'msi2021',
+            tournamentDay: 'day1'
+        },{
+            tournamentName: 'msi2021',
+            tournamentDay: 'day2'
+        }];
+        const foundTeam = dynamoDBUtils.findFirstAvailableTeam('Player4', tournaments, teams);
+        expect(foundTeam).toEqual(undefined);
+    })
+})
+
+describe('Filter Available Tournaments', () => {
+    test('I should receive all tournaments that the player is not registered to.', () => {
+        let teams = [
+            {
+                key: 'Sample Team#Sample Server#msi2021#day2',
+                teamName: 'Sample Team',
+                serverName: 'Sample Server',
+                players: ['Player1'],
+                tournamentName: 'msi2021',
+                tournamentDay: 'day2'
+            },
+            {
+                key: 'Sample Team1#Sample Server#msi2021#day3',
+                teamName: 'Sample Team1',
+                serverName: 'Sample Server',
+                players: undefined,
+                tournamentName: 'msi2021',
+                tournamentDay: 'day3'
+            }
+        ];
+        let tournaments = [{
+            tournamentName: 'msi2021',
+            tournamentDay: 'day2'
+        }, {
+            tournamentName: 'msi2021',
+            tournamentDay: 'day3'
+        }, {
+            tournamentName: 'shurima2022',
+            tournamentDay: 'day3'
+        }]
+
+        let expectedTournaments = tournaments.slice(1, 3);
+
+        expect(dynamoDBUtils.filterAvailableTournaments(tournaments, 'Player1', teams)).toEqual(expectedTournaments);
+    })
+
+    test('I should receive all tournaments if the teams is undefined.', () => {
+        let tournaments = [{
+            tournamentName: 'msi2021',
+            tournamentDay: 'day2'
+        }, {
+            tournamentName: 'msi2021',
+            tournamentDay: 'day3'
+        }, {
+            tournamentName: 'shurima2022',
+            tournamentDay: 'day3'
+        }];
+
+        expect(dynamoDBUtils.filterAvailableTournaments(tournaments, 'Player1')).toEqual(tournaments);
+    })
+
+    test('I should receive all tournaments if the teams is empty.', () => {
+        let tournaments = [{
+            tournamentName: 'msi2021',
+            tournamentDay: 'day2'
+        }, {
+            tournamentName: 'msi2021',
+            tournamentDay: 'day3'
+        }, {
+            tournamentName: 'shurima2022',
+            tournamentDay: 'day3'
+        }];
+
+        expect(dynamoDBUtils.filterAvailableTournaments(tournaments, 'Player1', [])).toEqual(tournaments);
+    })
+
+    test('I should receive no tournaments if the player belongs to a team registered for each tournament passed.', () => {
+        let teams = [
+            {
+                key: 'Sample Team#Sample Server#msi2021#day2',
+                teamName: 'Sample Team',
+                serverName: 'Sample Server',
+                players: ['Player1'],
+                tournamentName: 'msi2021',
+                tournamentDay: 'day2'
+            },
+            {
+                key: 'Sample Team1#Sample Server#msi2021#day3',
+                teamName: 'Sample Team1',
+                serverName: 'Sample Server',
+                players: ['Player1'],
+                tournamentName: 'msi2021',
+                tournamentDay: 'day3'
+            }
+        ];
+        let tournaments = [{
+            tournamentName: 'msi2021',
+            tournamentDay: 'day2'
+        }, {
+            tournamentName: 'msi2021',
+            tournamentDay: 'day3'
+        }];
+
+        expect(dynamoDBUtils.filterAvailableTournaments(tournaments, 'Player1', teams)).toEqual([]);
     })
 })
 
 test('Should return a hashkey of the team name and the server name passed.', () => {
-    expect(dynamoDBUtils.getKey('Sample Team', 'Sample Server')).toEqual('Sample Team#Sample Server');
+    expect(dynamoDBUtils.getKey('Sample Team', 'Sample Server', 'msi2021', 'day1')).toEqual('Sample Team#Sample Server#msi2021#day1');
 })
 
 test('Should return a copy of the tentative users.', () => {

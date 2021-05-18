@@ -50,7 +50,9 @@ test('Should return a parsed array of human readable dates from the League Clash
         expect(data.length).toBe(2);
         data.forEach(tournament => {
             expect(tournament.startTime).toContain('May');
+            expect(tournament.tournamentName).toContain('msi');
             expect(tournament.registrationTime).toContain('May');
+            expect(tournament.tournamentDay.length).toEqual(1);
         })
     });
 })
@@ -76,14 +78,14 @@ describe('Find Tournament', () => {
     test('I should be able to search for a tournament by its exact name and it should be returned if matching.', () => {
         LeagueApi.leagueTimes = [
             {
-                "name": "msi2021",
-                "nameSecondary": "day_3",
+                tournamentName: "msi2021",
+                tournamentDay: "day_3",
                 "startTime": "May 29 2021 07:00 pm PDT",
                 "registrationTime": "May 29 2021 04:15 pm PDT"
             },
             {
-                "name": "msi2021",
-                "nameSecondary": "day_4",
+                tournamentName: "msi2021",
+                tournamentDay: "day_4",
                 "startTime": "May 30 2021 07:00 pm PDT",
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
@@ -94,14 +96,14 @@ describe('Find Tournament', () => {
     test('I should be returned an empty value if a match is not found.', () => {
         LeagueApi.leagueTimes = [
             {
-                "name": "msi2021",
-                "nameSecondary": "day_3",
+                tournamentName: "msi2021",
+                tournamentDay: "day_3",
                 "startTime": "May 29 2021 07:00 pm PDT",
                 "registrationTime": "May 29 2021 04:15 pm PDT"
             },
             {
-                "name": "msi2021",
-                "nameSecondary": "day_4",
+                tournamentName: "msi2021",
+                tournamentDay: "day_4",
                 "startTime": "May 30 2021 07:00 pm PDT",
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
@@ -116,14 +118,14 @@ describe('Find Tournament', () => {
         currentDateTwo.setDate(currentDateTwo.getDate() - 2);
         LeagueApi.leagueTimes = [
             {
-                "name": "msi2021",
-                "nameSecondary": "day_3",
+                tournamentName: "msi2021",
+                tournamentDay: "day_3",
                 "startTime": currentDate,
                 "registrationTime": "May 29 2021 04:15 pm PDT"
             },
             {
-                "name": "msi2021",
-                "nameSecondary": "day_4",
+                tournamentName: "msi2021",
+                tournamentDay: "day_4",
                 "startTime": currentDateTwo,
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
@@ -138,14 +140,14 @@ describe('Find Tournament', () => {
         currentDateTwo.setDate(currentDateTwo.getDate() - 2);
         LeagueApi.leagueTimes = [
             {
-                "name": "msi2021",
-                "nameSecondary": "day_3",
+                tournamentName: "msi2021",
+                tournamentDay: "day_3",
                 "startTime": currentDate,
                 "registrationTime": "May 29 2021 04:15 pm PDT"
             },
             {
-                "name": "msi2021",
-                "nameSecondary": "day_4",
+                tournamentName: "msi2021",
+                tournamentDay: "day_4",
                 "startTime": currentDateTwo,
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
@@ -156,14 +158,14 @@ describe('Find Tournament', () => {
     test('I should be able to search for a tournament and a day.', () => {
         LeagueApi.leagueTimes = [
             {
-                "name": "msi2021",
-                "nameSecondary": "day_3",
+                tournamentName: "msi2021",
+                tournamentDay: "day_3",
                 "startTime": "May 29 2021 07:00 pm PDT",
                 "registrationTime": "May 29 2021 04:15 pm PDT"
             },
             {
-                "name": "msi2021",
-                "nameSecondary": "day_4",
+                tournamentName: "msi2021",
+                tournamentDay: "day_4",
                 "startTime": "May 30 2021 07:00 pm PDT",
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
@@ -174,14 +176,14 @@ describe('Find Tournament', () => {
     test('I should be able to search for a partial name of a tournament.', () => {
         LeagueApi.leagueTimes = [
             {
-                "name": "msi2021",
-                "nameSecondary": "day_3",
+                tournamentName: "msi2021",
+                tournamentDay: "day_3",
                 "startTime": "May 29 2021 07:00 pm PDT",
                 "registrationTime": "May 29 2021 04:15 pm PDT"
             },
             {
-                "name": "msi2021",
-                "nameSecondary": "day_4",
+                tournamentName: "msi2021",
+                tournamentDay: "day_4",
                 "startTime": "May 30 2021 07:00 pm PDT",
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
@@ -192,14 +194,14 @@ describe('Find Tournament', () => {
     test('I should be able to search for a partial name and regardless of case for a tournament.', () => {
         LeagueApi.leagueTimes = [
             {
-                "name": "msi2021",
-                "nameSecondary": "day_3",
+                tournamentName: "msi2021",
+                tournamentDay: "day_3",
                 "startTime": "May 29 2021 07:00 pm PDT",
                 "registrationTime": "May 29 2021 04:15 pm PDT"
             },
             {
-                "name": "msi2021",
-                "nameSecondary": "day_4",
+                tournamentName: "msi2021",
+                tournamentDay: "day_4",
                 "startTime": "May 30 2021 07:00 pm PDT",
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
@@ -214,14 +216,14 @@ describe('Find Tournament', () => {
         currentDateTwo.setDate(currentDateTwo.getDate() + 1);
         LeagueApi.leagueTimes = [
             {
-                "name": "msi2021",
-                "nameSecondary": "day_3",
+                tournamentName: "msi2021",
+                tournamentDay: "day_3",
                 "startTime": currentDate,
                 "registrationTime": "May 29 2021 04:15 pm PDT"
             },
             {
-                "name": "msi2021",
-                "nameSecondary": "day_4",
+                tournamentName: "msi2021",
+                tournamentDay: "day_4",
                 "startTime": currentDateTwo.toDateString(),
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
@@ -236,14 +238,14 @@ describe('Find Tournament', () => {
         currentDateTwo.setDate(currentDateTwo.getDate() - 1);
         LeagueApi.leagueTimes = [
             {
-                "name": "msi2021",
-                "nameSecondary": "day_3",
+                tournamentName: "msi2021",
+                tournamentDay: "day_3",
                 "startTime": currentDate,
                 "registrationTime": "May 29 2021 04:15 pm PDT"
             },
             {
-                "name": "msi2021",
-                "nameSecondary": "day_4",
+                1: "msi2021",
+                tournamentDay: "day_4",
                 "startTime": currentDateTwo,
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }

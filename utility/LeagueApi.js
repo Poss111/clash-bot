@@ -44,8 +44,8 @@ class LeagueApi {
                             moment.tz.setDefault(timeZone);
                             parse.forEach((tourney) => {
                                 data.push({
-                                    name: tourney.nameKey,
-                                    nameSecondary: tourney.nameKeySecondary,
+                                    tournamentName: tourney.nameKey,
+                                    tournamentDay: tourney.nameKeySecondary,
                                     startTime: new moment(tourney.schedule[0].startTime),
                                     registrationTime: new moment(tourney.schedule[0].registrationTime)
                                 });
@@ -54,6 +54,7 @@ class LeagueApi {
                             data.forEach((data) => {
                                 data.startTime = data.startTime.format(dateFormat);
                                 data.registrationTime = data.registrationTime.format(dateFormat);
+                                data.tournamentDay = data.tournamentDay.split('day_')[1];
                             });
                             console.log('League Clash times loaded.');
                             resolve(data);
@@ -73,11 +74,11 @@ class LeagueApi {
         let filter;
         if (tournamentName) {
             tournamentName = tournamentName.toLowerCase()
-            filter = (data) => data.name.toLowerCase().includes(tournamentName)
+            filter = (data) => data.tournamentName.toLowerCase().includes(tournamentName)
                 && new Date(data.startTime) > new Date();
             if (tournamentName && dayNumber) {
-                filter = (data) => data.name.toLowerCase().includes(tournamentName)
-                    && data.nameSecondary.includes(dayNumber)
+                filter = (data) => data.tournamentName.toLowerCase().includes(tournamentName)
+                    && data.tournamentDay.includes(dayNumber)
                     && new Date(data.startTime) > new Date();
             }
         } else {
