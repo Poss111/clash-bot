@@ -207,6 +207,73 @@ describe('Register Player', () => {
         });
     })
 
+    test('I should register a player and create a new Team if another tournament to register is available.', () => {
+        const value = {
+            Items: [{
+                attrs: {
+                    key: 'Sample Team#Sample Server',
+                    teamName: 'Team Sample',
+                    serverName: 'Sample Server',
+                    players: ['Player1', 'Player2'],
+                    tournamentName: 'msi2021',
+                    tournamentDay: 'day_2'
+                }
+            }
+            ]
+        };
+        const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
+        let expectedPlayers = [];
+        const expectedPlayerName = 'Player2';
+        expectedPlayers.push(expectedPlayerName);
+        dynamoDBUtils.Team = jest.fn();
+        dynamoDBUtils.Team.update = jest.fn();
+        dynamoDBUtils.Team = {
+            scan: jest.fn().mockReturnThis(),
+            filterExpression: jest.fn().mockReturnThis(),
+            expressionAttributeValues: jest.fn().mockReturnThis(),
+            expressionAttributeNames: jest.fn().mockReturnThis(),
+            exec: mockStream,
+            update: jest.fn().mockImplementation((team, callback) => {
+                callback(undefined, {
+                    attrs: {
+                        key: 'Sample Team#Sample Server',
+                        teamName: 'Team Sample',
+                        serverName: 'Sample Server',
+                        players: expectedPlayers
+                    }
+                });
+            })
+        }
+        dynamodb.Set = jest.fn().mockReturnValue(expectedPlayers);
+
+        let foundTeam = value.Items[0].attrs;
+        let key = dynamoDBUtils.getKey('Team Absol', foundTeam.serverName, 'msi2021', 'day_3');
+        let expectedCreatedTeam = {
+            key: key,
+            teamName: 'Team Absol',
+            serverName: 'Sample Server',
+            players: expectedPlayers,
+            tournamentName: 'msi2021',
+            tournamentDay: 'day_3'
+        }
+        let tournament = [{
+            tournamentName: 'msi2021',
+            tournamentDay: 'day_2'
+        },
+            {
+                tournamentName: 'msi2021',
+                tournamentDay: 'day_3'
+            }];
+        return dynamoDBUtils.registerPlayer(expectedPlayerName, 'Sample Server', tournament).then(result => {
+            expect(result).toBeTruthy();
+            expect(result.teamName).toEqual('Team Absol');
+            expect(result.players.length).toEqual(1);
+            expect(result.players).toContain(expectedPlayerName);
+            expect(dynamoDBUtils.Team.update.mock.calls.length).toEqual(1);
+            expect(dynamoDBUtils.Team.update).toBeCalledWith(expectedCreatedTeam, expect.any(Function));
+        });
+    })
+
     test('I should register a player and add him to a Team if a teams exist with less than 4 players and remove him from tentative if he is on it.', () => {
         const value = {
             Items: [{
@@ -804,8 +871,7 @@ describe('Filter Available Team', () => {
             tournamentDay: 'day1'
         }]
         const foundTeam = dynamoDBUtils.findFirstAvailableTeam('Player1', tournaments, teams);
-        teams[0].exist = true;
-        expect(foundTeam).toEqual(teams);
+        expect(foundTeam).toBeFalsy()
     })
 
     test('I should receive all Teams with the exist value populated if the player passed belongs to the tournament and tournament day passed', () => {
@@ -834,10 +900,8 @@ describe('Filter Available Team', () => {
             tournamentName: 'msi2021',
             tournamentDay: 'day2'
         }];
-        const foundTeam = dynamoDBUtils.findFirstAvailableTeam('Player1', tournaments, teams);
-        teams[0].exist = true;
-        teams[1].exist = true;
-        expect(foundTeam).toEqual(teams);
+        const foundTeam = dynamoDBUtils.findFirstAvailableTeam('Player1', tournaments, JSON.parse(JSON.stringify(teams)));
+        expect(foundTeam).toBeFalsy();3
     })
 
     test('I should receive a single team if a player passed does not belong to one of the tournaments and tournament days passed.', () => {

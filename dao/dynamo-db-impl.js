@@ -55,32 +55,37 @@ class DynamoDBUtils {
                 const playerAvailableTournaments = this.filterAvailableTournaments(tournaments, playerName, teams);
                 let availableTeam = this.findFirstAvailableTeam(playerName, tournaments, teams);
                 if (Array.isArray(playerAvailableTournaments) && !playerAvailableTournaments.length) {
-                    resolve(availableTeam);
-                } if (this.tentative.includes(playerName)) {
-                    this.handleTentative(playerName).then((data) => {
-                        if (data) console.log('Pulled off tentative');
-                    });
-                } if (!availableTeam) {
-                    console.log(`Creating new team for ${playerName} and Tournament ${playerAvailableTournaments[0].tournamentName} and Day ${playerAvailableTournaments[0].tournamentDay} since there are no available teams.`);
-                    teamJoined = this.createNewTeam(playerName, serverName, playerAvailableTournaments[0], teams.length + 1);
-                    resolve(teamJoined);
-                } else if (!Array.isArray(availableTeam)) {
-                    console.log(`Adding ${playerName} to first available team ${availableTeam.teamName}...`);
-                    let params = {};
-                    params.UpdateExpression = 'ADD players :playerName';
-                    params.ExpressionAttributeValues = {
-                        ':playerName': dynamodb.Set([playerName], 'S')
-                    };
-                    this.Team.update({key: this.getKey(availableTeam.teamName,
-                            availableTeam.serverName,
-                            availableTeam.tournamentName,
-                            availableTeam.tournamentDay)}, params, function (err, record) {
-                        if (err) reject(err);
-                        else {
-                            console.log(`Added ${playerName} to ${record.attrs.teamName}.`);
-                            resolve(record.attrs);
-                        }
-                    });
+                    data.forEach(record => record.exist = true);
+                    resolve(data);
+                } else {
+                    if (this.tentative.includes(playerName)) {
+                        this.handleTentative(playerName).then((data) => {
+                            if (data) console.log('Pulled off tentative');
+                        });
+                    } if (!availableTeam) {
+                        console.log(`Creating new team for ${playerName} and Tournament ${playerAvailableTournaments[0].tournamentName} and Day ${playerAvailableTournaments[0].tournamentDay} since there are no available teams.`);
+                        teamJoined = this.createNewTeam(playerName, serverName, playerAvailableTournaments[0], teams.length + 1);
+                        resolve(teamJoined);
+                    } else if (!Array.isArray(availableTeam)) {
+                        console.log(`Adding ${playerName} to first available team ${availableTeam.teamName}...`);
+                        let params = {};
+                        params.UpdateExpression = 'ADD players :playerName';
+                        params.ExpressionAttributeValues = {
+                            ':playerName': dynamodb.Set([playerName], 'S')
+                        };
+                        this.Team.update({
+                            key: this.getKey(availableTeam.teamName,
+                                availableTeam.serverName,
+                                availableTeam.tournamentName,
+                                availableTeam.tournamentDay)
+                        }, params, function (err, record) {
+                            if (err) reject(err);
+                            else {
+                                console.log(`Added ${playerName} to ${record.attrs.teamName}.`);
+                                resolve(record.attrs);
+                            }
+                        });
+                    }
                 }
             });
         });
@@ -194,11 +199,8 @@ class DynamoDBUtils {
                         && tournamentTeams[i].players.length < 5
                         && !tournamentTeams[i].players.includes(playerName))) {
                     return tournamentTeams[i];
-                } else {
-                    tournamentTeams[i].exist = true;
                 }
             }
-            return tournamentTeams;
         }
     }
 
