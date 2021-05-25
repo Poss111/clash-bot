@@ -8,7 +8,7 @@ module.exports = {
     execute: async function (msg, args) {
         const startTime = process.hrtime.bigint();
         if (!Array.isArray(args) || args.length < 2) {
-            msg.reply('Please pass the tournament and day to unregister for i.e. !clash unregister msi2021 2');
+            msg.reply(`Please pass the tournament and day to unregister for i.e. !clash unregister msi2021 2`);
             timeTracker.endExecution(this.name, startTime);
         } else {
             let tournamentName = args[0];

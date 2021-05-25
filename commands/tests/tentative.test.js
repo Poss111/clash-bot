@@ -123,7 +123,7 @@ test('Should require a tournament as an argument.', async () => {
     let args = [];
     dynamoDBUtils.handleTentative.mockResolvedValue(true);
     await tentative.execute(msg, args);
-    expect(messagePassed).toEqual(`A tournament name to be tentative for is missing. Please use !clash tentative 'tournament name' to use tentative.`);
+    expect(messagePassed).toEqual(`A tournament name to be tentative for is missing. Please use !clash tentative 'tournament name' to use tentative. i.e. !clash tentative msi2021`);
 })
 
 test('Should require a single argument.', async () => {
@@ -140,7 +140,7 @@ test('Should require a single argument.', async () => {
     let args = undefined;
     dynamoDBUtils.handleTentative.mockResolvedValue(true);
     await tentative.execute(msg, args);
-    expect(messagePassed).toEqual(`A tournament name to be tentative for is missing. Please use !clash tentative 'tournament name' to use tentative.`);
+    expect(messagePassed).toEqual(`A tournament name to be tentative for is missing. Please use !clash tentative 'tournament name' to use tentative. i.e. !clash tentative msi2021`);
 })
 
 test('If an error occurs, the error handler will be invoked.', async () => {

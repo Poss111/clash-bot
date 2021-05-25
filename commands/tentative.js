@@ -9,7 +9,7 @@ module.exports = {
     execute: async function(msg, args) {
         const startTime = process.hrtime.bigint();
         if (!Array.isArray(args) || args.length < 1) {
-            msg.reply(`A tournament name to be tentative for is missing. Please use !clash tentative 'tournament name' to use tentative.`);
+            msg.reply(`A tournament name to be tentative for is missing. Please use !clash tentative 'tournament name' to use tentative. i.e. !clash tentative msi2021`);
             timeTracker.endExecution(this.name, startTime);
         } else {
             const foundTournament = leagueApi.findTournament(args[0]);

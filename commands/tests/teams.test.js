@@ -148,7 +148,11 @@ describe('Retrieve Teams', () => {
             }
         };
         const sampleTeamTwoPlayers = [];
-        const sampleTentativeList = ['Player1'];
+        const sampleTentativeList = [{
+            playerName: 'Player1',
+            serverName: 'Simple Server',
+            tournamentName: 'msi2021'
+        }];
         dynamoDBUtils.getTeams.mockResolvedValue(sampleTeamTwoPlayers);
         dynamoDBUtils.getTentative.mockReturnValue(sampleTentativeList);
         await teams.execute(msg);
@@ -156,7 +160,7 @@ describe('Retrieve Teams', () => {
         expect(messagePassed.embed.fields[0].name).toEqual('No Existing Teams. Please register!');
         expect(messagePassed.embed.fields[0].value).toEqual('Emptay');
         expect(messagePassed.embed.fields[1].name).toEqual('Tentative Queue');
-        expect(messagePassed.embed.fields[1].value).toEqual(sampleTentativeList);
+        expect(messagePassed.embed.fields[1].value).toEqual(`${sampleTentativeList[0].tournamentName} -> ${sampleTentativeList[0].playerName}`);
     })
 
     test('When tentative players and a team are passed back, it should populate the tentative list with the existing team.', async () => {
@@ -175,8 +179,12 @@ describe('Retrieve Teams', () => {
             teamName: 'TestTeam',
             serverName: `${msg.guild.name}`,
             players: ['Player1', 'Player2']
+        }];        
+        const sampleTentativeList = [{
+            playerName: 'Player1',
+            serverName: 'Simple Server',
+            tournamentName: 'msi2021'
         }];
-        const sampleTentativeList = ['Player1'];
         dynamoDBUtils.getTeams.mockResolvedValue(sampleTeamTwoPlayers);
         dynamoDBUtils.getTentative.mockReturnValue(sampleTentativeList);
         await teams.execute(msg);
@@ -186,7 +194,68 @@ describe('Retrieve Teams', () => {
         expect(messagePassed.embed.fields[1].name).toEqual('Tournament Details');
         expect(messagePassed.embed.fields[1].value).toEqual(`${sampleTeamTwoPlayers[0].tournamentName} Day ${sampleTeamTwoPlayers[0].tournamentDay}`);
         expect(messagePassed.embed.fields[2].name).toEqual('Tentative Queue');
-        expect(messagePassed.embed.fields[2].value).toEqual(sampleTentativeList);
+        expect(messagePassed.embed.fields[2].value).toEqual(`${sampleTentativeList[0].tournamentName} -> ${sampleTentativeList[0].playerName}`);
+    })
+
+    test('When multiple tentative players and a team are passed back, it should populate the tentative list with the existing team based on all the tournaments.', async () => {
+        let messagePassed = '';
+        let msg = {
+            reply: (value) => messagePassed = value,
+            author: {
+                username: 'TestPlayer'
+            },
+            guild: {
+                name: 'TestServer'
+            }
+        };
+        const sampleTeamTwoPlayers = [{
+            key: `TestTeam#${msg.guild.name}`,
+            teamName: 'TestTeam',
+            serverName: `${msg.guild.name}`,
+            players: ['Player1', 'Player2']
+        }];
+        const sampleTentativeList = [{
+            playerName: 'Player1',
+            serverName: 'Simple Server',
+            tournamentName: 'msi2021'
+        },{
+            playerName: 'Player2',
+            serverName: 'Simple Server',
+            tournamentName: 'msi2021'
+        },{
+            playerName: 'Player1',
+            serverName: 'Simple Server',
+            tournamentName: 'msi2022'
+        },{
+            playerName: 'Player2',
+            serverName: 'Simple Server',
+            tournamentName: 'msi2023'
+        }];
+        dynamoDBUtils.getTeams.mockResolvedValue(sampleTeamTwoPlayers);
+        dynamoDBUtils.getTentative.mockReturnValue(sampleTentativeList);
+        await teams.execute(msg);
+        let expectedMessage = '';
+        const reduce = sampleTentativeList.reduce((acc, value) => {
+            if (!acc[value.tournamentName]) {
+                acc[value.tournamentName] = []
+            }
+            acc[value.tournamentName].push(value.playerName);
+            return acc;
+        }, {});
+        const keys = Object.keys(reduce);
+        for (let i = 0; i < keys.length; i++) {
+            expectedMessage = expectedMessage.concat(`${keys[i]} -> ${reduce[keys[i]]}`);
+            if (i < keys.length - 1) {
+                expectedMessage = expectedMessage.concat('\n');
+            }
+        }
+        expect(messagePassed.embed.fields.length).toEqual(3);
+        expect(messagePassed.embed.fields[0].name).toEqual(sampleTeamTwoPlayers[0].teamName);
+        expect(messagePassed.embed.fields[0].value).toEqual(sampleTeamTwoPlayers[0].players);
+        expect(messagePassed.embed.fields[1].name).toEqual('Tournament Details');
+        expect(messagePassed.embed.fields[1].value).toEqual(`${sampleTeamTwoPlayers[0].tournamentName} Day ${sampleTeamTwoPlayers[0].tournamentDay}`);
+        expect(messagePassed.embed.fields[2].name).toEqual('Tentative Queue');
+        expect(messagePassed.embed.fields[2].value).toEqual(expectedMessage);
     })
 })
 

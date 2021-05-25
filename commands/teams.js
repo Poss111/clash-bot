@@ -29,7 +29,22 @@ module.exports = {
                     }
                 }
             } if (tentative && tentative.length > 0) {
-                copy.fields.push({name: 'Tentative Queue', value: tentative});
+                const reduce = tentative.reduce((acc, value) => {
+                    if (!acc[value.tournamentName]) {
+                        acc[value.tournamentName] = []
+                    }
+                    acc[value.tournamentName].push(value.playerName);
+                    return acc;
+                }, {});
+                let message = '';
+                const keys = Object.keys(reduce);
+                for (let i = 0; i < keys.length; i++) {
+                    message = message.concat(`${keys[i]} -> ${reduce[keys[i]]}`);
+                    if (i < keys.length - 1) {
+                        message = message.concat('\n');
+                    }
+                }
+                copy.fields.push({name: 'Tentative Queue', value: message});
             }
             msg.reply({embed: copy});
         }).catch(err => errorHandler.handleError(this.name, err, msg, 'Failed to retrieve the current Clash Teams status.'))
