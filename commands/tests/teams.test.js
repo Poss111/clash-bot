@@ -76,6 +76,41 @@ describe('Retrieve Teams', () => {
         expect(messagePassed.embed.fields[5]).toBeFalsy();
     })
 
+    test('When multiple teams are passed back and one is an empty player list, they should be populated as individual fields in the embedded property of the reply with their corresponding tournaments.', async () => {
+        let messagePassed = '';
+        let msg = {
+            reply: (value) => messagePassed = value,
+            author: {
+                username: 'TestPlayer'
+            },
+            guild: {
+                name: 'TestServer'
+            }
+        };
+        const sampleTeamTwoPlayers = [{
+            key: `TestTeam#${msg.guild.name}#msi2021#2`,
+            teamName: 'TestTeam',
+            serverName: `${msg.guild.name}`,
+            players: ['Player1', 'Player2'],
+            tournamentName: 'msi2021',
+            tournamentDay: '2'
+        }, {
+            key: `TestTeam#${msg.guild.name}#msi2021#3`,
+            teamName: 'TestTeam',
+            serverName: `${msg.guild.name}`,
+            tournamentName: 'msi2021',
+            tournamentDay: '3'
+        }];
+        dynamoDBUtils.getTeams.mockResolvedValue(sampleTeamTwoPlayers);
+        await teams.execute(msg);
+        expect(messagePassed.embed.fields.length).toEqual(2);
+        expect(messagePassed.embed.fields[0].name).toEqual(sampleTeamTwoPlayers[0].teamName);
+        expect(messagePassed.embed.fields[0].value).toEqual(sampleTeamTwoPlayers[0].players);
+        expect(messagePassed.embed.fields[1].name).toEqual('Tournament Details');
+        expect(messagePassed.embed.fields[1].value).toEqual(`${sampleTeamTwoPlayers[0].tournamentName} Day ${sampleTeamTwoPlayers[0].tournamentDay}`);
+        expect(messagePassed.embed.fields[2]).toBeFalsy();
+    })
+
     test('When no teams are passed back, it should be populate the not existing teams message.', async () => {
         let messagePassed = '';
         let msg = {

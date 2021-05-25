@@ -11,7 +11,7 @@ test('When league times returns successfully, there should be a formatted time f
         }
     };
     let sampleTime = [{
-        name: 'Sample Tournament',
+        tournamentName: 'Sample Tournament',
         nameSecondary: 'sampleTournament',
         startTime: 'Monday April 1st, 2021 @ 1',
         registrationTime: 'Monday April 1st, 2021 @ 2'
@@ -20,7 +20,7 @@ test('When league times returns successfully, there should be a formatted time f
     time.execute(msg);
     expect(messagePassed.embed.fields.length).toEqual(3);
     expect(messagePassed.embed.fields[0].name).toEqual('Tournament Name');
-    expect(messagePassed.embed.fields[0].value).toEqual(sampleTime[0].name);
+    expect(messagePassed.embed.fields[0].value).toEqual(sampleTime[0].tournamentName);
     expect(messagePassed.embed.fields[0].inline).toBeTruthy();
     expect(messagePassed.embed.fields[1].name).toEqual('Registration Time');
     expect(messagePassed.embed.fields[1].value).toEqual(sampleTime[0].registrationTime);

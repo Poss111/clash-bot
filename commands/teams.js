@@ -15,6 +15,7 @@ module.exports = {
                 copy.fields.push({name: 'No Existing Teams. Please register!', value: 'Emptay'})
             } else {
                 let counter;
+                data = data.filter(record => record.players && record.players.length > 0);
                 for (counter = 0; counter < data.length; counter++) {
                     if (data[counter].players && data[counter].players.length > 0) {
                         copy.fields.push({name: data[counter].teamName, value: data[counter].players, inline: true});
