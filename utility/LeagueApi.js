@@ -85,10 +85,7 @@ class LeagueApi {
             filter = (data) => new Date(data.startTime) > new Date();
             return this.getLeagueTimes().filter(filter);
         }
-        let foundData = this.getLeagueTimes().filter(filter);
-        if (foundData.length !== 0) {
-            return foundData[0];
-        }
+        return this.getLeagueTimes().filter(filter);
     }
 
     setLeagueTimes(times) {

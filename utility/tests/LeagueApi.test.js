@@ -90,7 +90,7 @@ describe('Find Tournament', () => {
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
         ];
-        expect(LeagueApi.findTournament('msi2021')).toEqual(LeagueApi.leagueTimes[0]);
+        expect(LeagueApi.findTournament('msi2021')).toEqual(LeagueApi.leagueTimes);
     })
 
     test('I should be returned an empty value if a match is not found.', () => {
@@ -108,7 +108,7 @@ describe('Find Tournament', () => {
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
         ];
-        expect(LeagueApi.findTournament('abcde')).toBeFalsy();
+        expect(LeagueApi.findTournament('abcde')).toHaveLength(0);
     })
 
     test('I should be returned an empty value if a tournament name match is not found due to date being in the past.', () => {
@@ -130,7 +130,7 @@ describe('Find Tournament', () => {
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
         ];
-        expect(LeagueApi.findTournament('msi2021')).toBeFalsy();
+        expect(LeagueApi.findTournament('msi2021')).toHaveLength(0);
     })
 
     test('I should be returned an empty value if a tournament name and day match is not found due to date being in the past.', () => {
@@ -152,7 +152,7 @@ describe('Find Tournament', () => {
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
         ];
-        expect(LeagueApi.findTournament('msi2021', '3')).toBeFalsy();
+        expect(LeagueApi.findTournament('msi2021', '3')).toHaveLength(0);
     })
 
     test('I should be able to search for a tournament and a day.', () => {
@@ -170,7 +170,7 @@ describe('Find Tournament', () => {
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
         ];
-        expect(LeagueApi.findTournament('msi2021', '4')).toEqual(LeagueApi.leagueTimes[1]);
+        expect(LeagueApi.findTournament('msi2021', '4')).toEqual([LeagueApi.leagueTimes[1]]);
     })
 
     test('I should be able to search for a partial name of a tournament.', () => {
@@ -188,7 +188,7 @@ describe('Find Tournament', () => {
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
         ];
-        expect(LeagueApi.findTournament('msi')).toEqual(LeagueApi.leagueTimes[0]);
+        expect(LeagueApi.findTournament('msi')).toEqual(LeagueApi.leagueTimes);
     })
 
     test('I should be able to search for a partial name and regardless of case for a tournament.', () => {
@@ -206,7 +206,7 @@ describe('Find Tournament', () => {
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
         ];
-        expect(LeagueApi.findTournament('MSI')).toEqual(LeagueApi.leagueTimes[0]);
+        expect(LeagueApi.findTournament('MSI')).toEqual(LeagueApi.leagueTimes);
     })
 
     test('I should be able to return the all available tournaments based on the current date if nothing is passed', () => {
