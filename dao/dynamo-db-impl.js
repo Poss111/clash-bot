@@ -106,25 +106,26 @@ class DynamoDBUtils {
                 });
                 if (filter.length > 0) {
                     console.log(`Unregistering ${playerName} from team ${filter[0].teamName}...`);
-                    let params = {};
-                    params.UpdateExpression = 'DELETE players :playerName';
-                    params.ConditionExpression = 'teamName = :nameOfTeam';
-                    params.ExpressionAttributeValues = {
-                        ':playerName': dynamodb.documentClient().createSet(playerName),
-                        ':nameOfTeam': filter[0].teamName,
-                    };
-                    this.Team.update({key: this.getKey(filter[0].teamName,
-                            serverName,
-                            filter[0].tournamentName,
-                            filter[0].tournamentDay)},
-                        params,
-                        function (err) {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve(true);
-                        }
+                    filter.forEach(record => {
+                        let params = {};
+                        params.UpdateExpression = 'DELETE players :playerName';
+                        params.ConditionExpression = 'teamName = :nameOfTeam';
+                        params.ExpressionAttributeValues = {
+                            ':playerName': dynamodb.Set([playerName], 'S'),
+                            ':nameOfTeam': record.teamName,
+                        };
+                        this.Team.update({key: this.getKey(record.teamName,
+                                serverName,
+                                record.tournamentName,
+                                record.tournamentDay)},
+                            params,
+                            function (err) {
+                                if (err) {
+                                    reject(err);
+                                }
+                            });
                     });
+                    resolve(true);
                 } else {
                     resolve(false);
                 }
@@ -187,6 +188,14 @@ class DynamoDBUtils {
                 {
                     tournamentName: tournamentName,
                     tournamentDay: '2'
+                },
+                {
+                    tournamentName: tournamentName,
+                    tournamentDay: '3'
+                },
+                {
+                    tournamentName: tournamentName,
+                    tournamentDay: '4'
                 }];
                 this.deregisterPlayer(playerName, serverName, tournamentsToDeregister)
                     .then(() => {

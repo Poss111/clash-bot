@@ -472,6 +472,7 @@ describe('Unregister Player', () =>{
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
         ];
+        let expectedPlayers = ['Player1'];
         const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
         dynamodb.documentClient = (() => {
             return {
@@ -491,9 +492,179 @@ describe('Unregister Player', () =>{
                 callback();
             })
         }
+        dynamodb.Set = jest.fn().mockReturnValue(expectedPlayers);
+
+        let foundTeam = value.Items[0].attrs;
+        let key = dynamoDBUtils.getKey(foundTeam.teamName, foundTeam.serverName, foundTeam.tournamentName, foundTeam.tournamentDay);
 
         return dynamoDBUtils.deregisterPlayer('Player1', 'Sample Server', leagueTimes).then((data) => {
             expect(data).toBeTruthy();
+            expect(dynamoDBUtils.Team.update.mock.calls.length).toEqual(1);
+            expect(dynamoDBUtils.Team.update).toBeCalledWith({key: key}, {
+                ExpressionAttributeValues: {
+                    ':playerName': expectedPlayers,
+                    ':nameOfTeam': 'Team Sample'
+                },
+                ConditionExpression: 'teamName = :nameOfTeam',
+                UpdateExpression: 'DELETE players :playerName'
+            }, expect.any(Function));
+        })
+    })
+
+    test('I should remove a player from multiple teams if unregister is called and they belong to multiple teams that match the criteria.', () => {
+        const value = {
+            Items: [{
+                attrs: {
+                    key: 'Sample Team#Sample Server',
+                    teamName: 'Team Sample',
+                    serverName: 'Sample Server',
+                    players: ['Player1'],
+                    tournamentName: 'msi2021',
+                    tournamentDay: '1'
+                }
+            }, {
+                attrs: {
+                    key: 'Sample Team#Sample Server',
+                    teamName: 'Team Sample2',
+                    serverName: 'Sample Server',
+                    players: ['Player1'],
+                    tournamentName: 'msi2021',
+                    tournamentDay: '2'
+                }
+            }
+            ]
+        };
+        let leagueTimes = [
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "1",
+                "startTime": "May 29 2021 07:00 pm PDT",
+                "registrationTime": "May 29 2021 04:15 pm PDT"
+            },
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "2",
+                "startTime": "May 30 2021 07:00 pm PDT",
+                "registrationTime": "May 30 2021 04:15 pm PDT"
+            }
+        ];
+        let expectedPlayers = ['Player1'];
+        const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
+        dynamodb.documentClient = (() => {
+            return {
+                documentClient: () => jest.fn().mockReturnThis(),
+                createSet: () => jest.fn().mockReturnThis()
+            }
+        });
+        dynamoDBUtils.Team = jest.fn();
+        dynamoDBUtils.Team.update = jest.fn();
+        dynamoDBUtils.Team = {
+            scan: jest.fn().mockReturnThis(),
+            filterExpression: jest.fn().mockReturnThis(),
+            expressionAttributeValues: jest.fn().mockReturnThis(),
+            expressionAttributeNames: jest.fn().mockReturnThis(),
+            exec: mockStream,
+            update: jest.fn().mockImplementation((key, params, callback) => {
+                callback();
+            })
+        }
+        dynamodb.Set = jest.fn().mockReturnValue(expectedPlayers);
+
+        let foundTeam = value.Items[0].attrs;
+        let keyOne = dynamoDBUtils.getKey(foundTeam.teamName, foundTeam.serverName, foundTeam.tournamentName, foundTeam.tournamentDay);
+        let foundTeamTwo = value.Items[1].attrs;
+        let keyTwo = dynamoDBUtils.getKey(foundTeamTwo.teamName, foundTeamTwo.serverName, foundTeamTwo.tournamentName, foundTeamTwo.tournamentDay);
+
+        return dynamoDBUtils.deregisterPlayer('Player1', 'Sample Server', leagueTimes).then((data) => {
+            expect(data).toBeTruthy();
+            expect(dynamoDBUtils.Team.update.mock.calls.length).toEqual(2);
+            expect(dynamoDBUtils.Team.update.mock.calls).toEqual([[{key: keyOne}, {
+                ExpressionAttributeValues: {
+                    ':playerName': expectedPlayers,
+                    ':nameOfTeam': 'Team Sample'
+                },
+                ConditionExpression: 'teamName = :nameOfTeam',
+                UpdateExpression: 'DELETE players :playerName'
+            }, expect.any(Function)], [
+                {key: keyTwo}, {
+                    ExpressionAttributeValues: {
+                        ':playerName': expectedPlayers,
+                        ':nameOfTeam': 'Team Sample2'
+                    },
+                    ConditionExpression: 'teamName = :nameOfTeam',
+                    UpdateExpression: 'DELETE players :playerName'
+                }, expect.any(Function)
+            ]]);
+        })
+    })
+
+    test('I should remove a player from a single team if unregister is called and they belong to a single teams that matches the criteria.', () => {
+        const value = {
+            Items: [{
+                attrs: {
+                    key: 'Sample Team#Sample Server',
+                    teamName: 'Team Sample',
+                    serverName: 'Sample Server',
+                    players: ['Player1'],
+                    tournamentName: 'msi2021',
+                    tournamentDay: '1'
+                }
+            }, {
+                attrs: {
+                    key: 'Sample Team#Sample Server',
+                    teamName: 'Team Sample2',
+                    serverName: 'Sample Server',
+                    players: ['Player1'],
+                    tournamentName: 'msi2021',
+                    tournamentDay: '2'
+                }
+            }
+            ]
+        };
+        let leagueTimes = [
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "1",
+                "startTime": "May 29 2021 07:00 pm PDT",
+                "registrationTime": "May 29 2021 04:15 pm PDT"
+            }
+        ];
+        let expectedPlayers = ['Player1'];
+        const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
+        dynamodb.documentClient = (() => {
+            return {
+                documentClient: () => jest.fn().mockReturnThis(),
+                createSet: () => jest.fn().mockReturnThis()
+            }
+        });
+        dynamoDBUtils.Team = jest.fn();
+        dynamoDBUtils.Team.update = jest.fn();
+        dynamoDBUtils.Team = {
+            scan: jest.fn().mockReturnThis(),
+            filterExpression: jest.fn().mockReturnThis(),
+            expressionAttributeValues: jest.fn().mockReturnThis(),
+            expressionAttributeNames: jest.fn().mockReturnThis(),
+            exec: mockStream,
+            update: jest.fn().mockImplementation((key, params, callback) => {
+                callback();
+            })
+        }
+        dynamodb.Set = jest.fn().mockReturnValue(expectedPlayers);
+
+        let foundTeam = value.Items[0].attrs;
+        let keyOne = dynamoDBUtils.getKey(foundTeam.teamName, foundTeam.serverName, foundTeam.tournamentName, foundTeam.tournamentDay);
+
+        return dynamoDBUtils.deregisterPlayer('Player1', 'Sample Server', leagueTimes).then((data) => {
+            expect(data).toBeTruthy();
+            expect(dynamoDBUtils.Team.update.mock.calls.length).toEqual(1);
+            expect(dynamoDBUtils.Team.update.mock.calls).toEqual([[{key: keyOne}, {
+                ExpressionAttributeValues: {
+                    ':playerName': expectedPlayers,
+                    ':nameOfTeam': 'Team Sample'
+                },
+                ConditionExpression: 'teamName = :nameOfTeam',
+                UpdateExpression: 'DELETE players :playerName'
+            }, expect.any(Function)]]);
         })
     })
 

@@ -14,7 +14,7 @@ module.exports = {
         } else {
             const foundTournament = leagueApi.findTournament(args[0]);
             if (Array.isArray(foundTournament) && foundTournament.length > 0) {
-                await dbUtils.handleTentative(msg.author.username, msg.guild.name, args[0]).then(data => {
+                await dbUtils.handleTentative(msg.author.username, msg.guild.name, foundTournament[0].tournamentName).then(data => {
                     if (data) {
                         msg.reply(`We have taken you off of tentative queue. tip: Use '!clash teams' to view current team status`);
                     } else {
