@@ -15,7 +15,7 @@ module.exports = {
             let tournamentDay = args[1];
             const tournamentsToUnregister = leagueApi.findTournament(tournamentName, tournamentDay);
             if (Array.isArray(tournamentsToUnregister) && tournamentsToUnregister.length) {
-                msg.channel.send(`Unregistering ${msg.author.username}...`)
+                msg.channel.send(`Unregistering ${msg.author.username} from Tournament ${tournamentsToUnregister[0].tournamentName} on Day ${tournamentsToUnregister[0].tournamentDay}...`)
                 await dbUtils.deregisterPlayer(msg.author.username, msg.guild.name, tournamentsToUnregister).then(data => {
                     if (data) {
                         msg.reply(`Removed you from your Team. Please use !clash register if you would like to join again. Thank you!`)

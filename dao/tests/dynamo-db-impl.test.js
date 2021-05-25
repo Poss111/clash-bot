@@ -294,7 +294,11 @@ describe('Register Player', () => {
         expectedPlayers.push(value.Items[0].attrs.players[1]);
         expectedPlayers.push('Player3');
         dynamoDBUtils.Team = jest.fn();
-        dynamoDBUtils.tentative.push('Player3');
+        dynamoDBUtils.tentative.push({
+            playerName: 'Player3',
+            serverName: 'Sample Server',
+            tournamentName: 'msi2021'
+        });
         dynamoDBUtils.Team.update = jest.fn();
         dynamoDBUtils.Team = {
             scan: jest.fn().mockReturnThis(),
@@ -447,11 +451,27 @@ describe('Unregister Player', () =>{
                     key: 'Sample Team#Sample Server',
                     teamName: 'Team Sample',
                     serverName: 'Sample Server',
-                    players: ['Player1']
+                    players: ['Player1'],
+                    tournamentName: 'msi2021',
+                    tournamentDay: '1'
                 }
             }
             ]
         };
+        let leagueTimes = [
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "1",
+                "startTime": "May 29 2021 07:00 pm PDT",
+                "registrationTime": "May 29 2021 04:15 pm PDT"
+            },
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "2",
+                "startTime": "May 30 2021 07:00 pm PDT",
+                "registrationTime": "May 30 2021 04:15 pm PDT"
+            }
+        ];
         const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
         dynamodb.documentClient = (() => {
             return {
@@ -472,7 +492,7 @@ describe('Unregister Player', () =>{
             })
         }
 
-        return dynamoDBUtils.deregisterPlayer('Player1', 'Sample Server').then((data) => {
+        return dynamoDBUtils.deregisterPlayer('Player1', 'Sample Server', leagueTimes).then((data) => {
             expect(data).toBeTruthy();
         })
     })
@@ -484,11 +504,27 @@ describe('Unregister Player', () =>{
                     key: 'Sample Team#Sample Server',
                     teamName: 'Team Sample',
                     serverName: 'Sample Server',
-                    players: ['Player1']
+                    players: ['Player1'],
+                    tournamentName: 'msi2021',
+                    tournamentDay: '1'
                 }
             }
             ]
         };
+        let leagueTimes = [
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "1",
+                "startTime": "May 29 2021 07:00 pm PDT",
+                "registrationTime": "May 29 2021 04:15 pm PDT"
+            },
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "2",
+                "startTime": "May 30 2021 07:00 pm PDT",
+                "registrationTime": "May 30 2021 04:15 pm PDT"
+            }
+        ];
         const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
         dynamodb.documentClient = (() => {
             return {
@@ -509,7 +545,60 @@ describe('Unregister Player', () =>{
             })
         }
 
-        return dynamoDBUtils.deregisterPlayer('Player2', 'Sample Server').then((data) => {
+        return dynamoDBUtils.deregisterPlayer('Player2', 'Sample Server', leagueTimes).then((data) => {
+            expect(data).toBeFalsy();
+        })
+    })
+
+    test('I should not remove a player from a team if unregister is called and they do not exist on a team with the given tournament details.', () => {
+        const value = {
+            Items: [{
+                attrs: {
+                    key: 'Sample Team#Sample Server',
+                    teamName: 'Team Sample',
+                    serverName: 'Sample Server',
+                    players: ['Player1'],
+                    tournamentName: 'msi2021',
+                    tournamentDay: '3'
+                }
+            }
+            ]
+        };
+        let leagueTimes = [
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "1",
+                "startTime": "May 29 2021 07:00 pm PDT",
+                "registrationTime": "May 29 2021 04:15 pm PDT"
+            },
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "2",
+                "startTime": "May 30 2021 07:00 pm PDT",
+                "registrationTime": "May 30 2021 04:15 pm PDT"
+            }
+        ];
+        const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
+        dynamodb.documentClient = (() => {
+            return {
+                documentClient: () => jest.fn().mockReturnThis(),
+                createSet: () => jest.fn().mockReturnThis()
+            }
+        });
+        dynamoDBUtils.Team = jest.fn();
+        dynamoDBUtils.Team.update = jest.fn();
+        dynamoDBUtils.Team = {
+            scan: jest.fn().mockReturnThis(),
+            filterExpression: jest.fn().mockReturnThis(),
+            expressionAttributeValues: jest.fn().mockReturnThis(),
+            expressionAttributeNames: jest.fn().mockReturnThis(),
+            exec: mockStream,
+            update: jest.fn().mockImplementation((key, params, callback) => {
+                callback();
+            })
+        }
+
+        return dynamoDBUtils.deregisterPlayer('Player2', 'Sample Server', leagueTimes).then((data) => {
             expect(data).toBeFalsy();
         })
     })
@@ -521,11 +610,27 @@ describe('Unregister Player', () =>{
                     key: 'Sample Team#Sample Server',
                     teamName: 'Team Sample',
                     serverName: 'Sample Server',
-                    players: ['Player1']
+                    players: ['Player1'],
+                    tournamentName: 'msi2021',
+                    tournamentDay: '1'
                 }
             }
             ]
         };
+        let leagueTimes = [
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "1",
+                "startTime": "May 29 2021 07:00 pm PDT",
+                "registrationTime": "May 29 2021 04:15 pm PDT"
+            },
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "2",
+                "startTime": "May 30 2021 07:00 pm PDT",
+                "registrationTime": "May 30 2021 04:15 pm PDT"
+            }
+        ];
         const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
         dynamodb.documentClient = (() => {
             return {
@@ -546,19 +651,21 @@ describe('Unregister Player', () =>{
             })
         }
 
-        return expect(dynamoDBUtils.deregisterPlayer('Player1', 'Sample Server')).rejects.toMatch('Failed to update.')
+        return expect(dynamoDBUtils.deregisterPlayer('Player1', 'Sample Server', leagueTimes)).rejects.toMatch('Failed to update.')
     })
 })
 
 describe('Tentative Queue', () => {
-    test('When a user is not available in the tentative queue, they should be placed into the queue.', () => {
+    test('When a user is not available in the tentative queue, they should be placed into the queue with their server and tournament passed.', () => {
         const value = {
             Items: [{
                 attrs: {
                     key: 'Sample Team#Sample Server',
                     teamName: 'Sample Team',
                     serverName: 'Sample Server',
-                    players: ['Player2', 'Player3']
+                    players: ['Player2', 'Player3'],
+                    tournamentName: 'msi2021',
+                    tournamentDay: '1'
                 }
             }
             ]
@@ -572,17 +679,28 @@ describe('Tentative Queue', () => {
             expressionAttributeNames: jest.fn().mockReturnThis(),
             exec: mockStream
         }
-        return expect(dynamoDBUtils.handleTentative('Player 1', 'Sample Server')).resolves.toBeFalsy();
+        dynamoDBUtils.tentative = [];
+        return dynamoDBUtils.handleTentative('Player 1', 'Sample Server', 'msi2021').then((returnedValue) => {
+            expect(returnedValue).toBeFalsy();
+            expect(dynamoDBUtils.tentative.length).toBe(1);
+            expect(dynamoDBUtils.tentative[0]).toEqual({
+                playerName: 'Player 1',
+                serverName: 'Sample Server',
+                tournamentName: 'msi2021'
+            });
+        });
     })
 
-    test('When a user is available in the tentative queue, they should be removed from the queue.', () => {
+    test('When a user is available in the tentative queue based on the server name and tournament, they should be removed from the queue.', () => {
         const value = {
             Items: [{
                 attrs: {
                     key: 'Sample Team#Sample Server',
                     teamName: 'Sample Team',
                     serverName: 'Sample Server',
-                    players: ['Player2', 'Player3']
+                    players: ['Player2', 'Player3'],
+                    tournamentName: 'msi2021',
+                    tournamentDay: '1'
                 }
             }
             ]
@@ -596,8 +714,13 @@ describe('Tentative Queue', () => {
             expressionAttributeNames: jest.fn().mockReturnThis(),
             exec: mockStream
         }
-        dynamoDBUtils.tentative = ['Player1'];
-        return expect(dynamoDBUtils.handleTentative('Player1', 'Sample Server')).resolves.toBeTruthy().then(() => {
+        dynamoDBUtils.tentative = [{
+            playerName: 'Player 1',
+            serverName: 'Sample Server',
+            tournamentName: 'msi2021'
+        }];
+        return dynamoDBUtils.handleTentative('Player 1', 'Sample Server','msi2021').then((returnedValue) => {
+            expect(returnedValue).toBeTruthy();
             expect(dynamoDBUtils.tentative.length).toEqual(0);
         });
     })
@@ -609,7 +732,9 @@ describe('Tentative Queue', () => {
                     key: 'Sample Team#Sample Server',
                     teamName: 'Sample Team',
                     serverName: 'Sample Server',
-                    players: ['Player1', 'Player3']
+                    players: ['Player1', 'Player3'],
+                    tournamentName: 'msi2021',
+                    tournamentDay: '1'
                 }
             }
             ]
@@ -633,8 +758,31 @@ describe('Tentative Queue', () => {
             })
         }
         dynamoDBUtils.tentative = [];
-        return expect(dynamoDBUtils.handleTentative('Player1', 'Sample Server')).rejects.toMatch('Failed to update.');
+        return expect(dynamoDBUtils.handleTentative('Player1', 'Sample Server', 'msi2021')).rejects.toMatch('Failed to update.');
     })
+
+    test('When a user is requesting to be removed from the tentative queue and they belong, they should be removed.', () => {
+        dynamoDBUtils.tentative = [{
+            playerName: 'Player 1',
+            serverName: 'Sample Server',
+            tournamentName: 'msi2021'
+        }];
+        dynamoDBUtils.removeFromTentative('Player 1', 'Sample Server', 'msi2021');
+        expect(dynamoDBUtils.tentative.length).toEqual(0);
+    })
+
+    test('When a user is requesting to be removed from the tentative queue and they do not belong, they should not be removed.', () => {
+        dynamoDBUtils.tentative = [{
+            playerName: 'Player 1',
+            serverName: 'Sample Server',
+            tournamentName: 'msi2021'
+        }];
+        dynamoDBUtils.removeFromTentative('Player 2', 'Sample Server', 'msi2021');
+        expect(dynamoDBUtils.tentative.length).toEqual(1);
+        dynamoDBUtils.tentative.forEach((record) => {
+            expect(record.playerName).toEqual('Player 1');
+        })
+    });
 })
 
 describe('Create New Team', () => {

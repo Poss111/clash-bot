@@ -58,8 +58,10 @@ class DynamoDBUtils {
                     data.forEach(record => record.exist = true);
                     resolve(data);
                 } else {
-                    if (this.tentative.includes(playerName)) {
-                        this.handleTentative(playerName).then((data) => {
+                    if (this.tentative.some(record => record.playerName === playerName
+                        && record.serverName === serverName
+                        && record.tournamentName === playerAvailableTournaments[0].tournamentName)) {
+                        this.handleTentative(playerName, serverName, playerAvailableTournaments[0].tournamentName).then((data) => {
                             if (data) console.log('Pulled off tentative');
                         });
                     } if (!availableTeam) {
@@ -91,12 +93,14 @@ class DynamoDBUtils {
         });
     }
 
-    deregisterPlayer(playerName, serverName) {
+    deregisterPlayer(playerName, serverName, tournaments) {
         return new Promise((resolve, reject) => {
             this.getTeams(serverName).then((data) => {
                 let filter = [];
                 data.forEach(record => {
-                    if (record.players && record.players.includes(playerName)) {
+                    if (record.players && record.players.includes(playerName)
+                        && tournaments.some(tournament => tournament.tournamentName === record.tournamentName
+                            && tournament.tournamentDay === record.tournamentDay)) {
                         filter.push(record);
                     }
                 });
@@ -109,7 +113,12 @@ class DynamoDBUtils {
                         ':playerName': dynamodb.documentClient().createSet(playerName),
                         ':nameOfTeam': filter[0].teamName,
                     };
-                    this.Team.update({key: this.getKey(filter[0].teamName, serverName)}, params, function (err) {
+                    this.Team.update({key: this.getKey(filter[0].teamName,
+                            serverName,
+                            filter[0].tournamentName,
+                            filter[0].tournamentDay)},
+                        params,
+                        function (err) {
                         if (err) {
                             reject(err);
                         } else {
@@ -162,21 +171,44 @@ class DynamoDBUtils {
         return createTeam;
     }
 
-    handleTentative(playerName, serverName) {
+    handleTentative(playerName, serverName, tournamentName) {
         return new Promise((resolve, reject) => {
-            const filteredTentativeList = this.tentative.filter((name) => name !== playerName);
-            if (filteredTentativeList.length < this.tentative.length) {
-                this.tentative = filteredTentativeList;
+            const index = this.tentative.findIndex((record) => record.playerName === playerName
+                && record.serverName === serverName
+                && record.tournamentName === tournamentName);
+            if (index >= 0) {
+                this.tentative.splice(index, 1);
                 resolve(true);
             } else {
-                this.deregisterPlayer(playerName, serverName)
+                const tournamentsToDeregister = [{
+                    tournamentName: tournamentName,
+                    tournamentDay: '1'
+                },
+                {
+                    tournamentName: tournamentName,
+                    tournamentDay: '2'
+                }];
+                this.deregisterPlayer(playerName, serverName, tournamentsToDeregister)
                     .then(() => {
-                        this.tentative.push(playerName);
+                        this.tentative.push({
+                            playerName: playerName,
+                            serverName: serverName,
+                            tournamentName: tournamentName
+                        });
                         resolve(false);
                     })
                     .catch(err => reject(err));
             }
         });
+    }
+
+    removeFromTentative(playerName, serverName, tournamentName) {
+        const index = this.tentative.findIndex((record) => record.playerName === playerName
+            && record.serverName === serverName
+            && record.tournamentName === tournamentName);
+        if (index >= 0) {
+            this.tentative.splice(index, 1);
+        }
     }
 
     getKey(teamName, serverName, tournamentName, tournamentDay) {
