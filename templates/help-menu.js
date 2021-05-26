@@ -13,23 +13,23 @@ module.exports = {
         },
         {
             name: "register",
-            value: "Asks the bot to assign you to an available Clash team."
+            value: "Asks the bot to assign you to an available Clash team based on a tournament and a tournament day."
         },
         {
             name: "unregister",
-            value: "Asks the bot to remove you from the assigned Clash team therefore freeing a spot for others."
+            value: "Asks the bot to remove you from the assigned Clash team therefore freeing a spot for others on a tournament and a tournament day."
         },
         {
             name: "teams",
-            value: "Asks the bot to print a list of Teams for the latest clash."
+            value: "Asks the bot to print a list of Teams for the upcoming clash."
         },
         {
             name: "tentative",
-            value: "Asks the bot to place your name on the tentative queue, if you are already belong in the queue, you will be removed from it. You will be removed from a team if you have been assigned one. ***Note***: This queue is not maintain so you will be removed from the queue upon update of the bot."
+            value: "Asks the bot to place your name on the tentative queue for a tournament, if you are already belong in the queue, you will be removed from it. You will be removed from a team if you have been assigned one. ***Note***: This queue is not maintain so you will be removed from the queue upon update of the bot."
         },
         {
             name: "time",
-            value: "Prints out the times for the clash from the Riot API."
+            value: "Prints out the times for the clash from the Riot API and the list of tournaments to be used."
         },
         {
             name: "dance",

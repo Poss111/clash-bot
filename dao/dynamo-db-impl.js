@@ -32,7 +32,8 @@ class DynamoDBUtils {
                     serverName: Joi.string(),
                     players: dynamodb.types.stringSet(),
                     tournamentName: Joi.string(),
-                    tournamentDay: Joi.string()
+                    tournamentDay: Joi.string(),
+                    startTime: Joi.string()
                 }
             });
             const dbCallback = (err) => {
@@ -163,7 +164,8 @@ class DynamoDBUtils {
             serverName: serverName,
             players: [playerName],
             tournamentName: tournament.tournamentName,
-            tournamentDay: tournament.tournamentDay
+            tournamentDay: tournament.tournamentDay,
+            startTime: tournament.startTime
         };
         createTeam.key = this.getKey(createTeam.teamName, serverName, tournament.tournamentName, tournament.tournamentDay);
         this.Team.update(createTeam, function (err) {
