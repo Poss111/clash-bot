@@ -954,6 +954,21 @@ describe('Tentative Queue', () => {
             expect(record.playerName).toEqual('Player 1');
         })
     });
+
+    test('When a user retrieves from the tentative queue, they filter based on the server name.', () => {
+        dynamoDBUtils.tentative = [{
+            playerName: 'Player 1',
+            serverName: 'Sample Server',
+            tournamentName: 'msi2021'
+        }, {
+            playerName: 'Player 2',
+            serverName: 'Sample Server2',
+            tournamentName: 'msi2021'
+        }];
+        let serverName = 'Sample Server';
+        const tentativeForServer = dynamoDBUtils.getTentative(serverName);
+        expect(tentativeForServer).toEqual([dynamoDBUtils.tentative[0]]);
+    });
 })
 
 describe('Create New Team', () => {

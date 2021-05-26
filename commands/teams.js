@@ -8,7 +8,7 @@ module.exports = {
     execute: async function (msg) {
         const startTime = process.hrtime.bigint();
         await dbUtils.getTeams(msg.guild.name).then(data => {
-            let tentative = dbUtils.getTentative();
+            let tentative = dbUtils.getTentative(msg.guild.name);
             let copy = JSON.parse(JSON.stringify(teamsCard));
 
             if (!data || data.length <= 0 || !data[0].players) {

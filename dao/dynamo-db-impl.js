@@ -226,8 +226,8 @@ class DynamoDBUtils {
         return `${teamName}#${serverName}#${tournamentName}#${tournamentDay}`;
     }
 
-    getTentative() {
-        return JSON.parse(JSON.stringify(this.tentative));
+    getTentative(serverName) {
+        return JSON.parse(JSON.stringify(this.tentative)).filter(data => data.serverName === serverName);
     }
 
     findFirstAvailableTeam(playerName, tournaments, teams) {
