@@ -14,13 +14,38 @@ module.exports = {
             if (!data || data.length <= 0 || !data[0].players) {
                 copy.fields.push({name: 'No Existing Teams. Please register!', value: 'Emptay'})
             } else {
-                data.forEach((team) => {
-                    if (team.players && team.players.length > 0) {
-                        copy.fields.push({name: team.teamName, value: team.players});
+                let counter;
+                data = data.filter(record => record.players && record.players.length > 0);
+                for (counter = 0; counter < data.length; counter++) {
+                    if (data[counter].players && data[counter].players.length > 0) {
+                        copy.fields.push({name: data[counter].teamName, value: data[counter].players, inline: true});
+                        copy.fields.push({
+                            name: 'Tournament Details',
+                            value: `${data[counter].tournamentName} Day ${data[counter].tournamentDay}`,
+                            inline: true
+                        });
+                        if (counter < data.length - 1) {
+                            copy.fields.push({name: '\u200B', value: '\u200B'});
+                        }
                     }
-                });
+                }
             } if (tentative && tentative.length > 0) {
-                copy.fields.push({name: 'Tentative Queue', value: tentative});
+                const reduce = tentative.reduce((acc, value) => {
+                    if (!acc[value.tournamentName]) {
+                        acc[value.tournamentName] = []
+                    }
+                    acc[value.tournamentName].push(value.playerName);
+                    return acc;
+                }, {});
+                let message = '';
+                const keys = Object.keys(reduce);
+                for (let i = 0; i < keys.length; i++) {
+                    message = message.concat(`${keys[i]} -> ${reduce[keys[i]]}`);
+                    if (i < keys.length - 1) {
+                        message = message.concat('\n');
+                    }
+                }
+                copy.fields.push({name: 'Tentative Queue', value: message});
             }
             msg.reply({embed: copy});
         }).catch(err => errorHandler.handleError(this.name, err, msg, 'Failed to retrieve the current Clash Teams status.'))

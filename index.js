@@ -30,7 +30,7 @@ leagueApi.initializeLeagueData().then(data => {
                     if (!bot.commands.has(command)) return;
 
                     try {
-                        console.info(`Called command: ${command}`);
+                        console.info(`('${msg.author.username}') called command: ('${command}')`);
                         bot.commands.get(command).execute(msg, args);
                     } catch (error) {
                         console.error(error);

@@ -13,7 +13,7 @@ module.exports = {
                 leagueTimes.forEach((time) => {
                     copy.fields.push({
                         name: 'Tournament Name',
-                        value: time.name,
+                        value: time.tournamentName,
                         inline: true,
                     });
                     copy.fields.push({
