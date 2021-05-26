@@ -191,6 +191,7 @@ describe('Retrieve Teams', () => {
         dynamoDBUtils.getTeams.mockResolvedValue(sampleTeamTwoPlayers);
         dynamoDBUtils.getTentative.mockReturnValue(sampleTentativeList);
         await teams.execute(msg);
+        expect(dynamoDBUtils.getTentative).toBeCalledWith(msg.guild.name);
         expect(messagePassed.embed.fields.length).toEqual(2);
         expect(messagePassed.embed.fields[0].name).toEqual('No Existing Teams. Please register!');
         expect(messagePassed.embed.fields[0].value).toEqual('Emptay');
@@ -223,6 +224,7 @@ describe('Retrieve Teams', () => {
         dynamoDBUtils.getTeams.mockResolvedValue(sampleTeamTwoPlayers);
         dynamoDBUtils.getTentative.mockReturnValue(sampleTentativeList);
         await teams.execute(msg);
+        expect(dynamoDBUtils.getTentative).toBeCalledWith(msg.guild.name);
         expect(messagePassed.embed.fields.length).toEqual(3);
         expect(messagePassed.embed.fields[0].name).toEqual(sampleTeamTwoPlayers[0].teamName);
         expect(messagePassed.embed.fields[0].value).toEqual(sampleTeamTwoPlayers[0].players);
@@ -284,6 +286,7 @@ describe('Retrieve Teams', () => {
                 expectedMessage = expectedMessage.concat('\n');
             }
         }
+        expect(dynamoDBUtils.getTentative).toBeCalledWith(msg.guild.name);
         expect(messagePassed.embed.fields.length).toEqual(3);
         expect(messagePassed.embed.fields[0].name).toEqual(sampleTeamTwoPlayers[0].teamName);
         expect(messagePassed.embed.fields[0].value).toEqual(sampleTeamTwoPlayers[0].players);
