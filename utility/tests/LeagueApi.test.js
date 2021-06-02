@@ -1,4 +1,5 @@
 const LeagueApi = require('../LeagueApi');
+const moment = require('moment-timezone');
 const nock = require('nock');
 
 test('Should fail a return with a reject if the RIOT_TOKEN is not passed.', () => {
@@ -76,18 +77,21 @@ test('Should be able to set time if correctData is passed.', () => {
 
 describe('Find Tournament', () => {
     test('I should be able to search for a tournament by its exact name and it should be returned if matching.', () => {
+        const dateFormat = 'MMMM DD yyyy hh:mm a z';
+        let currentDate = new moment().add(1, 'hour').format(dateFormat);
+        let nextDate = new moment().add(1, 'hour').add(1, 'day').format(dateFormat);
         LeagueApi.leagueTimes = [
             {
                 tournamentName: "msi2021",
                 tournamentDay: "day_3",
-                "startTime": "May 29 2021 07:00 pm PDT",
-                "registrationTime": "May 29 2021 04:15 pm PDT"
+                startTime: currentDate,
+                registrationTime: currentDate
             },
             {
                 tournamentName: "msi2021",
                 tournamentDay: "day_4",
-                "startTime": "May 30 2021 07:00 pm PDT",
-                "registrationTime": "May 30 2021 04:15 pm PDT"
+                startTime: nextDate,
+                registrationTime: nextDate
             }
         ];
         expect(LeagueApi.findTournament('msi2021')).toEqual(LeagueApi.leagueTimes);
@@ -156,54 +160,63 @@ describe('Find Tournament', () => {
     })
 
     test('I should be able to search for a tournament and a day.', () => {
+        const dateFormat = 'MMMM DD yyyy hh:mm a z';
+        let currentDate = new moment().add(1, 'hour').format(dateFormat);
+        let nextDate = new moment().add(1, 'hour').add(1, 'day').format(dateFormat);
         LeagueApi.leagueTimes = [
             {
                 tournamentName: "msi2021",
                 tournamentDay: "day_3",
-                "startTime": "May 29 2021 07:00 pm PDT",
-                "registrationTime": "May 29 2021 04:15 pm PDT"
+                startTime: currentDate,
+                registrationTime: currentDate
             },
             {
                 tournamentName: "msi2021",
                 tournamentDay: "day_4",
-                "startTime": "May 30 2021 07:00 pm PDT",
-                "registrationTime": "May 30 2021 04:15 pm PDT"
+                startTime: nextDate,
+                registrationTime: nextDate
             }
         ];
         expect(LeagueApi.findTournament('msi2021', '4')).toEqual([LeagueApi.leagueTimes[1]]);
     })
 
     test('I should be able to search for a partial name of a tournament.', () => {
+        const dateFormat = 'MMMM DD yyyy hh:mm a z';
+        let currentDate = new moment().add(1, 'hour').format(dateFormat);
+        let nextDate = new moment().add(1, 'hour').add(1, 'day').format(dateFormat);
         LeagueApi.leagueTimes = [
             {
                 tournamentName: "msi2021",
                 tournamentDay: "day_3",
-                "startTime": "May 29 2021 07:00 pm PDT",
-                "registrationTime": "May 29 2021 04:15 pm PDT"
+                "startTime": currentDate,
+                "registrationTime": currentDate
             },
             {
                 tournamentName: "msi2021",
                 tournamentDay: "day_4",
-                "startTime": "May 30 2021 07:00 pm PDT",
-                "registrationTime": "May 30 2021 04:15 pm PDT"
+                "startTime": nextDate,
+                "registrationTime": nextDate
             }
         ];
         expect(LeagueApi.findTournament('msi')).toEqual(LeagueApi.leagueTimes);
     })
 
     test('I should be able to search for a partial name and regardless of case for a tournament.', () => {
+        const dateFormat = 'MMMM DD yyyy hh:mm a z';
+        let currentDate = new moment().add(1, 'hour').format(dateFormat);
+        let nextDate = new moment().add(1, 'hour').add(1, 'day').format(dateFormat);
         LeagueApi.leagueTimes = [
             {
                 tournamentName: "msi2021",
                 tournamentDay: "day_3",
-                "startTime": "May 29 2021 07:00 pm PDT",
-                "registrationTime": "May 29 2021 04:15 pm PDT"
+                "startTime": currentDate,
+                "registrationTime": currentDate
             },
             {
                 tournamentName: "msi2021",
                 tournamentDay: "day_4",
-                "startTime": "May 30 2021 07:00 pm PDT",
-                "registrationTime": "May 30 2021 04:15 pm PDT"
+                "startTime": nextDate,
+                "registrationTime": nextDate
             }
         ];
         expect(LeagueApi.findTournament('MSI')).toEqual(LeagueApi.leagueTimes);
