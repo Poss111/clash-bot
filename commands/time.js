@@ -17,6 +17,11 @@ module.exports = {
                         inline: true,
                     });
                     copy.fields.push({
+                        name: 'Day',
+                        value: time.tournamentDay,
+                        inline: true,
+                    });
+                    copy.fields.push({
                         name: 'Registration Time',
                         value: time.registrationTime,
                         inline: true,
