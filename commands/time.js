@@ -14,7 +14,7 @@ module.exports = {
                     copy.fields.push({
                         name: 'Tournament Name',
                         value: time.tournamentName,
-                        inline: true,
+                        inline: false,
                     });
                     copy.fields.push({
                         name: 'Day',

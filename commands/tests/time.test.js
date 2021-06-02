@@ -22,7 +22,7 @@ test('When league times returns successfully, there should be a formatted time f
     expect(messagePassed.embed.fields.length).toEqual(4);
     expect(messagePassed.embed.fields[0].name).toEqual('Tournament Name');
     expect(messagePassed.embed.fields[0].value).toEqual(sampleTime[0].tournamentName);
-    expect(messagePassed.embed.fields[0].inline).toBeTruthy();
+    expect(messagePassed.embed.fields[0].inline).toBeFalsy();
     expect(messagePassed.embed.fields[1].name).toEqual('Day');
     expect(messagePassed.embed.fields[1].value).toEqual(sampleTime[0].tournamentDay);
     expect(messagePassed.embed.fields[1].inline).toBeTruthy();
