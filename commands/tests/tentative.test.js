@@ -1,11 +1,11 @@
 const tentative = require('../tentative');
 const dynamoDBUtils = require('../../dao/dynamo-db-impl');
 const errorHandling = require('../../utility/error-handling');
-const leagueApi = require('../../utility/LeagueApi');
+const leagueApi = require('../../dao/clashtime-db-impl');
 
 jest.mock('../../dao/dynamo-db-impl');
 jest.mock('../../utility/error-handling');
-jest.mock('../../utility/LeagueApi');
+jest.mock('../../dao/clashtime-db-impl');
 
 test('Should respond with user has been placed on tentative if the player name does not exist in the tentative list.', async () => {
     let messagePassed = '';

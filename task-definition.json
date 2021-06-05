@@ -22,10 +22,6 @@
                     "value": "--DISCORD_KEY--"
                 },
                 {
-                    "name": "RIOT_TOKEN",
-                    "value": "--RIOT_API_KEY--"
-                },
-                {
                     "name": "ACCESS_KEY",
                     "value": "--AWS_SECRET_KEY--"
                 },

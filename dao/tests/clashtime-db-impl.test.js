@@ -1,78 +1,59 @@
-const LeagueApi = require('../LeagueApi');
+const clashtimeDb = require('../clashtime-db-impl');
+const dynamodb = require('dynamodb');
+const streamTest = require('streamtest');
 const moment = require('moment-timezone');
-const nock = require('nock');
 
-test('Should fail a return with a reject if the RIOT_TOKEN is not passed.', () => {
-    return expect(LeagueApi.initializeLeagueData()).rejects.toMatch('RIOT_TOKEN not found.');
-})
+jest.mock('dynamodb');
 
 test('Should fail a return with a reject if the TOKEN is not passed.', () => {
-    process.env.RIOT_TOKEN = 'testToken';
-    return expect(LeagueApi.initializeLeagueData()).rejects.toMatch('TOKEN not found.');
+    return expect(clashtimeDb.initializeLeagueData()).rejects.toMatch('TOKEN not found.');
 })
 
-test('Should return a parsed array of human readable dates from the League Clash API.', () => {
+test('Should return a parsed array of human readable dates from the League Clash API and should be sorted by day.', () => {
     process.env.TOKEN = 'testToken';
-    process.env.RIOT_TOKEN = 'testToken';
-
-    nock('https://na1.api.riotgames.com').get('/lol/clash/v1/tournaments').reply(200, [
-        {
-            "id": 3461,
-            "themeId": 24,
-            "nameKey": "msi2021",
-            "nameKeySecondary": "day_3",
-            "schedule": [
-                {
-                    "id": 3581,
-                    "registrationTime": 1622330100000,
-                    "startTime": 1622340000000,
-                    "cancelled": false
+    const value = {
+        Items: [{
+            attrs: {
+                key: "msi2021#3",
+                tournamentName: "msi2021",
+                tournamentDay: "4",
+                registrationTime: "June 13 2021 04:15 pm PDT",
+                startTime: "June 13 2021 05:15 pm PDT"
+            }
+        }, {
+            attrs: {
+                    key: "msi2021#4",
+                    tournamentName: "msi2021",
+                    tournamentDay: "3",
+                    registrationTime: "June 12 2021 04:15 pm PDT",
+                    startTime: "June 12 2021 05:15 pm PDT",
                 }
-            ]
-        },
-        {
-            "id": 3481,
-            "themeId": 24,
-            "nameKey": "msi2021",
-            "nameKeySecondary": "day_4",
-            "schedule": [
-                {
-                    "id": 3601,
-                    "registrationTime": 1622416500000,
-                    "startTime": 1622426400000,
-                    "cancelled": false
-                }
-            ]
-        }
-    ]);
-
-    return LeagueApi.initializeLeagueData().then(data => {
-        expect(data).toBeTruthy();
-        expect(data.length).toBe(2);
-        data.forEach(tournament => {
-            expect(tournament.startTime).toContain('May');
-            expect(tournament.tournamentName).toContain('msi');
-            expect(tournament.registrationTime).toContain('May');
-            expect(tournament.tournamentDay.length).toEqual(1);
-        })
+        }]
+    };
+    const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
+    dynamodb.define = jest.fn().mockReturnValue({
+        scan: jest.fn().mockReturnThis(),
+        filterExpression: jest.fn().mockReturnThis(),
+        expressionAttributeValues: jest.fn().mockReturnThis(),
+        expressionAttributeNames: jest.fn().mockReturnThis(),
+        exec: mockStream
     });
-})
 
-test('Should error out and return with a reject if the value of the json is not parsable.', () => {
-    process.env.TOKEN = 'testToken';
-    process.env.RIOT_TOKEN = 'testToken';
+    let expectedData = [];
+    value.Items.forEach(record => {
+        expectedData.push(JSON.parse(JSON.stringify(record.attrs)));
+    });
+    expectedData.sort((a,b) => parseInt(a.tournamentDay) - parseInt(b.tournamentDay));
 
-    nock('https://na1.api.riotgames.com')
-        .get('/lol/clash/v1/tournaments')
-        .reply(403, {error: 'failed'});
-
-    return expect(LeagueApi.initializeLeagueData()).rejects.toMatch('Failed to retrieve league Clash API data due to => ');
+    return clashtimeDb.initializeLeagueData().then(data => {
+        expect(data).toEqual(expectedData);
+    });
 })
 
 test('Should be able to set time if correctData is passed.', () => {
     const times = [{time: 1}, {time: 2}];
-    LeagueApi.setLeagueTimes(times);
-    expect(LeagueApi.getLeagueTimes()).toEqual(times);
+    clashtimeDb.setLeagueTimes(times);
+    expect(clashtimeDb.getLeagueTimes()).toEqual(times);
 })
 
 describe('Find Tournament', () => {
@@ -80,39 +61,39 @@ describe('Find Tournament', () => {
         const dateFormat = 'MMMM DD yyyy hh:mm a z';
         let currentDate = new moment().add(1, 'hour').format(dateFormat);
         let nextDate = new moment().add(1, 'hour').add(1, 'day').format(dateFormat);
-        LeagueApi.leagueTimes = [
+        clashtimeDb.leagueTimes = [
             {
                 tournamentName: "msi2021",
-                tournamentDay: "day_3",
+                tournamentDay: "3",
                 startTime: currentDate,
                 registrationTime: currentDate
             },
             {
                 tournamentName: "msi2021",
-                tournamentDay: "day_4",
+                tournamentDay: "4",
                 startTime: nextDate,
                 registrationTime: nextDate
             }
         ];
-        expect(LeagueApi.findTournament('msi2021')).toEqual(LeagueApi.leagueTimes);
+        expect(clashtimeDb.findTournament('msi2021')).toEqual(clashtimeDb.leagueTimes);
     })
 
     test('I should be returned an empty value if a match is not found.', () => {
-        LeagueApi.leagueTimes = [
+        clashtimeDb.leagueTimes = [
             {
                 tournamentName: "msi2021",
-                tournamentDay: "day_3",
+                tournamentDay: "3",
                 "startTime": "May 29 2021 07:00 pm PDT",
                 "registrationTime": "May 29 2021 04:15 pm PDT"
             },
             {
                 tournamentName: "msi2021",
-                tournamentDay: "day_4",
+                tournamentDay: "4",
                 "startTime": "May 30 2021 07:00 pm PDT",
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
         ];
-        expect(LeagueApi.findTournament('abcde')).toHaveLength(0);
+        expect(clashtimeDb.findTournament('abcde')).toHaveLength(0);
     })
 
     test('I should be returned an empty value if a tournament name match is not found due to date being in the past.', () => {
@@ -120,21 +101,21 @@ describe('Find Tournament', () => {
         currentDate.setDate(currentDate.getDate() - 1);
         const currentDateTwo = new Date();
         currentDateTwo.setDate(currentDateTwo.getDate() - 2);
-        LeagueApi.leagueTimes = [
+        clashtimeDb.leagueTimes = [
             {
                 tournamentName: "msi2021",
-                tournamentDay: "day_3",
+                tournamentDay: "3",
                 "startTime": currentDate,
                 "registrationTime": "May 29 2021 04:15 pm PDT"
             },
             {
                 tournamentName: "msi2021",
-                tournamentDay: "day_4",
+                tournamentDay: "4",
                 "startTime": currentDateTwo,
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
         ];
-        expect(LeagueApi.findTournament('msi2021')).toHaveLength(0);
+        expect(clashtimeDb.findTournament('msi2021')).toHaveLength(0);
     })
 
     test('I should be returned an empty value if a tournament name and day match is not found due to date being in the past.', () => {
@@ -142,84 +123,84 @@ describe('Find Tournament', () => {
         currentDate.setDate(currentDate.getDate() - 1);
         const currentDateTwo = new Date();
         currentDateTwo.setDate(currentDateTwo.getDate() - 2);
-        LeagueApi.leagueTimes = [
+        clashtimeDb.leagueTimes = [
             {
                 tournamentName: "msi2021",
-                tournamentDay: "day_3",
+                tournamentDay: "3",
                 "startTime": currentDate,
                 "registrationTime": "May 29 2021 04:15 pm PDT"
             },
             {
                 tournamentName: "msi2021",
-                tournamentDay: "day_4",
+                tournamentDay: "4",
                 "startTime": currentDateTwo,
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
         ];
-        expect(LeagueApi.findTournament('msi2021', '3')).toHaveLength(0);
+        expect(clashtimeDb.findTournament('msi2021', '3')).toHaveLength(0);
     })
 
     test('I should be able to search for a tournament and a day.', () => {
         const dateFormat = 'MMMM DD yyyy hh:mm a z';
         let currentDate = new moment().add(1, 'hour').format(dateFormat);
         let nextDate = new moment().add(1, 'hour').add(1, 'day').format(dateFormat);
-        LeagueApi.leagueTimes = [
+        clashtimeDb.leagueTimes = [
             {
                 tournamentName: "msi2021",
-                tournamentDay: "day_3",
+                tournamentDay: "3",
                 startTime: currentDate,
                 registrationTime: currentDate
             },
             {
                 tournamentName: "msi2021",
-                tournamentDay: "day_4",
+                tournamentDay: "4",
                 startTime: nextDate,
                 registrationTime: nextDate
             }
         ];
-        expect(LeagueApi.findTournament('msi2021', '4')).toEqual([LeagueApi.leagueTimes[1]]);
+        expect(clashtimeDb.findTournament('msi2021', '4')).toEqual([clashtimeDb.leagueTimes[1]]);
     })
 
     test('I should be able to search for a partial name of a tournament.', () => {
         const dateFormat = 'MMMM DD yyyy hh:mm a z';
         let currentDate = new moment().add(1, 'hour').format(dateFormat);
         let nextDate = new moment().add(1, 'hour').add(1, 'day').format(dateFormat);
-        LeagueApi.leagueTimes = [
+        clashtimeDb.leagueTimes = [
             {
                 tournamentName: "msi2021",
-                tournamentDay: "day_3",
+                tournamentDay: "3",
                 "startTime": currentDate,
                 "registrationTime": currentDate
             },
             {
                 tournamentName: "msi2021",
-                tournamentDay: "day_4",
+                tournamentDay: "4",
                 "startTime": nextDate,
                 "registrationTime": nextDate
             }
         ];
-        expect(LeagueApi.findTournament('msi')).toEqual(LeagueApi.leagueTimes);
+        expect(clashtimeDb.findTournament('msi')).toEqual(clashtimeDb.leagueTimes);
     })
 
     test('I should be able to search for a partial name and regardless of case for a tournament.', () => {
         const dateFormat = 'MMMM DD yyyy hh:mm a z';
         let currentDate = new moment().add(1, 'hour').format(dateFormat);
         let nextDate = new moment().add(1, 'hour').add(1, 'day').format(dateFormat);
-        LeagueApi.leagueTimes = [
+        clashtimeDb.leagueTimes = [
             {
                 tournamentName: "msi2021",
-                tournamentDay: "day_3",
+                tournamentDay: "3",
                 "startTime": currentDate,
                 "registrationTime": currentDate
             },
             {
                 tournamentName: "msi2021",
-                tournamentDay: "day_4",
+                tournamentDay: "4",
                 "startTime": nextDate,
                 "registrationTime": nextDate
             }
         ];
-        expect(LeagueApi.findTournament('MSI')).toEqual(LeagueApi.leagueTimes);
+        expect(clashtimeDb.findTournament('MSI')).toEqual(clashtimeDb.leagueTimes);
     })
 
     test('I should be able to return the all available tournaments based on the current date if nothing is passed', () => {
@@ -227,21 +208,21 @@ describe('Find Tournament', () => {
         currentDate.setDate(currentDate.getDate() - 1);
         const currentDateTwo = new Date();
         currentDateTwo.setDate(currentDateTwo.getDate() + 1);
-        LeagueApi.leagueTimes = [
+        clashtimeDb.leagueTimes = [
             {
                 tournamentName: "msi2021",
-                tournamentDay: "day_3",
+                tournamentDay: "3",
                 "startTime": currentDate,
                 "registrationTime": "May 29 2021 04:15 pm PDT"
             },
             {
                 tournamentName: "msi2021",
-                tournamentDay: "day_4",
+                tournamentDay: "4",
                 "startTime": currentDateTwo.toDateString(),
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
         ];
-        expect(LeagueApi.findTournament()).toEqual([LeagueApi.leagueTimes[1]]);
+        expect(clashtimeDb.findTournament()).toEqual([clashtimeDb.leagueTimes[1]]);
     })
 
     test('I should be able to return no tournaments if there are none available for the current date if nothing is passed.', () => {
@@ -249,20 +230,20 @@ describe('Find Tournament', () => {
         currentDate.setDate(currentDate.getDate() - 2);
         const currentDateTwo = new Date();
         currentDateTwo.setDate(currentDateTwo.getDate() - 1);
-        LeagueApi.leagueTimes = [
+        clashtimeDb.leagueTimes = [
             {
                 tournamentName: "msi2021",
-                tournamentDay: "day_3",
+                tournamentDay: "3",
                 "startTime": currentDate,
                 "registrationTime": "May 29 2021 04:15 pm PDT"
             },
             {
                 1: "msi2021",
-                tournamentDay: "day_4",
+                tournamentDay: "4",
                 "startTime": currentDateTwo,
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
         ];
-        expect(LeagueApi.findTournament()).toHaveLength(0);
+        expect(clashtimeDb.findTournament()).toHaveLength(0);
     })
 })

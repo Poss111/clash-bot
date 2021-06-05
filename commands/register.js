@@ -2,7 +2,7 @@ const dbUtils = require('../dao/dynamo-db-impl');
 const errorHandling = require('../utility/error-handling');
 const timeTracker = require('../utility/time-tracker');
 const registerReply = require('../templates/register-reply');
-const leagueApi = require('../utility/LeagueApi');
+const leagueApi = require('../dao/clashtime-db-impl');
 module.exports = {
     name: 'register',
     description: 'Used to register the user to an available Clash team.',

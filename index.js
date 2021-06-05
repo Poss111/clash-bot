@@ -3,7 +3,7 @@ const Discord = require('discord.js');
 const bot = new Discord.Client();
 bot.commands = new Discord.Collection();
 const botCommands = require('./commands');
-const leagueApi = require('./utility/LeagueApi');
+const clashTimesDbImpl = require('./dao/clashtime-db-impl');
 const database = require('./dao/dynamo-db-impl');
 const TOKEN = process.env.TOKEN;
 
@@ -11,8 +11,8 @@ Object.keys(botCommands).map(key => {
     bot.commands.set(botCommands[key].name, botCommands[key]);
 });
 
-leagueApi.initializeLeagueData().then(data => {
-    leagueApi.setLeagueTimes(data);
+clashTimesDbImpl.initializeLeagueData().then(data => {
+    clashTimesDbImpl.setLeagueTimes(data);
     database.initializeClashBotDB().then(data => {
         console.log(data);
         bot.login(TOKEN).then(() => {

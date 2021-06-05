@@ -1,11 +1,11 @@
 const unregister = require('../unregister');
 const dynamoDbUtils = require('../../dao/dynamo-db-impl');
 const errorHandling = require('../../utility/error-handling');
-const leagueApi = require('../../utility/LeagueApi');
+const leagueApi = require('../../dao/clashtime-db-impl');
 
 jest.mock('../../dao/dynamo-db-impl');
 jest.mock('../../utility/error-handling');
-jest.mock('../../utility/LeagueApi');
+jest.mock('../../dao/clashtime-db-impl');
 
 describe('Unregister', () => {
     test('When a player exists on a team is unregistered, the player should be notified that we have successfully removed them.', async () => {

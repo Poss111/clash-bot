@@ -1,11 +1,11 @@
 const register = require('../register');
 const dynamoDBUtils = require('../../dao/dynamo-db-impl');
 const errorHandling = require('../../utility/error-handling');
-const leagueApi = require('../../utility/LeagueApi');
+const leagueApi = require('../../dao/clashtime-db-impl');
 
 jest.mock('../../dao/dynamo-db-impl');
 jest.mock('../../utility/error-handling');
-jest.mock('../../utility/LeagueApi');
+jest.mock('../../dao/clashtime-db-impl');
 
 function verifyReply(messagePassed, sampleRegisterReturn) {
     expect(messagePassed.embed.fields[0].name).toEqual(sampleRegisterReturn.teamName);
