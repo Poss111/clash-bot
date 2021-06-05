@@ -1,7 +1,7 @@
 const dbUtils = require('../dao/dynamo-db-impl');
 const errorHandler = require('../utility/error-handling');
 const timeTracker = require('../utility/time-tracker');
-const leagueApi = require('../utility/LeagueApi');
+const leagueApi = require('../dao/clashtime-db-impl');
 module.exports = {
     name: 'unregister',
     description: 'Used to unregister from an existing Clash team.',
