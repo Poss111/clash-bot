@@ -26,6 +26,7 @@ jobs:
 
     - name: Find and Replace
       uses: jacobtomlinson/gha-find-replace@master
+      if: ${{ github.ref == 'refs/heads/master' }}
       with:
         find: "--DISCORD_KEY--"
         replace: "${{ secrets.DISCORD_KEY }}"
@@ -33,6 +34,7 @@ jobs:
 
     - name: Find and Replace
       uses: jacobtomlinson/gha-find-replace@master
+      if: ${{ github.ref == 'refs/heads/master' }}
       with:
         find: "--AWS_SECRET_KEY--"
         replace: "${{ secrets.AWS_SECRET_KEY }}"
@@ -40,6 +42,7 @@ jobs:
 
     - name: Find and Replace
       uses: jacobtomlinson/gha-find-replace@master
+      if: ${{ github.ref == 'refs/heads/master' }}
       with:
         find: "--AWS_SECRET_ID--"
         replace: "${{ secrets.AWS_SECRET_ID }}"
