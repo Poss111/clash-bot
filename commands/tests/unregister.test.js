@@ -38,7 +38,7 @@ describe('Unregister', () => {
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
         ];
-        leagueApi.findTournament = jest.fn().mockReturnValue(leagueTimes);
+        leagueApi.findTournament.mockResolvedValue(leagueTimes);
         dynamoDbUtils.deregisterPlayer.mockResolvedValue(true);
         await unregister.execute(msg, args);
         expect(dynamoDbUtils.deregisterPlayer).toBeCalledWith(msg.author.username, msg.guild.name, leagueTimes);
@@ -76,7 +76,7 @@ describe('Unregister', () => {
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
         ];
-        leagueApi.findTournament = jest.fn().mockReturnValue(leagueTimes);
+        leagueApi.findTournament.mockResolvedValue(leagueTimes);
         dynamoDbUtils.deregisterPlayer.mockResolvedValue(false);
         await unregister.execute(msg, args);
         expect(sendMessage).toEqual(`Unregistering ${msg.author.username} from Tournament ${leagueTimes[0].tournamentName} on Day ${leagueTimes[0].tournamentDay}...`);
@@ -119,7 +119,7 @@ describe('Unregister', () => {
         };
         let args = ['shurima', '3'];
         let leagueTimes = [];
-        leagueApi.findTournament = jest.fn().mockReturnValue(leagueTimes);
+        leagueApi.findTournament.mockResolvedValue(leagueTimes);
         await unregister.execute(msg, args);
         expect(messagePassed).toEqual(`Please provide an existing tournament and day to unregister for. Use '!clash team' to print a teams.`);
     })
@@ -140,7 +140,7 @@ describe('Unregister', () => {
             }
         };
         let args = ['shurima', '3'];
-        leagueApi.findTournament = jest.fn().mockReturnValue(undefined);
+        leagueApi.findTournament.mockResolvedValue(undefined);
         await unregister.execute(msg, args);
         expect(messagePassed).toEqual(`Please provide an existing tournament and day to unregister for. Use '!clash team' to print a teams.`);
     })
@@ -178,7 +178,7 @@ test('If an error occurs, the error handler will be invoked.', async () => {
         }
     ];
     let args = ['shurima', '3'];
-    leagueApi.findTournament = jest.fn().mockReturnValue(leagueTimes);
+    leagueApi.findTournament.mockResolvedValue(leagueTimes);
     await unregister.execute(msg, args);
     expect(sendMessage).toEqual(`Unregistering ${msg.author.username} from Tournament ${leagueTimes[0].tournamentName} on Day ${leagueTimes[0].tournamentDay}...`);
     expect(errorHandling.handleError.mock.calls.length).toEqual(1);
