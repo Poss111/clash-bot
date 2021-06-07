@@ -50,12 +50,6 @@ test('Should return a parsed array of human readable dates from the League Clash
     });
 })
 
-test('Should be able to set time if correctData is passed.', () => {
-    const times = [{time: 1}, {time: 2}];
-    clashtimeDb.setLeagueTimes(times);
-    expect(clashtimeDb.getLeagueTimes()).toEqual(times);
-})
-
 describe('Find Tournament', () => {
 
     function buildSampleTournamentList(tournamentName, days, daysBehind) {

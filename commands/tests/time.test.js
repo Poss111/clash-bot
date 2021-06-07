@@ -3,7 +3,7 @@ const leagueApi = require('../../dao/clashtime-db-impl');
 
 jest.mock('../../dao/clashtime-db-impl');
 
-test('When league times returns successfully, there should be a formatted time for each available clash returned.', () => {
+test('When league times returns successfully, there should be a formatted time for each available clash returned.', async () => {
     let messagePassed = '';
     let msg = {
         channel: {
@@ -17,8 +17,8 @@ test('When league times returns successfully, there should be a formatted time f
         registrationTime: 'Monday April 1st, 2021 @ 2',
         tournamentDay: '3'
     }]
-    leagueApi.getLeagueTimes.mockReturnValue(sampleTime);
-    time.execute(msg);
+    leagueApi.retrieveTournaments.mockResolvedValue(sampleTime);
+    await time.execute(msg);
     expect(messagePassed.embed.fields.length).toEqual(4);
     expect(messagePassed.embed.fields[0].name).toEqual('Tournament Name');
     expect(messagePassed.embed.fields[0].value).toEqual(sampleTime[0].tournamentName);
@@ -34,30 +34,30 @@ test('When league times returns successfully, there should be a formatted time f
     expect(messagePassed.embed.fields[3].inline).toBeTruthy();
 })
 
-test('When league times returns as undefined, there should be a no times available message returned.', () => {
+test('When league times returns as undefined, there should be a no times available message returned.', async () => {
     let messagePassed = '';
     let msg = {
         channel: {
             send: (value) => messagePassed = value
         }
     };
-    leagueApi.getLeagueTimes.mockReturnValue(undefined);
-    time.execute(msg);
+    leagueApi.retrieveTournaments.mockResolvedValue(undefined);
+    await time.execute(msg);
     expect(messagePassed.embed.fields.length).toEqual(1);
     expect(messagePassed.embed.fields[0].name).toEqual('No times available');
     expect(messagePassed.embed.fields[0].value).toEqual('N/A');
     expect(messagePassed.embed.fields[0].inline).toBeFalsy();
 })
 
-test('When league times returns as empty, there should be a no times available message returned.', () => {
+test('When league times returns as empty, there should be a no times available message returned.', async () => {
     let messagePassed = '';
     let msg = {
         channel: {
             send: (value) => messagePassed = value
         }
     };
-    leagueApi.getLeagueTimes.mockReturnValue([]);
-    time.execute(msg);
+    leagueApi.retrieveTournaments.mockResolvedValue([]);
+    await time.execute(msg);
     expect(messagePassed.embed.fields.length).toEqual(1);
     expect(messagePassed.embed.fields[0].name).toEqual('No times available');
     expect(messagePassed.embed.fields[0].value).toEqual('N/A');
