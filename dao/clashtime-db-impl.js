@@ -21,8 +21,6 @@ class ClashTimeDbImpl {
                 } else {
                     console.log('Loading credentials from remote.');
                     dynamodb.AWS.config.update({
-                        // accessKeyId: `${process.env.ACCESS_ID}`,
-                        // secretAccessKey: `${process.env.ACCESS_KEY}`,
                         region: `${process.env.REGION}`
                     });
                 }

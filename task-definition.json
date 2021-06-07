@@ -14,16 +14,8 @@
             "essential": true,
             "environment": [
                 {
-                    "name": "ACCESS_ID",
-                    "value": "--AWS_SECRET_ID--"
-                },
-                {
                     "name": "TOKEN",
                     "value": "--DISCORD_KEY--"
-                },
-                {
-                    "name": "ACCESS_KEY",
-                    "value": "--AWS_SECRET_KEY--"
                 },
                 {
                     "name": "REGION",
