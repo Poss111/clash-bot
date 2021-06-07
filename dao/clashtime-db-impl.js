@@ -4,13 +4,13 @@ class ClashTimeDbImpl {
 
     clashTimesTable;
     leagueTimes;
+    tableName = 'clashtime';
 
     constructor() {
         this.leagueTimes = [];
     }
 
     initializeLeagueData() {
-        let tableName = 'clashtime';
         return new Promise((resolve, reject) => {
             if (!process.env.TOKEN) {
                 reject(`TOKEN not found.`)
@@ -18,7 +18,6 @@ class ClashTimeDbImpl {
                 if (process.env.LOCAL) {
                     console.log('Loading credentials from local.');
                     dynamodb.AWS.config.loadFromPath('./credentials.json');
-                    tableName = `${tableName}`;
                 } else {
                     console.log('Loading credentials from remote.');
                     dynamodb.AWS.config.update({
@@ -27,26 +26,34 @@ class ClashTimeDbImpl {
                         region: `${process.env.REGION}`
                     });
                 }
-                this.clashTimesTable = dynamodb.define(tableName, {
+                this.clashTimesTable = dynamodb.define(this.tableName, {
                     hashKey: 'key'
                 });
-                let clashTimes = [];
-                let stream = this.clashTimesTable.scan().exec();
-                stream.on('readable', function() {
-                    let read = stream.read();
-                    if (read) {
-                        read.Items.forEach(data => {
-                            clashTimes.push(data.attrs)
-                        });
-                    }
-                });
-                stream.on('end', function () {
-                    clashTimes.sort((a,b) => parseInt(a.tournamentDay) - parseInt(b.tournamentDay));
-                    resolve(clashTimes);
-                });
-                stream.on('error', (err) => reject(err));
             }
+            this.retrieveTournaments()
+                .then(data => resolve(data))
+                .catch(err => reject(err));
         });
+    }
+
+    retrieveTournaments() {
+        return new Promise((resolve, reject) => {
+            let clashTimes = [];
+            let stream = this.clashTimesTable.scan().exec();
+            stream.on('readable', function () {
+                let read = stream.read();
+                if (read) {
+                    read.Items.forEach(data => {
+                        clashTimes.push(data.attrs)
+                    });
+                }
+            });
+            stream.on('end', function () {
+                clashTimes.sort((a, b) => parseInt(a.tournamentDay) - parseInt(b.tournamentDay));
+                resolve(clashTimes);
+            });
+            stream.on('error', (err) => reject(err));
+        })
     }
 
     findTournament(tournamentName, dayNumber) {
@@ -55,28 +62,19 @@ class ClashTimeDbImpl {
             tournamentName = tournamentName.toLowerCase()
             filter = (data) => data.tournamentName.toLowerCase().includes(tournamentName)
                 && new Date(data.startTime) > new Date();
-            if (tournamentName && dayNumber) {
+            if (tournamentName && Number.isInteger(dayNumber)) {
                 filter = (data) => data.tournamentName.toLowerCase().includes(tournamentName)
                     && data.tournamentDay.includes(dayNumber)
                     && new Date(data.startTime) > new Date();
             }
         } else {
             filter = (data) => new Date(data.startTime) > new Date();
-            return this.getLeagueTimes().filter(filter);
         }
-        return this.getLeagueTimes().filter(filter);
-    }
-
-    setLeagueTimes(times) {
-        if (times) {
-            times.forEach((value) => {
-                this.leagueTimes.push(value);
-            });
-        }
-    }
-
-    getLeagueTimes() {
-        return JSON.parse(JSON.stringify(this.leagueTimes));
+        return new Promise((resolve, reject) => {
+            this.retrieveTournaments()
+                .then(data => resolve(data.filter(filter)))
+                .catch((err) => reject(err));
+        })
     }
 
 }

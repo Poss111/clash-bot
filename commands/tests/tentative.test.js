@@ -32,7 +32,7 @@ test('Should respond with user has been placed on tentative if the player name d
             "registrationTime": "May 30 2021 04:15 pm PDT"
         }
     ];
-    leagueApi.findTournament.mockReturnValue(leagueTimes);
+    leagueApi.findTournament.mockResolvedValue(leagueTimes);
     dynamoDBUtils.handleTentative.mockResolvedValue(false);
     let args = ['msi2021'];
     await tentative.execute(msg, args);
@@ -65,7 +65,7 @@ test('Should respond with user has been taken off tentative if the player name d
             "registrationTime": "May 30 2021 04:15 pm PDT"
         }
     ];
-    leagueApi.findTournament.mockReturnValue(leagueTimes);
+    leagueApi.findTournament.mockResolvedValue(leagueTimes);
     dynamoDBUtils.handleTentative.mockResolvedValue(true);
     let args = ['msi2021'];
     await tentative.execute(msg, args);
@@ -84,7 +84,7 @@ test('If tournament passed by user is not found and return as undefined, the use
             name: 'TestServer'
         }
     };
-    leagueApi.findTournament.mockReturnValue(undefined);
+    leagueApi.findTournament.mockResolvedValue(undefined);
     let args = ['msi2021'];
     await tentative.execute(msg, args);
     expect(leagueApi.findTournament).toBeCalledWith(args[0]);
@@ -102,7 +102,7 @@ test('If tournament passed by user is not found and return as empty, the user sh
             name: 'TestServer'
         }
     };
-    leagueApi.findTournament.mockReturnValue([]);
+    leagueApi.findTournament.mockResolvedValue([]);
     let args = ['msi2021'];
     await tentative.execute(msg, args);
     expect(leagueApi.findTournament).toBeCalledWith(args[0]);
@@ -169,7 +169,7 @@ test('If an error occurs, the error handler will be invoked.', async () => {
             "registrationTime": "May 30 2021 04:15 pm PDT"
         }
     ];
-    leagueApi.findTournament.mockReturnValue(leagueTimes);
+    leagueApi.findTournament.mockResolvedValue(leagueTimes);
     let args = ['msi2021'];
     dynamoDBUtils.handleTentative.mockRejectedValue('Some error occurred.');
     await tentative.execute(msg, args);
