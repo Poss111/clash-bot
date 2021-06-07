@@ -32,22 +32,6 @@ jobs:
         replace: "${{ secrets.DISCORD_KEY }}"
         include: "task-definition.json"
 
-    - name: Find and Replace
-      uses: jacobtomlinson/gha-find-replace@master
-      if: ${{ github.ref == 'refs/heads/master' }}
-      with:
-        find: "--AWS_SECRET_KEY--"
-        replace: "${{ secrets.AWS_SECRET_KEY }}"
-        include: "task-definition.json"
-
-    - name: Find and Replace
-      uses: jacobtomlinson/gha-find-replace@master
-      if: ${{ github.ref == 'refs/heads/master' }}
-      with:
-        find: "--AWS_SECRET_ID--"
-        replace: "${{ secrets.AWS_SECRET_ID }}"
-        include: "task-definition.json"
-
     - name: Cache node modules
       uses: actions/cache@v2
       env:
