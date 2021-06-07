@@ -11,8 +11,7 @@ Object.keys(botCommands).map(key => {
     bot.commands.set(botCommands[key].name, botCommands[key]);
 });
 
-clashTimesDbImpl.initializeLeagueData().then(data => {
-    clashTimesDbImpl.setLeagueTimes(data);
+clashTimesDbImpl.initializeLeagueData().then(() => {
     database.initializeClashBotDB().then(data => {
         console.log(data);
         bot.login(TOKEN).then(() => {
