@@ -13,15 +13,15 @@ module.exports = {
         },
         {
             name: "register",
-            value: "Asks the bot to assign you to an available Clash team based on a tournament and a tournament day."
+            value: "Asks the bot to assign you to an available Clash team based on a tournament and a tournament day.  i.e. !clash register msi2021 or !clash register msi2021 1"
         },
         {
             name: "unregister",
-            value: "Asks the bot to remove you from the assigned Clash team therefore freeing a spot for others on a tournament and a tournament day."
+            value: "Asks the bot to remove you from the assigned Clash team therefore freeing a spot for others on a tournament and a tournament day.  i.e. !clash unregister msi2021 1"
         },
         {
             name: "teams",
-            value: "Asks the bot to print a list of Teams for the upcoming clash."
+            value: "Asks the bot to print a list of Teams for the upcoming clash tournaments."
         },
         {
             name: "tentative",
