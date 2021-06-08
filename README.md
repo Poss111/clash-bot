@@ -2,6 +2,11 @@
 
 [![CI](https://github.com/Poss111/clash-bot/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/Poss111/clash-bot/actions/workflows/build.yml)
 
+Prefix: !clash
+Channel: #league
+
+Note: A channel with the name of #league must be created for the bot to register your commands. This helps contain the messages from the bot.
+
 | Commands | Description |
 | -------- | ----------- |
 | ping     | Asks the bot to pong you. | 
