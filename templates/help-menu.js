@@ -25,7 +25,7 @@ module.exports = {
         },
         {
             name: "tentative",
-            value: "Asks the bot to place your name on the tentative queue for a tournament, if you are already belong in the queue, you will be removed from it. You will be removed from a team if you have been assigned one. ***Note***: This queue is not maintain so you will be removed from the queue upon update of the bot."
+            value: "Asks the bot to place your name on the tentative queue for a tournament, if you are already belong in the queue, you will be removed from it. You will be removed from a team if you have been assigned one. ***Note***: This queue is not maintained so you will be removed from the queue upon update of the bot."
         },
         {
             name: "time",
