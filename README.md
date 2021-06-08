@@ -11,7 +11,7 @@ Note: A channel with the name of #league must be created for the bot to register
 | -------- | ----------- |
 | ping     | Asks the bot to pong you. | 
 | help | Asks the bot to print this menu for you. |
-| register | Asks the bot to assign you to an available Clash team based on a tournament and a tournament day. |
+| register | Asks the bot to assign you to an available Clash team based on a tournament and a tournament day. i.e. !clash register msi2021 or !clash register msi2021 1 |
 | unregister | Asks the bot to remove you from the assigned Clash team therefore freeing a spot for others on a tournament and a tournament day. | 
 | teams | Asks the bot to print a list of Teams for the upcoming clash. | 
 | tentative | Asks the bot to place your name on the tentative queue for a tournament, if you are already belong in the queue, you will be removed from it. You will be removed from a team if you have been assigned one. ***Note***: This queue is not maintain so you will be removed from the queue upon update of the bot. | 
