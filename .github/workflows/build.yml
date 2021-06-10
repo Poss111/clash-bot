@@ -17,7 +17,7 @@ jobs:
     - uses: FranzDiebold/github-env-vars-action@v2.1.0
 
     - name: Build Start Discord Webhook
-      uses: Poss111/discord-hook-action@v1.6.5
+      uses: Poss111/discord-hook-action@v1.6.8
       with:
         discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
         title: 'Clash Bot Deployment Notification'
@@ -61,7 +61,7 @@ jobs:
         path: coverage
 
     - name: Build Failed Discord Webhook
-      uses: Poss111/discord-hook-action@v1.6.5
+      uses: Poss111/discord-hook-action@v1.6.8
       if: ${{ failure() }}
       with:
         discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
@@ -70,7 +70,7 @@ jobs:
         message-color: '16711680'
 
     - name: Build Succeded Discord Webhook
-      uses: Poss111/discord-hook-action@v1.6.5
+      uses: Poss111/discord-hook-action@v1.6.8
       if: ${{ success() && github.ref != 'refs/heads/master'}}
       with:
         discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
@@ -79,7 +79,7 @@ jobs:
         message-color: '65345'
 
     - name: Deployment In Progress Discord Webhook
-      uses: Poss111/discord-hook-action@v1.6.5
+      uses: Poss111/discord-hook-action@v1.6.8
       if: ${{ success() && github.ref == 'refs/heads/master'}}
       with:
         discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
@@ -131,7 +131,7 @@ jobs:
         wait-for-service-stability: true
 
     - name: Deployment Failed Discord Webhook
-      uses: Poss111/discord-hook-action@v1.6.5
+      uses: Poss111/discord-hook-action@v1.6.8
       if: ${{ failure() && github.ref == 'refs/heads/master' }}
       with:
         discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
@@ -140,7 +140,7 @@ jobs:
         message-color: '16711680'
 
     - name: Deployment Succeeded Discord Webhook
-      uses: Poss111/discord-hook-action@v1.6.5
+      uses: Poss111/discord-hook-action@v1.6.8
       if: ${{ success() && github.ref == 'refs/heads/master' }}
       with:
         discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
