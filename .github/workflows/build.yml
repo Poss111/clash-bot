@@ -16,12 +16,13 @@ jobs:
     steps:
     - uses: FranzDiebold/github-env-vars-action@v2.1.0
 
-    - uses: Poss111/discord-hook-action@v1.6.4
-        with:
-          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          title: 'Clash Bot Deployment Notification'
-          message: 'Starting Github build...'
-          message-color: '15258703'
+    - name: Discord Webhook
+      uses: Poss111/discord-hook-action@v1.6.4
+      with:
+        discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        title: 'Clash Bot Deployment Notification'
+        message: 'Starting Github build...'
+        message-color: '15258703'
 
     - name: Check
       run : echo build $GITHUB_RUN_NUMBER
