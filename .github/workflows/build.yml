@@ -16,8 +16,8 @@ jobs:
     steps:
     - uses: FranzDiebold/github-env-vars-action@v2.1.0
 
-    - name: Discord Webhook
-      uses: Poss111/discord-hook-action@v1.6.4
+    - name: Build Start Discord Webhook
+      uses: Poss111/discord-hook-action@v1.6.5
       with:
         discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
         title: 'Clash Bot Deployment Notification'
@@ -60,29 +60,32 @@ jobs:
         name: coverage-artifact
         path: coverage
 
-    - name: Send failure webhook
-      uses: joelwmale/webhook-action@master
+    - name: Build Failed Discord Webhook
+      uses: Poss111/discord-hook-action@v1.6.5
       if: ${{ failure() }}
       with:
-        url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        headers: '{"Content-Type": "application/json"}'
-        body: "{\"username\": \"Dan Bot\", \"avatar_url\": \"https://i.imgur.com/Hrbi1Ht.jpg\", \"embeds\": [{\"author\": {\"name\": \"Github\", \"url\": \"https://github.com/Poss111/clash-bot\", \"icon_url\": \"https://img.icons8.com/ios-filled/344/github-2.png\"}, \"title\": \"Clash Bot Deployment Notification\", \"url\": \"https://github.com/Poss111/clash-bot/actions/runs/${{ github.run_id }}\", \"description\": \"Github build failed!\", \"color\": 16711680, \"fields\": [{\"name\": \"Build #\", \"value\": \"${{ github.run_id }}\", \"inline\": true}, {\"name\": \"Branch\", \"value\": \"${{ github.ref }}\", \"inline\": true}, {\"name\": \"SHA\", \"value\": \"${{ github.sha }}\", \"inline\": false}, {\"name\": \"Triggered By\", \"value\": \"${{ github.actor }}\", \"inline\": false}]}]}"
+        discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        title: 'Clash Bot Deployment Notification'
+        message: 'Github build failed!'
+        message-color: '16711680'
 
-    - name: Send success webhook
-      uses: joelwmale/webhook-action@master
-      if: ${{ success() && github.ref != 'refs/heads/master'}}
+    - name: Build Succeded Discord Webhook
+      uses: Poss111/discord-hook-action@v1.6.5
+        if: ${{ success() && github.ref != 'refs/heads/master'}}
       with:
-        url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        headers: '{"Content-Type": "application/json"}'
-        body: "{\"username\": \"Dan Bot\", \"avatar_url\": \"https://i.imgur.com/Hrbi1Ht.jpg\", \"embeds\": [{\"author\": {\"name\": \"Github\", \"url\": \"https://github.com/Poss111/clash-bot\", \"icon_url\": \"https://img.icons8.com/ios-filled/344/github-2.png\"}, \"title\": \"Clash Bot  Deployment Notification\", \"url\": \"https://github.com/Poss111/clash-bot/actions/runs/${{ github.run_id }}\", \"description\": \"Github build succeeded!\", \"color\": 65345, \"fields\": [{\"name\": \"Build #\", \"value\": \"${{ github.run_id }}\", \"inline\": true}, {\"name\": \"Branch\", \"value\": \"${{ github.ref }}\", \"inline\": true}, {\"name\": \"SHA\", \"value\": \"${{ github.sha }}\", \"inline\": false}, {\"name\": \"Triggered By\", \"value\": \"${{ github.actor }}\", \"inline\": false}]}]}"
+        discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        title: 'Clash Bot Deployment Notification'
+        message: 'Github build succeeded!'
+        message-color: '65345'
 
-    - name: Send deployement in progress webhook
-      uses: joelwmale/webhook-action@master
-      if: ${{ success() && github.ref == 'refs/heads/master' }}
+    - name: Deployment In Progress Discord Webhook
+      uses: Poss111/discord-hook-action@v1.6.5
+        if: ${{ success() && github.ref != 'refs/heads/master'}}
       with:
-        url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        headers: '{"Content-Type": "application/json"}'
-        body: "{\"username\": \"Dan Bot\", \"avatar_url\": \"https://i.imgur.com/Hrbi1Ht.jpg\", \"embeds\": [{\"author\": {\"name\": \"Github\", \"url\": \"https://github.com/Poss111/clash-bot\", \"icon_url\": \"https://img.icons8.com/ios-filled/344/github-2.png\"}, \"title\": \"Clash Bot Deployment Notification\", \"url\": \"https://github.com/Poss111/clash-bot/actions/runs/${{ github.run_id }}\", \"description\": \"Deployment in progress...\", \"color\": 16750902, \"fields\": [{\"name\": \"Build #\", \"value\": \"${{ github.run_id }}\", \"inline\": true}, {\"name\": \"Branch\", \"value\": \"${{ github.ref }}\", \"inline\": true}, {\"name\": \"SHA\", \"value\": \"${{ github.sha }}\", \"inline\": false}, {\"name\": \"Triggered By\", \"value\": \"${{ github.actor }}\", \"inline\": false}]}]}"
+        discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        title: 'Clash Bot Deployment Notification'
+        message: 'Deployment in progress...'
+        message-color: '16750902'
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -127,18 +130,20 @@ jobs:
         cluster: clash-bot
         wait-for-service-stability: true
 
-    - name: Send deployment failure webhook
-      uses: joelwmale/webhook-action@master
+    - name: Deployment Failed Discord Webhook
+      uses: Poss111/discord-hook-action@v1.6.5
       if: ${{ failure() && github.ref == 'refs/heads/master' }}
       with:
-        url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        headers: '{"Content-Type": "application/json"}'
-        body: "{\"username\": \"Dan Bot\", \"avatar_url\": \"https://i.imgur.com/Hrbi1Ht.jpg\", \"embeds\": [{\"author\": {\"name\": \"Github\", \"url\": \"https://github.com/Poss111/clash-bot\", \"icon_url\": \"https://img.icons8.com/ios-filled/344/github-2.png\"}, \"title\": \"Clash Bot Deployment Notification\", \"url\": \"https://github.com/Poss111/clash-bot/actions/runs/${{ github.run_id }}\", \"description\": \"Deployment failed!\", \"color\": 16711680, \"fields\": [{\"name\": \"Build #\", \"value\": \"${{ github.run_id }}\", \"inline\": true}, {\"name\": \"Branch\", \"value\": \"${{ github.ref }}\", \"inline\": true}, {\"name\": \"SHA\", \"value\": \"${{ github.sha }}\", \"inline\": false}, {\"name\": \"Triggered By\", \"value\": \"${{ github.actor }}\", \"inline\": false}]}]}"
+        discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        title: 'Clash Bot Deployment Notification'
+        message: 'Deployment failed!'
+        message-color: '16711680'
 
-    - name: Send deployment success webhook
-      uses: joelwmale/webhook-action@master
+    - name: Deployment Succeeded Discord Webhook
+      uses: Poss111/discord-hook-action@v1.6.5
       if: ${{ success() && github.ref == 'refs/heads/master' }}
       with:
-        url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        headers: '{"Content-Type": "application/json"}'
-        body: "{\"username\": \"Dan Bot\", \"avatar_url\": \"https://i.imgur.com/Hrbi1Ht.jpg\", \"embeds\": [{\"author\": {\"name\": \"Github\", \"url\": \"https://github.com/Poss111/clash-bot\", \"icon_url\": \"https://img.icons8.com/ios-filled/344/github-2.png\"}, \"title\": \"Clash Bot Deployment Notification\", \"url\": \"https://github.com/Poss111/clash-bot/actions/runs/${{ github.run_id }}\", \"description\": \"Deployment succeeded!\", \"color\": 65345, \"fields\": [{\"name\": \"Build #\", \"value\": \"${{ github.run_id }}\", \"inline\": true}, {\"name\": \"Branch\", \"value\": \"${{ github.ref }}\", \"inline\": true}, {\"name\": \"SHA\", \"value\": \"${{ github.sha }}\", \"inline\": false}, {\"name\": \"Triggered By\", \"value\": \"${{ github.actor }}\", \"inline\": false}]}]}"
+        discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        title: 'Clash Bot Deployment Notification'
+        message: 'Deployment succeeded!'
+        message-color: '65345'
