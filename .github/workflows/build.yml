@@ -71,7 +71,7 @@ jobs:
 
     - name: Build Succeded Discord Webhook
       uses: Poss111/discord-hook-action@v1.6.5
-        if: ${{ success() && github.ref != 'refs/heads/master'}}
+      if: ${{ success() && github.ref != 'refs/heads/master'}}
       with:
         discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
         title: 'Clash Bot Deployment Notification'
@@ -80,7 +80,7 @@ jobs:
 
     - name: Deployment In Progress Discord Webhook
       uses: Poss111/discord-hook-action@v1.6.5
-        if: ${{ success() && github.ref != 'refs/heads/master'}}
+      if: ${{ success() && github.ref != 'refs/heads/master'}}
       with:
         discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
         title: 'Clash Bot Deployment Notification'
