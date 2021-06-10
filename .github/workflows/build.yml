@@ -16,11 +16,12 @@ jobs:
     steps:
     - uses: FranzDiebold/github-env-vars-action@v2.1.0
 
-    - uses: joelwmale/webhook-action@master
-      with:
-        url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        headers: '{"Content-Type": "application/json"}'
-        body: "{  \"username\": \"Dan Bot\", \"avatar_url\": \"https://i.imgur.com/Hrbi1Ht.jpg\", \"embeds\": [{ \"author\": {\"name\": \"Github\",\"url\": \"https://github.com/Poss111/clash-bot\",\"icon_url\": \"https://img.icons8.com/ios-filled/344/github-2.png\"      },      \"title\": \"Clash Bot Deployment Notification\",      \"url\": \"https://github.com/Poss111/clash-bot/actions/runs/${{ github.run_id }}\",      \"description\": \"Starting Github build...\",      \"color\": 15258703,      \"fields\": [{  \"name\": \"Build #\",  \"value\": \"${{ github.run_id }}\",  \"inline\": true},{  \"name\": \"Branch\",  \"value\": \"${{ github.ref }}\",  \"inline\": true}, { \"name\": \"SHA\", \"value\": \"${{ github.sha }}\", \"inline\": false},{  \"name\": \"Triggered By\",  \"value\": \"${{ github.actor }}\",  \"inline\": false}      ]    }  ]}"
+    - uses: Poss111/discord-hook-action@v1.6.4
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Deployment Notification'
+          message: 'Starting Github build...'
+          message-color: '15258703'
 
     - name: Check
       run : echo build $GITHUB_RUN_NUMBER
