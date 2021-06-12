@@ -11,20 +11,21 @@ module.exports = {
             let tentative = dbUtils.getTentative(msg.guild.name);
             let copy = JSON.parse(JSON.stringify(teamsCard));
 
-            if (!data || data.length <= 0 || !data[0].players) {
+            let teamsWithPlayers = data ? data.filter(record => record.players && record.players.length > 0) : [];
+
+            if (teamsWithPlayers.length <= 0) {
                 copy.fields.push({name: 'No Existing Teams. Please register!', value: 'Emptay'})
             } else {
                 let counter;
-                data = data.filter(record => record.players && record.players.length > 0);
-                for (counter = 0; counter < data.length; counter++) {
-                    if (data[counter].players && data[counter].players.length > 0) {
-                        copy.fields.push({name: data[counter].teamName, value: data[counter].players, inline: true});
+                for (counter = 0; counter < teamsWithPlayers.length; counter++) {
+                    if (teamsWithPlayers[counter].players && teamsWithPlayers[counter].players.length > 0) {
+                        copy.fields.push({name: teamsWithPlayers[counter].teamName, value: teamsWithPlayers[counter].players, inline: true});
                         copy.fields.push({
                             name: 'Tournament Details',
-                            value: `${data[counter].tournamentName} Day ${data[counter].tournamentDay}`,
+                            value: `${teamsWithPlayers[counter].tournamentName} Day ${teamsWithPlayers[counter].tournamentDay}`,
                             inline: true
                         });
-                        if (counter < data.length - 1) {
+                        if (counter < teamsWithPlayers.length - 1) {
                             copy.fields.push({name: '\u200B', value: '\u200B'});
                         }
                     }
