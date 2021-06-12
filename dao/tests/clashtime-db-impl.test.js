@@ -115,14 +115,14 @@ describe('Find Tournament', () => {
 
     test('I should be returned an empty value if a tournament name and day match is not found due to date being in the past.', () => {
         buildSampleTournamentList('msi2021', 2, 2);
-        return clashtimeDb.findTournament('msi2021', 2).then(data => {
+        return clashtimeDb.findTournament('msi2021', '2').then(data => {
             expect(data).toHaveLength(0);
         });
     })
 
     test('I should be able to search for a tournament and a day.', () => {
         let expectedData = buildSampleTournamentList('msi2021', 2);
-        return clashtimeDb.findTournament('msi2021', 0).then(data => {
+        return clashtimeDb.findTournament('msi2021', '0').then(data => {
             expect(data).toEqual([expectedData[0]]);
         })
     })

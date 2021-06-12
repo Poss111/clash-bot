@@ -60,7 +60,7 @@ class ClashTimeDbImpl {
             tournamentName = tournamentName.toLowerCase()
             filter = (data) => data.tournamentName.toLowerCase().includes(tournamentName)
                 && new Date(data.startTime) > new Date();
-            if (tournamentName && Number.isInteger(dayNumber)) {
+            if (tournamentName && !isNaN(dayNumber)) {
                 filter = (data) => data.tournamentName.toLowerCase().includes(tournamentName)
                     && data.tournamentDay.includes(dayNumber)
                     && new Date(data.startTime) > new Date();
@@ -72,7 +72,7 @@ class ClashTimeDbImpl {
             this.retrieveTournaments()
                 .then(data => resolve(data.filter(filter)))
                 .catch((err) => reject(err));
-        })
+        });
     }
 
 }
