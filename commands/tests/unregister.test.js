@@ -2,10 +2,12 @@ const unregister = require('../unregister');
 const dynamoDbUtils = require('../../dao/dynamo-db-impl');
 const errorHandling = require('../../utility/error-handling');
 const leagueApi = require('../../dao/clashtime-db-impl');
+const commandArgumentParser = require('../command-argument-parser');
 
 jest.mock('../../dao/dynamo-db-impl');
 jest.mock('../../utility/error-handling');
 jest.mock('../../dao/clashtime-db-impl');
+jest.mock('../command-argument-parser');
 
 describe('Unregister', () => {
     test('When a player exists on a team is unregistered, the player should be notified that we have successfully removed them.', async () => {
@@ -38,6 +40,7 @@ describe('Unregister', () => {
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
         ];
+        commandArgumentParser.parse.mockReturnValue({tournamentDay: args[1], tournamentName: args[0], createNewTeam: false});
         leagueApi.findTournament.mockResolvedValue(leagueTimes);
         dynamoDbUtils.deregisterPlayer.mockResolvedValue(true);
         await unregister.execute(msg, args);
@@ -65,17 +68,18 @@ describe('Unregister', () => {
         let leagueTimes = [
             {
                 tournamentName: "msi2021",
-                tournamentDay: "day_3",
+                tournamentDay: "3",
                 "startTime": "May 29 2021 07:00 pm PDT",
                 "registrationTime": "May 29 2021 04:15 pm PDT"
             },
             {
                 tournamentName: "msi2021",
-                tournamentDay: "day_4",
+                tournamentDay: "4",
                 "startTime": "May 30 2021 07:00 pm PDT",
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
         ];
+        commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], tournamentDay: args[1], createNewTeam: false});
         leagueApi.findTournament.mockResolvedValue(leagueTimes);
         dynamoDbUtils.deregisterPlayer.mockResolvedValue(false);
         await unregister.execute(msg, args);
@@ -98,6 +102,7 @@ describe('Unregister', () => {
                 name: 'TestServer'
             }
         };
+        commandArgumentParser.parse.mockReturnValue({createNewTeam: false});
         await unregister.execute(msg);
         expect(messagePassed).toEqual('Please pass the tournament and day to unregister for i.e. !clash unregister msi2021 2');
     })
@@ -119,6 +124,7 @@ describe('Unregister', () => {
         };
         let args = ['shurima', '3'];
         let leagueTimes = [];
+        commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], tournamentDay: args[1], createNewTeam: false});
         leagueApi.findTournament.mockResolvedValue(leagueTimes);
         await unregister.execute(msg, args);
         expect(messagePassed).toEqual(`Please provide an existing tournament and day to unregister for. Use '!clash team' to print a teams.`);
@@ -140,6 +146,7 @@ describe('Unregister', () => {
             }
         };
         let args = ['shurima', '3'];
+        commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], tournamentDay: args[1], createNewTeam: false});
         leagueApi.findTournament.mockResolvedValue(undefined);
         await unregister.execute(msg, args);
         expect(messagePassed).toEqual(`Please provide an existing tournament and day to unregister for. Use '!clash team' to print a teams.`);
@@ -178,6 +185,7 @@ test('If an error occurs, the error handler will be invoked.', async () => {
         }
     ];
     let args = ['shurima', '3'];
+    commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], tournamentDay: args[1], createNewTeam: false});
     leagueApi.findTournament.mockResolvedValue(leagueTimes);
     await unregister.execute(msg, args);
     expect(sendMessage).toEqual(`Unregistering ${msg.author.username} from Tournament ${leagueTimes[0].tournamentName} on Day ${leagueTimes[0].tournamentDay}...`);

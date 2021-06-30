@@ -1,13 +1,32 @@
 const commandArgumentParser = require('../command-argument-parser');
 
 describe('Command Argument Parser', () => {
+    test('When nothing is passed, it should be an empty object with create new team as false.', () => {
+        let args = [];
+
+        let commands = commandArgumentParser.parse(args);
+
+        expect(commands).toEqual({
+            createNewTeam: false
+        });
+    })
+
+    test('When undefined is passed, it should be an empty object with create new team as false.', () => {
+        let commands = commandArgumentParser.parse(undefined);
+
+        expect(commands).toEqual({
+            createNewTeam: false
+        });
+    })
+
     test('When argument tournament name is passed as first argument, it should be parsed into and object and used.', () => {
         let args = ['msi2021'];
 
         let commands = commandArgumentParser.parse(args);
 
         expect(commands).toEqual({
-            tournamentName: args[0]
+            tournamentName: args[0],
+            createNewTeam: false
         });
     })
 
@@ -18,7 +37,8 @@ describe('Command Argument Parser', () => {
 
         expect(commands).toEqual({
             tournamentName: args[1],
-            tournamentDay: args[0]
+            tournamentDay: args[0],
+            createNewTeam: false
         });
     })
 
@@ -28,7 +48,8 @@ describe('Command Argument Parser', () => {
         let commands = commandArgumentParser.parse(args);
 
         expect(commands).toEqual({
-            tournamentDay: args[0]
+            tournamentDay: args[0],
+            createNewTeam: false
         });
     })
 
