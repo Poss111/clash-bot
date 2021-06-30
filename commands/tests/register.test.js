@@ -63,6 +63,7 @@ describe('Register', () => {
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
         ];
+        commandArgumentParser.parse.mockReturnValue({createNewTeam: false});
         leagueApi.findTournament = jest.fn().mockResolvedValue(leagueTimes);
         const sampleRegisterReturn = {
             teamName: 'SampleTeam',
@@ -73,7 +74,7 @@ describe('Register', () => {
         dynamoDBUtils.registerPlayer.mockResolvedValue(sampleRegisterReturn);
         await register.execute(msg);
 
-        expect(dynamoDBUtils.registerPlayer).toBeCalledWith(msg.author.username, msg.guild.name, leagueTimes);
+        expect(dynamoDBUtils.registerPlayer).toBeCalledWith(msg.author.username, msg.guild.name, leagueTimes, false);
         expect(sendMessage).toEqual(`Registering ${msg.author.username} for the first available tournament you are not already registered to...`);
         verifyReply(messagePassed, sampleRegisterReturn);
     })
@@ -107,6 +108,7 @@ describe('Register', () => {
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
         ];
+        commandArgumentParser.parse.mockReturnValue({createNewTeam: false});
         leagueApi.findTournament = jest.fn().mockResolvedValue(leagueTimes);
         const sampleRegisterReturn = {
             teamName: 'SampleTeam',
@@ -117,7 +119,7 @@ describe('Register', () => {
         dynamoDBUtils.registerPlayer.mockResolvedValue(sampleRegisterReturn);
         await register.execute(msg, []);
 
-        expect(dynamoDBUtils.registerPlayer).toBeCalledWith(msg.author.username, msg.guild.name, leagueTimes);
+        expect(dynamoDBUtils.registerPlayer).toBeCalledWith(msg.author.username, msg.guild.name, leagueTimes, false);
         expect(sendMessage).toEqual(`Registering ${msg.author.username} for the first available tournament you are not already registered to...`);
         verifyReply(messagePassed, sampleRegisterReturn);
     })
@@ -325,6 +327,7 @@ describe('Register', () => {
         await register.execute(msg, args);
 
         expect(sendMessage).toEqual(`Registering ${msg.author.username} for the first available tournament you are not already registered to...`);
+        expect(dynamoDBUtils.registerPlayer).toBeCalledWith(msg.author.username, msg.guild.name, leagueApi.leagueTimes, true);
         verifyReply(messagePassed, sampleRegisterReturn);
     })
 
