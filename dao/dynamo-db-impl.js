@@ -45,40 +45,64 @@ class DynamoDBUtils {
         })
     }
 
+    buildTournamentToTeamsMap(playerName, teamsList) {
+        let tournamentMap = new Map();
+        teamsList.forEach(team => {
+            let key = `${team.tournamentName}#${team.tournamentDay}`;
+            let teamFound = tournamentMap.get(key);
+            if (!teamFound) teamFound = {};
+
+            if (team.players && team.players.includes(playerName)) teamFound.teamCurrentlyOn = team;
+
+            else {
+                if (Array.isArray(teamFound.availableTeams)) teamFound.availableTeams.push(team);
+                else teamFound.availableTeams = [team];
+            }
+
+            tournamentMap.set(`${team.tournamentName}#${team.tournamentDay}`, teamFound);
+        });
+        return tournamentMap;
+    }
+
     registerPlayer(playerName, serverName, tournaments) {
         return new Promise((resolve, reject) => {
             this.getTeams(serverName).then((data) => {
                 let teams = data;
                 console.log(JSON.stringify(teams));
                 let teamJoined = [];
-                const playerAvailableTournaments = this.filterAvailableTournaments(tournaments, playerName, teams);
-                let availableTeam = this.findFirstAvailableTeam(playerName, tournaments, teams);
-                if (Array.isArray(playerAvailableTournaments) && !playerAvailableTournaments.length) {
-                    data.forEach(record => record.exist = true);
-                    resolve(data);
+                const tournamentToTeamMap = this.buildTournamentToTeamsMap(playerName, data);
+                console.log(`Number of Tournaments from Teams found => ('${tournamentToTeamMap.size}')`);
+                let {teamToJoin, currentTeams, tournamentToUse, createNewTeam } = this.buildTeamLogic(tournaments, tournamentToTeamMap);
+                console.log(`Requesting User ('${playerName}') Tournament To Use ('${JSON.stringify(tournamentToUse)}')`);
+                console.log(`Requesting User ('${playerName}') Available Team ('${JSON.stringify(teamToJoin)}')`);
+                console.log(`Requesting User ('${playerName}') Current Teams ('${JSON.stringify(currentTeams)}')`);
+                console.log(`Requesting User ('${playerName}') Create new Team? ('${createNewTeam}')`);
+                if (currentTeams && !teamToJoin && !createNewTeam) {
+                    currentTeams.forEach(record => record.exist = true);
+                    resolve(currentTeams);
                 } else {
                     if (this.tentative.some(record => record.playerName === playerName
                         && record.serverName === serverName
-                        && record.tournamentName === playerAvailableTournaments[0].tournamentName)) {
-                        this.handleTentative(playerName, serverName, playerAvailableTournaments[0].tournamentName).then((data) => {
+                        && record.tournamentName === tournamentToUse.tournamentName)) {
+                        this.handleTentative(playerName, serverName, tournamentToUse.tournamentName).then((data) => {
                             if (data) console.log('Pulled off tentative');
                         });
-                    } if (!availableTeam) {
-                        console.log(`Creating new team for ${playerName} and Tournament ${playerAvailableTournaments[0].tournamentName} and Day ${playerAvailableTournaments[0].tournamentDay} since there are no available teams.`);
-                        teamJoined = this.createNewTeam(playerName, serverName, playerAvailableTournaments[0], teams.length + 1);
+                    } if (createNewTeam) {
+                        console.log(`Creating new team for ${playerName} and Tournament ${tournamentToUse.tournamentName} and Day ${tournamentToUse.tournamentDay} since there are no available teams.`);
+                        teamJoined = this.createNewTeam(playerName, serverName, tournamentToUse, teams.length + 1);
                         resolve(teamJoined);
-                    } else if (!Array.isArray(availableTeam)) {
-                        console.log(`Adding ${playerName} to first available team ${availableTeam.teamName}...`);
+                    } else if (!Array.isArray(teamToJoin)) {
+                        console.log(`Adding ${playerName} to first available team ${teamToJoin.teamName}...`);
                         let params = {};
                         params.UpdateExpression = 'ADD players :playerName';
                         params.ExpressionAttributeValues = {
                             ':playerName': dynamodb.Set([playerName], 'S')
                         };
                         this.Team.update({
-                            key: this.getKey(availableTeam.teamName,
-                                availableTeam.serverName,
-                                availableTeam.tournamentName,
-                                availableTeam.tournamentDay)
+                            key: this.getKey(teamToJoin.teamName,
+                                teamToJoin.serverName,
+                                teamToJoin.tournamentName,
+                                teamToJoin.tournamentDay)
                         }, params, function (err, record) {
                             if (err) reject(err);
                             else {
@@ -90,6 +114,32 @@ class DynamoDBUtils {
                 }
             });
         });
+    }
+
+    buildTeamLogic(tournaments, tournamentToTeamMap) {
+        let teamToJoin;
+        let currentTeams = [];
+        let createNewTeam = false;
+        let tournamentToUse;
+        for (let i = 0; i < tournaments.length; i++) {
+            tournamentToUse = tournaments[i];
+            let key = `${tournamentToUse.tournamentName}#${tournamentToUse.tournamentDay}`;
+            let teamDetailsForTournament = tournamentToTeamMap.get(key);
+            if (!teamDetailsForTournament) {
+                createNewTeam = true;
+                break;
+            } else {
+                if (teamDetailsForTournament.availableTeams && teamDetailsForTournament.availableTeams.length > 0) {
+                    teamToJoin = teamDetailsForTournament.availableTeams[0];
+                    currentTeams = teamDetailsForTournament.teamCurrentlyOn;
+                    break;
+                } else {
+                    if (teamDetailsForTournament.teamCurrentlyOn)
+                        currentTeams.push(teamDetailsForTournament.teamCurrentlyOn)
+                }
+            }
+        }
+        return {teamToJoin, currentTeams, tournamentToUse, createNewTeam};
     }
 
     deregisterPlayer(playerName, serverName, tournaments) {

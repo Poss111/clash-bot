@@ -2,6 +2,7 @@ const dynamoDBUtils = require('../dynamo-db-impl');
 const dynamodb = require('dynamodb');
 const streamTest = require('streamtest');
 const randomNames = require('../../random-names');
+const each = require('jest-each').default;
 
 jest.mock('dynamodb');
 
@@ -17,7 +18,7 @@ describe('Initialize Database connection and tables', () => {
         dynamodb.createTables.mockImplementation((callback) => callback());
         return dynamoDBUtils.initializeClashBotDB().then((data) => {
                 expect(data).toEqual('Successfully initialized Database.');
-            expect(dynamodb.AWS.config.loadFromPath.mock.calls.length).toEqual(0);
+                expect(dynamodb.AWS.config.loadFromPath.mock.calls.length).toEqual(0);
                 expect(dynamodb.AWS.config.update.mock.calls.length).toEqual(1);
                 expect(dynamodb.define.mock.calls.length).toEqual(1);
             }
@@ -46,7 +47,8 @@ describe('Initialize Database connection and tables', () => {
         const sampleError = 'Failed to create table.'
         dynamodb.createTables.mockImplementation((callback) => callback(sampleError));
         process.env.LOCAL = true;
-        return dynamoDBUtils.initializeClashBotDB().then(() => {}).catch((err) => expect(err).toEqual(sampleError))
+        return dynamoDBUtils.initializeClashBotDB().then(() => {
+        }).catch((err) => expect(err).toEqual(sampleError))
     })
 })
 
@@ -137,7 +139,8 @@ describe('Register Player', () => {
             exec: mockStream
         }
 
-        return dynamoDBUtils.getTeams('Sample Server').then(() => {})
+        return dynamoDBUtils.getTeams('Sample Server').then(() => {
+        })
             .catch((err) => expect(err).toEqual([value]));
     })
 
@@ -191,7 +194,7 @@ describe('Register Player', () => {
 
         let foundTeam = value.Items[1].attrs;
         let key = dynamoDBUtils.getKey(foundTeam.teamName, foundTeam.serverName, foundTeam.tournamentName, foundTeam.tournamentDay);
-        let tournament = [{ tournamentName: 'msi2021', tournamentDay: 'day_3'}];
+        let tournament = [{tournamentName: 'msi2021', tournamentDay: 'day_3'}];
         return dynamoDBUtils.registerPlayer(expectedPlayerName, 'Sample Server', tournament).then(result => {
             expect(result).toBeTruthy();
             expect(result.teamName).toEqual(value.Items[0].attrs.teamName);
@@ -321,7 +324,7 @@ describe('Register Player', () => {
 
         let foundTeam = value.Items[0].attrs;
         let key = dynamoDBUtils.getKey(foundTeam.teamName, foundTeam.serverName, foundTeam.tournamentName, foundTeam.tournamentDay);
-        let tournament = [{ tournamentName: 'msi2021', tournamentDay: 'day_3'}];
+        let tournament = [{tournamentName: 'msi2021', tournamentDay: 'day_3'}];
         return dynamoDBUtils.registerPlayer('Player3', 'Sample Server', tournament).then(result => {
             expect(result).toBeTruthy();
             expect(result.teamName).toEqual(value.Items[0].attrs.teamName);
@@ -362,7 +365,7 @@ describe('Register Player', () => {
             exec: mockStream
         }
 
-        let tournament = [{ tournamentName: 'msi2021', tournamentDay: 'day_3'}];
+        let tournament = [{tournamentName: 'msi2021', tournamentDay: 'day_3'}];
         return dynamoDBUtils.registerPlayer('Player2', 'Sample Server', tournament).then(result => {
             expect(result).toBeTruthy();
             expect(result[0].exist).toBeTruthy();
@@ -408,7 +411,7 @@ describe('Register Player', () => {
             })
         }
 
-        let tournament = [{ tournamentName: 'msi2021', tournamentDay: 'day_3'}];
+        let tournament = [{tournamentName: 'msi2021', tournamentDay: 'day_3'}];
         return dynamoDBUtils.registerPlayer('Player2', 'Sample Server', tournament).then(result => {
             expect(result).toBeTruthy();
             expect(result.teamName).toEqual(value.Items[0].attrs.teamName);
@@ -433,7 +436,7 @@ describe('Register Player', () => {
             update: jest.fn()
         }
 
-        let tournament = [{ tournamentName: 'msi2021', tournamentDay: 'day_3'}];
+        let tournament = [{tournamentName: 'msi2021', tournamentDay: 'day_3'}];
         return dynamoDBUtils.registerPlayer('Player1', 'Sample Server', tournament).then(result => {
             expect(result).toBeTruthy();
             expect(result.teamName).toEqual(`Team ${randomNames[1]}`);
@@ -443,7 +446,7 @@ describe('Register Player', () => {
     })
 })
 
-describe('Unregister Player', () =>{
+describe('Unregister Player', () => {
     test('I should remove a player from a team if unregister is called and they exist on a team.', () => {
         const value = {
             Items: [{
@@ -890,7 +893,7 @@ describe('Tentative Queue', () => {
             serverName: 'Sample Server',
             tournamentName: 'msi2021'
         }];
-        return dynamoDBUtils.handleTentative('Player 1', 'Sample Server','msi2021').then((returnedValue) => {
+        return dynamoDBUtils.handleTentative('Player 1', 'Sample Server', 'msi2021').then((returnedValue) => {
             expect(returnedValue).toBeTruthy();
             expect(dynamoDBUtils.tentative.length).toEqual(0);
         });
@@ -1155,7 +1158,7 @@ describe('Filter Available Team', () => {
                 key: 'Sample Team#Sample Server#msi2021#day1',
                 teamName: 'Sample Team',
                 serverName: 'Sample Server',
-                players: ['Player1','Player2','Player3','Player4','Player5'],
+                players: ['Player1', 'Player2', 'Player3', 'Player4', 'Player5'],
                 tournamentName: 'msi2021',
                 tournamentDay: 'day1'
             },
@@ -1195,7 +1198,7 @@ describe('Filter Available Team', () => {
                 key: 'Sample Team#Sample Server#msi2021#day1',
                 teamName: 'Sample Team',
                 serverName: 'Sample Server',
-                players: ['Player1','Player2','Player3','Player4','Player5'],
+                players: ['Player1', 'Player2', 'Player3', 'Player4', 'Player5'],
                 tournamentName: 'msi2021',
                 tournamentDay: 'day1'
             }
@@ -1214,7 +1217,7 @@ describe('Filter Available Team', () => {
                 key: 'Sample Team#Sample Server#msi2021#day1',
                 teamName: 'Sample Team',
                 serverName: 'Sample Server',
-                players: ['Player1','Player2','Player3','Player4','Player5'],
+                players: ['Player1', 'Player2', 'Player3', 'Player4', 'Player5'],
                 tournamentName: 'msi2021',
                 tournamentDay: 'day1'
             },
@@ -1222,7 +1225,7 @@ describe('Filter Available Team', () => {
                 key: 'Sample Team#Sample Server#msi2021#day1',
                 teamName: 'Sample Team',
                 serverName: 'Sample Server',
-                players: ['Player1','Player2','Player3'],
+                players: ['Player1', 'Player2', 'Player3'],
                 tournamentName: 'msi2021',
                 tournamentDay: 'day2'
             }
@@ -1230,12 +1233,13 @@ describe('Filter Available Team', () => {
         let tournaments = [{
             tournamentName: 'msi2021',
             tournamentDay: 'day1'
-        },{
+        }, {
             tournamentName: 'msi2021',
             tournamentDay: 'day2'
         }];
         const foundTeam = dynamoDBUtils.findFirstAvailableTeam('Player1', tournaments, JSON.parse(JSON.stringify(teams)));
-        expect(foundTeam).toBeFalsy();3
+        expect(foundTeam).toBeFalsy();
+        3
     })
 
     test('I should receive a single team if a player passed does not belong to one of the tournaments and tournament days passed.', () => {
@@ -1244,7 +1248,7 @@ describe('Filter Available Team', () => {
                 key: 'Sample Team#Sample Server#msi2021#day1',
                 teamName: 'Sample Team',
                 serverName: 'Sample Server',
-                players: ['Player1','Player2','Player3','Player4','Player5'],
+                players: ['Player1', 'Player2', 'Player3', 'Player4', 'Player5'],
                 tournamentName: 'msi2021',
                 tournamentDay: 'day1'
             },
@@ -1252,7 +1256,7 @@ describe('Filter Available Team', () => {
                 key: 'Sample Team#Sample Server#msi2021#day1',
                 teamName: 'Sample Team',
                 serverName: 'Sample Server',
-                players: ['Player1','Player2','Player3'],
+                players: ['Player1', 'Player2', 'Player3'],
                 tournamentName: 'msi2021',
                 tournamentDay: 'day2'
             }
@@ -1260,7 +1264,7 @@ describe('Filter Available Team', () => {
         let tournaments = [{
             tournamentName: 'msi2021',
             tournamentDay: 'day1'
-        },{
+        }, {
             tournamentName: 'msi2021',
             tournamentDay: 'day2'
         }];
@@ -1273,7 +1277,7 @@ describe('Filter Available Team', () => {
         let tournaments = [{
             tournamentName: 'msi2021',
             tournamentDay: 'day1'
-        },{
+        }, {
             tournamentName: 'msi2021',
             tournamentDay: 'day2'
         }];
@@ -1376,6 +1380,40 @@ describe('Filter Available Tournaments', () => {
         }];
 
         expect(dynamoDBUtils.filterAvailableTournaments(tournaments, 'Player1', teams)).toEqual([]);
+    })
+})
+
+describe('Build Tournament to Teams Map', () => {
+    each([
+        ['Player1', [{teamName: 'Team Absol', serverName: 'Sample Server', players: ['Player1', 'Player2'], tournamentName: 'msi2021', tournamentDay: '1'}, {teamName: 'Team Magma', serverName: 'Sample Server', players: ['Player1', 'Player2'], tournamentName: 'msi2021', tournamentDay: '2'}], 2, [0, 1], [[-1], [-1]]],
+        ['Player1', [{teamName: 'Team Absol', serverName: 'Sample Server', players: ['Player1', 'Player2'], tournamentName: 'msi2021', tournamentDay: '1'}, {teamName: 'Team Scampy', serverName: 'Sample Server', players: undefined, tournamentName: 'msi2021', tournamentDay: '1'}, {teamName: 'Team Magma', serverName: 'Sample Server', players: ['Player1', 'Player2'], tournamentName: 'msi2021', tournamentDay: '2'}], 2, [0, 2], [[1], [-1]]],
+        ['Player1', [{teamName: 'Team Absol', serverName: 'Sample Server', players: ['Player1', 'Player2'], tournamentName: 'msi2021', tournamentDay: '1'}, {teamName: 'Team Crazy Train', serverName: 'Sample Server', players: ['Player3'], tournamentName: 'msi2021', tournamentDay: '1'}, {teamName: 'Team Amber', serverName: 'Sample Server', players: undefined, tournamentName: 'msi2021', tournamentDay: '1'}, {teamName: 'Team Magma', serverName: 'Sample Server', players: ['Player1', 'Player2'], tournamentName: 'msi2021', tournamentDay: '2'}], 2, [0, 3], [[1, 2], [-1]]],
+        ['Player1', [], 0, [-1], [[-1]]]
+    ]).test('Player Name %s - Tournaments %s - Teams %s - expected number of keys %d', (playerName, teamsList, expectedNumberOfKeys, expectedTeamsCurrentlyOnIndex, expectedAvailableTeamsIndex) => {
+
+        const map = dynamoDBUtils.buildTournamentToTeamsMap(playerName, teamsList);
+        let expectedAvailableTeamsMap = [];
+        for (let j = 0; j < expectedAvailableTeamsIndex.length; j++) {
+            let availableTeamArray = [];
+            for (const index in expectedAvailableTeamsIndex[j]) {
+                if (teamsList[expectedAvailableTeamsIndex[j][index]]) {
+                    availableTeamArray.push(teamsList[expectedAvailableTeamsIndex[j][index]]);
+                }
+            }
+            expectedAvailableTeamsMap.push(availableTeamArray);
+        }
+        expect(map.size).toEqual(expectedNumberOfKeys);
+        if (expectedNumberOfKeys) {
+            let keys = map.keys();
+            console.log(map);
+            for (let i = 0; i < expectedTeamsCurrentlyOnIndex.length; i++) {
+                let keyToUse = keys.next();
+                expect(map.get(keyToUse.value).teamCurrentlyOn).toEqual(teamsList[expectedTeamsCurrentlyOnIndex[i]]);
+                let expectVar = expect(map.get(keyToUse.value).availableTeams);
+                if (Array.isArray(expectedAvailableTeamsMap[i]) && expectedAvailableTeamsMap[i].length > 0) expectVar.toEqual(expectedAvailableTeamsMap[i]);
+                else expectVar.toBeFalsy();
+            }
+        }
     })
 })
 
