@@ -242,26 +242,13 @@ describe('Register Player', () => {
         let expectedPlayers = [];
         const expectedPlayerName = 'Player2';
         expectedPlayers.push(expectedPlayerName);
-        dynamoDBUtils.Team = jest.fn();
-        dynamoDBUtils.Team.update = jest.fn();
-        dynamoDBUtils.Team = {
-            scan: jest.fn().mockReturnThis(),
-            filterExpression: jest.fn().mockReturnThis(),
-            expressionAttributeValues: jest.fn().mockReturnThis(),
-            expressionAttributeNames: jest.fn().mockReturnThis(),
-            exec: mockStream,
-            update: jest.fn().mockImplementation((team, callback) => {
-                callback(undefined, {
-                    attrs: {
-                        key: 'Sample Team#Sample Server',
-                        teamName: 'Team Sample',
-                        serverName: 'Sample Server',
-                        players: expectedPlayers
-                    }
-                });
-            })
-        }
-        dynamodb.Set = jest.fn().mockReturnValue(expectedPlayers);
+        let mockTeam = {
+            key: 'Sample Team#Sample Server',
+            teamName: 'Team Sample',
+            serverName: 'Sample Server',
+            players: expectedPlayers
+        };
+        buildMockReturnForRegister(value, mockTeam, false);
 
         let foundTeam = value.Items[0].attrs;
         let key = dynamoDBUtils.getKey('Team Absol', foundTeam.serverName, 'msi2021', 'day_3');
@@ -305,36 +292,17 @@ describe('Register Player', () => {
             }
             ]
         };
-        const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
         let expectedPlayers = [];
         expectedPlayers.push(value.Items[0].attrs.players[0]);
         expectedPlayers.push(value.Items[0].attrs.players[1]);
         expectedPlayers.push('Player3');
-        dynamoDBUtils.Team = jest.fn();
-        dynamoDBUtils.tentative.push({
-            playerName: 'Player3',
+        let mockTeam = {
+            key: 'Sample Team#Sample Server',
+            teamName: 'Team Sample',
             serverName: 'Sample Server',
-            tournamentName: 'msi2021'
-        });
-        dynamoDBUtils.Team.update = jest.fn();
-        dynamoDBUtils.Team = {
-            scan: jest.fn().mockReturnThis(),
-            filterExpression: jest.fn().mockReturnThis(),
-            expressionAttributeValues: jest.fn().mockReturnThis(),
-            expressionAttributeNames: jest.fn().mockReturnThis(),
-            exec: mockStream,
-            update: jest.fn().mockImplementation((key, params, callback) => {
-                callback(undefined, {
-                    attrs: {
-                        key: 'Sample Team#Sample Server',
-                        teamName: 'Team Sample',
-                        serverName: 'Sample Server',
-                        players: expectedPlayers
-                    }
-                });
-            })
-        }
-        dynamodb.Set = jest.fn().mockReturnValue(expectedPlayers);
+            players: expectedPlayers
+        };
+        buildMockReturnForRegister(value, mockTeam, true);
 
         let foundTeam = value.Items[0].attrs;
         let key = dynamoDBUtils.getKey(foundTeam.teamName, foundTeam.serverName, foundTeam.tournamentName, foundTeam.tournamentDay);
@@ -402,28 +370,15 @@ describe('Register Player', () => {
             }
             ]
         };
-        const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
         let expectedPlayers = [];
         expectedPlayers.push('Player1');
-        dynamoDBUtils.Team = jest.fn();
-        dynamoDBUtils.Team.update = jest.fn();
-        dynamoDBUtils.Team = {
-            scan: jest.fn().mockReturnThis(),
-            filterExpression: jest.fn().mockReturnThis(),
-            expressionAttributeValues: jest.fn().mockReturnThis(),
-            expressionAttributeNames: jest.fn().mockReturnThis(),
-            exec: mockStream,
-            update: jest.fn().mockImplementation((key, params, callback) => {
-                callback(undefined, {
-                    attrs: {
-                        key: 'Sample Team#Sample Server',
-                        teamName: 'Team Sample',
-                        serverName: 'Sample Server',
-                        players: expectedPlayers
-                    }
-                });
-            })
-        }
+        let mockTeam = {
+            key: 'Sample Team#Sample Server',
+            teamName: 'Team Sample',
+            serverName: 'Sample Server',
+            players: expectedPlayers
+        };
+        buildMockReturnForRegister(value, mockTeam, true);
 
         let tournament = [{tournamentName: 'msi2021', tournamentDay: 'day_3'}];
         return dynamoDBUtils.registerPlayer('Player2', 'Sample Server', tournament).then(result => {
@@ -438,17 +393,13 @@ describe('Register Player', () => {
         const value = {
             Items: []
         };
-        const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
-        dynamoDBUtils.Team = jest.fn();
-        dynamoDBUtils.Team.update = jest.fn();
-        dynamoDBUtils.Team = {
-            scan: jest.fn().mockReturnThis(),
-            filterExpression: jest.fn().mockReturnThis(),
-            expressionAttributeValues: jest.fn().mockReturnThis(),
-            expressionAttributeNames: jest.fn().mockReturnThis(),
-            exec: mockStream,
-            update: jest.fn()
-        }
+        let mockTeam = {
+            key: 'Sample Team#Sample Server',
+            teamName: 'Team Sample',
+            serverName: 'Sample Server',
+            players: ['Player1']
+        };
+        buildMockReturnForRegister(value, mockTeam, false);
 
         let tournament = [{tournamentName: 'msi2021', tournamentDay: 'day_3'}];
         return dynamoDBUtils.registerPlayer('Player1', 'Sample Server', tournament).then(result => {
