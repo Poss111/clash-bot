@@ -76,7 +76,10 @@ class DynamoDBUtils {
                 console.log(`Requesting User ('${playerName}') Available Team ('${JSON.stringify(teamToJoin)}')`);
                 console.log(`Requesting User ('${playerName}') Current Teams ('${JSON.stringify(currentTeams)}')`);
                 console.log(`Requesting User ('${playerName}') Create new Team? ('${createNewTeam}')`);
-                if (!requestingNewTeam && currentTeams && !teamToJoin && !createNewTeam) {
+                if (!requestingNewTeam
+                    && currentTeams
+                    && !teamToJoin
+                    && !createNewTeam) {
                     currentTeams.forEach(record => record.exist = true);
                     resolve(currentTeams);
                 } else {
@@ -108,7 +111,17 @@ class DynamoDBUtils {
                             }
                         });
                     } else {
-                        resolve(this.createNewTeam(playerName, serverName, tournamentToUse, teams.length + 1));
+                        let teamToReturn;
+                        if (Array.isArray(currentTeams)
+                            && currentTeams[0]
+                            && currentTeams[0].players.length === 1
+                            && currentTeams[0].players.includes(playerName)) {
+                            currentTeams[0].exist = true;
+                            teamToReturn = currentTeams[0];
+                        } else {
+                            teamToReturn = this.createNewTeam(playerName, serverName, tournamentToUse, teams.length + 1)
+                        }
+                        resolve(teamToReturn);
                     }
                 }
             });
