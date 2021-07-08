@@ -64,7 +64,7 @@ class DynamoDBUtils {
         return tournamentMap;
     }
 
-    registerPlayer(playerName, serverName, tournaments) {
+    registerPlayer(playerName, serverName, tournaments, requestingNewTeam) {
         return new Promise((resolve, reject) => {
             this.getTeams(serverName).then((data) => {
                 let teams = data;
@@ -76,7 +76,7 @@ class DynamoDBUtils {
                 console.log(`Requesting User ('${playerName}') Available Team ('${JSON.stringify(teamToJoin)}')`);
                 console.log(`Requesting User ('${playerName}') Current Teams ('${JSON.stringify(currentTeams)}')`);
                 console.log(`Requesting User ('${playerName}') Create new Team? ('${createNewTeam}')`);
-                if (currentTeams && !teamToJoin && !createNewTeam) {
+                if (!requestingNewTeam && currentTeams && !teamToJoin && !createNewTeam) {
                     currentTeams.forEach(record => record.exist = true);
                     resolve(currentTeams);
                 } else {
@@ -86,7 +86,7 @@ class DynamoDBUtils {
                         this.handleTentative(playerName, serverName, tournamentToUse.tournamentName).then((data) => {
                             if (data) console.log('Pulled off tentative');
                         });
-                    } if (!createNewTeam) {
+                    } if (!requestingNewTeam && !createNewTeam) {
                         console.log(`Adding ${playerName} to first available team ${teamToJoin.teamName}...`);
                         let selectedTeam = teamToJoin.existingTeams && teamToJoin.existingTeams.length > 0 ?
                             teamToJoin.existingTeams[0] : teamToJoin.emptyTeams[0];

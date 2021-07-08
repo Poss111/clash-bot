@@ -410,8 +410,36 @@ describe('Register Player', () => {
         });
     })
 
-    test('I should register the player to a completely new Team if the request one.', () => {
+    test('I should register the player to a completely new Team if they request one and they already exist on a team.', () => {
+        const expectedPlayers = ['Player1'];
+        const value = {
+            Items: [{
+                attrs: {
+                    key: 'Sample Team#Sample Server',
+                    teamName: 'Team Sample',
+                    serverName: 'Sample Server',
+                    tournamentName: 'msi2021',
+                    tournamentDay: 'day_3',
+                    players: expectedPlayers
+                }
+            }]
+        };
+        let mockTeam = {
+            key: 'Sample Team#Sample Server',
+            teamName: 'Team Sample',
+            serverName: 'Sample Server',
+            players: expectedPlayers
+        };
+        buildMockReturnForRegister(value, mockTeam, false);
 
+        let tournament = [{tournamentName: 'msi2021', tournamentDay: 'day_3'}];
+        return dynamoDBUtils.registerPlayer('Player1', 'Sample Server', tournament, true)
+            .then(result => {
+                expect(result).toBeTruthy();
+                expect(result.teamName).toEqual(`Team ${randomNames[value.Items.length + 1]}`);
+                expect(result.players).toEqual(['Player1']);
+                expect(dynamoDBUtils.Team.update.mock.calls.length).toEqual(1);
+            });
     })
 })
 
