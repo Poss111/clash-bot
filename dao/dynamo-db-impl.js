@@ -69,7 +69,6 @@ class DynamoDBUtils {
             this.getTeams(serverName).then((data) => {
                 let teams = data;
                 console.log(JSON.stringify(teams));
-                let teamJoined = [];
                 const tournamentToTeamMap = this.buildTournamentToTeamsMap(playerName, data);
                 console.log(`Number of Tournaments from Teams found => ('${tournamentToTeamMap.size}')`);
                 let {teamToJoin, currentTeams, tournamentToUse, createNewTeam } = this.buildTeamLogic(tournaments, tournamentToTeamMap);
@@ -87,22 +86,20 @@ class DynamoDBUtils {
                         this.handleTentative(playerName, serverName, tournamentToUse.tournamentName).then((data) => {
                             if (data) console.log('Pulled off tentative');
                         });
-                    } if (createNewTeam) {
-                        console.log(`Creating new team for ${playerName} and Tournament ${tournamentToUse.tournamentName} and Day ${tournamentToUse.tournamentDay} since there are no available teams.`);
-                        teamJoined = this.createNewTeam(playerName, serverName, tournamentToUse, teams.length + 1);
-                        resolve(teamJoined);
-                    } else if (!Array.isArray(teamToJoin)) {
+                    } if (!createNewTeam) {
                         console.log(`Adding ${playerName} to first available team ${teamToJoin.teamName}...`);
+                        let selectedTeam = teamToJoin.existingTeams && teamToJoin.existingTeams.length > 0 ?
+                            teamToJoin.existingTeams[0] : teamToJoin.emptyTeams[0];
                         let params = {};
                         params.UpdateExpression = 'ADD players :playerName';
                         params.ExpressionAttributeValues = {
                             ':playerName': dynamodb.Set([playerName], 'S')
                         };
                         this.Team.update({
-                            key: this.getKey(teamToJoin.teamName,
-                                teamToJoin.serverName,
-                                teamToJoin.tournamentName,
-                                teamToJoin.tournamentDay)
+                            key: this.getKey(selectedTeam.teamName,
+                                selectedTeam.serverName,
+                                selectedTeam.tournamentName,
+                                selectedTeam.tournamentDay)
                         }, params, function (err, record) {
                             if (err) reject(err);
                             else {
@@ -110,6 +107,8 @@ class DynamoDBUtils {
                                 resolve(record.attrs);
                             }
                         });
+                    } else {
+                        resolve(this.createNewTeam(playerName, serverName, tournamentToUse, teams.length + 1));
                     }
                 }
             });
@@ -130,7 +129,10 @@ class DynamoDBUtils {
                 break;
             } else {
                 if (teamDetailsForTournament.availableTeams && teamDetailsForTournament.availableTeams.length > 0) {
-                    teamToJoin = teamDetailsForTournament.availableTeams[0];
+                    teamToJoin = {
+                        existingTeams: teamDetailsForTournament.availableTeams.filter(team => team.players),
+                        emptyTeams: teamDetailsForTournament.availableTeams.filter(team => !team.players)
+                    };
                     currentTeams = teamDetailsForTournament.teamCurrentlyOn;
                     break;
                 } else {
@@ -206,6 +208,7 @@ class DynamoDBUtils {
     }
 
     createNewTeam(playerName, serverName, tournament, number) {
+        console.log(`Creating new team for ${playerName} and Tournament ${tournament.tournamentName} and Day ${tournament.tournamentDay} since there are no available teams.`);
         let name = names[number];
         let createTeam = {
             teamName: `Team ${name}`,

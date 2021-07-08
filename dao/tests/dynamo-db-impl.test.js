@@ -444,6 +444,10 @@ describe('Register Player', () => {
             expect(dynamoDBUtils.Team.update.mock.calls.length).toEqual(1);
         });
     })
+
+    test('I should register the player to a completely new Team if the request one.', () => {
+
+    })
 })
 
 describe('Unregister Player', () => {
@@ -1385,9 +1389,63 @@ describe('Filter Available Tournaments', () => {
 
 describe('Build Tournament to Teams Map', () => {
     each([
-        ['Player1', [{teamName: 'Team Absol', serverName: 'Sample Server', players: ['Player1', 'Player2'], tournamentName: 'msi2021', tournamentDay: '1'}, {teamName: 'Team Magma', serverName: 'Sample Server', players: ['Player1', 'Player2'], tournamentName: 'msi2021', tournamentDay: '2'}], 2, [0, 1], [[-1], [-1]]],
-        ['Player1', [{teamName: 'Team Absol', serverName: 'Sample Server', players: ['Player1', 'Player2'], tournamentName: 'msi2021', tournamentDay: '1'}, {teamName: 'Team Scampy', serverName: 'Sample Server', players: undefined, tournamentName: 'msi2021', tournamentDay: '1'}, {teamName: 'Team Magma', serverName: 'Sample Server', players: ['Player1', 'Player2'], tournamentName: 'msi2021', tournamentDay: '2'}], 2, [0, 2], [[1], [-1]]],
-        ['Player1', [{teamName: 'Team Absol', serverName: 'Sample Server', players: ['Player1', 'Player2'], tournamentName: 'msi2021', tournamentDay: '1'}, {teamName: 'Team Crazy Train', serverName: 'Sample Server', players: ['Player3'], tournamentName: 'msi2021', tournamentDay: '1'}, {teamName: 'Team Amber', serverName: 'Sample Server', players: undefined, tournamentName: 'msi2021', tournamentDay: '1'}, {teamName: 'Team Magma', serverName: 'Sample Server', players: ['Player1', 'Player2'], tournamentName: 'msi2021', tournamentDay: '2'}], 2, [0, 3], [[1, 2], [-1]]],
+        ['Player1', [{
+            teamName: 'Team Absol',
+            serverName: 'Sample Server',
+            players: ['Player1', 'Player2'],
+            tournamentName: 'msi2021',
+            tournamentDay: '1'
+        }, {
+            teamName: 'Team Magma',
+            serverName: 'Sample Server',
+            players: ['Player1', 'Player2'],
+            tournamentName: 'msi2021',
+            tournamentDay: '2'
+        }], 2, [0, 1], [[-1], [-1]]],
+        ['Player1', [{
+            teamName: 'Team Absol',
+            serverName: 'Sample Server',
+            players: ['Player1', 'Player2'],
+            tournamentName: 'msi2021',
+            tournamentDay: '1'
+        }, {
+            teamName: 'Team Scampy',
+            serverName: 'Sample Server',
+            players: undefined,
+            tournamentName: 'msi2021',
+            tournamentDay: '1'
+        }, {
+            teamName: 'Team Magma',
+            serverName: 'Sample Server',
+            players: ['Player1', 'Player2'],
+            tournamentName: 'msi2021',
+            tournamentDay: '2'
+        }], 2, [0, 2], [[1], [-1]]],
+        ['Player1', [{
+            teamName: 'Team Absol',
+            serverName: 'Sample Server',
+            players: ['Player1', 'Player2'],
+            tournamentName: 'msi2021',
+            tournamentDay: '1'
+        }, {
+            teamName: 'Team Crazy Train',
+            serverName: 'Sample Server',
+            players: ['Player3'],
+            tournamentName: 'msi2021',
+            tournamentDay: '1'
+        }, {
+            teamName: 'Team Amber',
+            serverName: 'Sample Server',
+            players: undefined,
+            tournamentName: 'msi2021',
+            tournamentDay: '1'
+        }, {
+            teamName: 'Team Magma',
+            serverName: 'Sample Server',
+            players: ['Player1', 'Player2'],
+            tournamentName: 'msi2021',
+            tournamentDay: '2'
+        }], 2, [0, 3], [[1, 2], [-1]]],
         ['Player1', [], 0, [-1], [[-1]]]
     ]).test('Player Name %s - Tournaments %s - Teams %s - expected number of keys %d', (playerName, teamsList, expectedNumberOfKeys, expectedTeamsCurrentlyOnIndex, expectedAvailableTeamsIndex) => {
 
@@ -1417,6 +1475,66 @@ describe('Build Tournament to Teams Map', () => {
     })
 })
 
+describe('Build register Player logic map', () => {
+    test('Should be able to build a map for the Tournament to defined Teams.', () => {
+        let tournament = [{tournamentName: 'msi2021', tournamentDay: '1'}, {tournamentName: 'msi2021', tournamentDay: '2'}];
+        let tournamentToTeamMap = new Map();
+        let expectedTeam = buildSampleTeam();
+        let expectedTeamTwo = buildSampleTeam(undefined, undefined, 'Team Two');
+        expectedTeamTwo.players = undefined;
+        let expectedTeamThree = buildSampleTeam();
+
+        tournamentToTeamMap.set(`${tournament[0].tournamentName}#${tournament[0].tournamentDay}`, {
+            availableTeams: [expectedTeam, expectedTeamTwo],
+            teamCurrentlyOn: expectedTeamThree
+        });
+        tournamentToTeamMap.set(`${tournament[1].tournamentName}#${tournament[1].tournamentDay}`, {
+            availableTeams: [expectedTeam, expectedTeamTwo]
+        });
+        let builtMap = dynamoDBUtils.buildTeamLogic(tournament, tournamentToTeamMap);
+        expect(builtMap.createNewTeam).toBeFalsy();
+        expect(builtMap.teamToJoin.existingTeams).toEqual([expectedTeam]);
+        expect(builtMap.teamToJoin.emptyTeams).toEqual([expectedTeamTwo]);
+        expect(builtMap.currentTeams).toEqual(expectedTeamThree);
+        expect(builtMap.tournamentToUse).toEqual(tournament[0]);
+    })
+
+    test('Should be able to build a map for the Tournament to defined Teams until a Tournament with available teams are found.', () => {
+        let tournaments = [{tournamentName: 'msi2021', tournamentDay: '1'},
+            {tournamentName: 'msi2021', tournamentDay: '2'}];
+        let tournamentToTeamMap = new Map();
+        let expectedTeam = buildSampleTeam();
+        let expectedTeamTwo = buildSampleTeam(undefined, undefined, 'Team Two');
+        expectedTeamTwo.players = undefined;
+        let expectedTeamThree = buildSampleTeam();
+        let expectedTeamFour = buildSampleTeam();
+
+        tournamentToTeamMap.set(`${tournaments[0].tournamentName}#${tournaments[0].tournamentDay}`, {
+            teamCurrentlyOn: expectedTeamThree
+        });
+        tournamentToTeamMap.set(`${tournaments[1].tournamentName}#${tournaments[1].tournamentDay}`, {
+            availableTeams: [expectedTeam, expectedTeamTwo],
+            teamCurrentlyOn: expectedTeamFour
+        });
+        let builtMap = dynamoDBUtils.buildTeamLogic(tournaments, tournamentToTeamMap);
+        expect(builtMap.createNewTeam).toBeFalsy();
+        expect(builtMap.teamToJoin.existingTeams).toEqual([expectedTeam]);
+        expect(builtMap.teamToJoin.emptyTeams).toEqual([expectedTeamTwo]);
+        expect(builtMap.currentTeams).toEqual(expectedTeamFour);
+        expect(builtMap.tournamentToUse).toEqual(tournaments[1]);
+    })
+
+    test('Should be able to build a logic map to create a new team if the tournament has no data available in the map passed.', () => {
+        let tournament = [{tournamentName: 'msi2021', tournamentDay: '1'},
+            {tournamentName: 'msi2021', tournamentDay: '2'}];
+        let tournamentToTeamMap = new Map();
+        let builtMap = dynamoDBUtils.buildTeamLogic(tournament, tournamentToTeamMap);
+        expect(builtMap.createNewTeam).toBeTruthy();
+        expect(builtMap.currentTeams).toHaveLength(0)
+        expect(builtMap.tournamentToUse).toEqual(tournament[0]);
+    })
+})
+
 test('Should return a hashkey of the team name and the server name passed.', () => {
     expect(dynamoDBUtils.getKey('Sample Team', 'Sample Server', 'msi2021', 'day1')).toEqual('Sample Team#Sample Server#msi2021#day1');
 })
@@ -1425,3 +1543,13 @@ test('Should return a copy of the tentative users.', () => {
     dynamoDBUtils.tentative = ['Player1', 'Player2'];
     expect(dynamoDBUtils.getTentative()).toEqual(dynamoDBUtils.tentative);
 })
+
+function buildSampleTeam(players, serverName, teamName, tournamentName, tournamentDay) {
+    return {
+        teamName: teamName ? teamName : `Team ${randomNames[0]}`,
+        serverName: serverName ? serverName : 'Sample Server',
+        players: players ? players : ['Player1'],
+        tournamentName: tournamentName ? tournamentName : 'msi2021',
+        tournamentDay: tournamentDay ? tournamentDay : '1'
+    };
+}
