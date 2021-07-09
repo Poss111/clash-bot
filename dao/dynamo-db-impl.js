@@ -69,6 +69,9 @@ class DynamoDBUtils {
             this.getTeams(serverName).then((data) => {
                 let teams = data;
                 console.log(JSON.stringify(teams));
+                if (requestingNewTeam) {
+                    tournaments = tournaments.slice(0,1);
+                }
                 const tournamentToTeamMap = this.buildTournamentToTeamsMap(playerName, data);
                 console.log(`Number of Tournaments from Teams found => ('${tournamentToTeamMap.size}')`);
                 let {teamToJoin, currentTeams, tournamentToUse, createNewTeam } = this.buildTeamLogic(tournaments, tournamentToTeamMap);
@@ -112,6 +115,7 @@ class DynamoDBUtils {
                         });
                     } else {
                         let teamToReturn;
+                        // If requesting Player is in a team by themselves. Do not create under any circumstance
                         if (Array.isArray(currentTeams)
                             && currentTeams[0]
                             && currentTeams[0].players.length === 1
