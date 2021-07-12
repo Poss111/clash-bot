@@ -27,7 +27,7 @@ module.exports = {
                     }
                     let copy = JSON.parse(JSON.stringify(registerReply));
                     console.log(`Registering ('${msg.author.username}') with Tournaments ('${JSON.stringify(times)}')...`);
-                    dynamoDBUtils.registerWithSpecificTeam(msg.author.username, times, args[1]).then(team => {
+                    dynamoDBUtils.registerWithSpecificTeam(msg.author.username, msg.guild.name, times, args[1]).then(team => {
                         if (team) {
                             console.log(`Registered ('${msg.author.username}') with Tournament ('${team.tournamentName}') Team ('${team.teamName}').`);
                             copy.fields.push({name: team.teamName, value: team.players, inline: true});
