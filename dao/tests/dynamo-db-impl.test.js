@@ -410,7 +410,7 @@ describe('Register Player', () => {
     })
 
     test('I should register the player to a completely new Team if they request one and they already exist on a team.', () => {
-        const expectedPlayers = ['Player1','Player2'];
+        const expectedPlayers = ['Player1', 'Player2'];
         const value = {
             Items: [{
                 attrs: {
@@ -443,6 +443,50 @@ describe('Register Player', () => {
                 expect(dynamoDBUtils.Team.update.mock.calls.length).toEqual(1);
                 expect(result.tournamentName).toEqual('msi2021');
                 expect(result.tournamentDay).toEqual('3');
+            });
+    })
+
+    test('I should register the player to a Team that has an undefined list over a new Team if they request one and they already exist on a team.', () => {
+        const expectedPlayers = ['Player1', 'Player2'];
+        const value = {
+            Items: [
+                {
+                    attrs: {
+                        key: 'Sample Team#Sample Server',
+                        teamName: 'Team Sample',
+                        serverName: 'Sample Server',
+                        tournamentName: 'msi2021',
+                        tournamentDay: '3',
+                        players: expectedPlayers
+                    }
+                },
+                {
+                    attrs: {
+                        key: 'Team Sample2#Sample Server#msi2021#3',
+                        teamName: 'Team Sample2',
+                        serverName: 'Sample Server',
+                        tournamentName: 'msi2021',
+                        tournamentDay: '3',
+                    }
+                }]
+        };
+        let mockTeam = JSON.parse(JSON.stringify(value.Items[1].attrs));
+        mockTeam.players = expectedPlayers;
+
+        buildMockReturnForRegister(value, mockTeam, true);
+
+        let tournament = [{tournamentName: 'msi2021', tournamentDay: '3'},
+            {tournamentName: 'msi2021', tournamentDay: '4'}];
+        return dynamoDBUtils.registerPlayer('Player1', 'Sample Server', tournament, true)
+            .then(result => {
+                expect(result).toEqual(mockTeam);
+                expect(dynamoDBUtils.Team.update.mock.calls.length).toEqual(1);
+                expect(dynamoDBUtils.Team.update).toBeCalledWith({key: mockTeam.key}, {
+                    ExpressionAttributeValues: {
+                        ':playerName': expectedPlayers
+                    },
+                    UpdateExpression: 'ADD players :playerName'
+                }, expect.any(Function));
             });
     })
 
@@ -1512,7 +1556,10 @@ describe('Build Tournament to Teams Map', () => {
 
 describe('Build register Player logic map', () => {
     test('Should be able to build a map for the Tournament to defined Teams.', () => {
-        let tournament = [{tournamentName: 'msi2021', tournamentDay: '1'}, {tournamentName: 'msi2021', tournamentDay: '2'}];
+        let tournament = [{tournamentName: 'msi2021', tournamentDay: '1'}, {
+            tournamentName: 'msi2021',
+            tournamentDay: '2'
+        }];
         let tournamentToTeamMap = new Map();
         let expectedTeam = buildSampleTeam();
         let expectedTeamTwo = buildSampleTeam(undefined, undefined, 'Team Two');
