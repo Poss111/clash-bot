@@ -142,6 +142,10 @@ class DynamoDBUtils {
         });
     }
 
+    registerWithSpecificTeam(username, times, arg) {
+
+    }
+
     removeIfExistingInTentative(playerName, serverName, tournamentToUse) {
         if (this.tentative.some(record => record.playerName === playerName
             && record.serverName === serverName
