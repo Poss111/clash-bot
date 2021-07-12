@@ -7,4 +7,5 @@ module.exports = {
     Tentative: require('./tentative'),
     Time: require('./time'),
     Dance: require('./dance'),
+    JoinTeam: require('./join-team'),
 };
