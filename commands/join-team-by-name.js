@@ -28,9 +28,13 @@ module.exports = {
                     let copy = JSON.parse(JSON.stringify(registerReply));
                     console.log(`Registering ('${msg.author.username}') with Tournaments ('${JSON.stringify(times)}')...`);
                     dynamoDBUtils.registerWithSpecificTeam(msg.author.username, times, args[1]).then(team => {
-                        console.log(`Registered ('${msg.author.username}') with Tournament ('${team.tournamentName}') Team ('${team.teamName}').`);
-                        copy.fields.push({name: team.teamName, value: team.players, inline: true});
-                        copy.fields.push(buildTournamentDetails(team));
+                        if (team) {
+                            console.log(`Registered ('${msg.author.username}') with Tournament ('${team.tournamentName}') Team ('${team.teamName}').`);
+                            copy.fields.push({name: team.teamName, value: team.players, inline: true});
+                            copy.fields.push(buildTournamentDetails(team));
+                        } else {
+                            copy.description = `Failed to find an available team with the following criteria Tournament ('${args[0]}') Team Name ('${args[1]}')`;
+                        }
                         msg.reply({embed: copy});
                     }).catch(err => errorHandling.handleError(this.name, err, msg, 'Failed to join the requested team.'))
                         .finally(() => {

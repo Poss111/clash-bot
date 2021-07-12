@@ -76,6 +76,30 @@ describe('Join an existing Team', () => {
         verifyReply(messagePassed, sampleRegisterReturn);
     })
 
+    test('When a user requests to join a team and they pass a Tournament and a Team and no Team exists with that name, they should have a message specifying that we were unable to find one matching the criteria.', async () => {
+        let messagePassed = '';
+        let msg = {
+            reply: (value) => messagePassed = value,
+            author: {
+                username: 'TestPlayer'
+            }
+        };
+        let args = ['msi2021', 'Sample Team']
+        leagueApi.leagueTimes = [
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "3",
+                startTime: "May 29 2021 07:00 pm PDT",
+                registrationTime: "May 29 2021 04:15 pm PDT"
+            }
+        ];
+        leagueApi.findTournament = jest.fn().mockResolvedValue(leagueApi.leagueTimes);
+        dynamoDBUtils.registerWithSpecificTeam = jest.fn().mockResolvedValue(undefined);
+        await joinTeamByName.execute(msg, args);
+        expect(dynamoDBUtils.registerWithSpecificTeam).toBeCalledWith(msg.author.username, leagueApi.leagueTimes, args[1]);
+        expect(messagePassed.embed.description).toEqual(`Failed to find an available team with the following criteria Tournament ('${args[0]}') Team Name ('${args[1]}')`)
+    })
+
 })
 
 describe('Join Team Error', () => {

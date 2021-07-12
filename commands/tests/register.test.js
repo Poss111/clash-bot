@@ -34,7 +34,7 @@ function verifyRedundantRegistration(messagePassed, sampleRegisterReturn) {
 }
 
 describe('Register', () => {
-    test('If a user is successfully register, then a reply stating the Team that the User has been registered to should be returned.', async () => {
+    test('If a user is successfully registered, then a reply stating the Team that the User has been registered to should be returned.', async () => {
         let messagePassed = '';
         let sendMessage = '';
         let msg = {
@@ -79,7 +79,7 @@ describe('Register', () => {
         verifyReply(messagePassed, sampleRegisterReturn);
     })
 
-    test('If a user is successfully register with an empty array for args, then a reply stating the Team that the User has been registered to should be returned.', async () => {
+    test('If a user is successfully registered with an empty array for args, then a reply stating the Team that the User has been registered to should be returned.', async () => {
         let messagePassed = '';
         let sendMessage = '';
         let msg = {
