@@ -3,15 +3,22 @@ const errorHandling = require('../utility/error-handling');
 const timeTracker = require('../utility/time-tracker');
 const registerReply = require('../templates/register-reply');
 const leagueApi = require('../dao/clashtime-db-impl');
+const commandArgumentParser = require('./command-argument-parser');
+
 module.exports = {
     name: 'register',
     description: 'Used to register the user to an available Clash team.',
     execute: async function (msg, args) {
         const startTime = process.hrtime.bigint();
         let promise;
-        if (args && args.length) {
-            msg.channel.send(`Registering ${msg.author.username} for Tournament ${args[0]}...`)
-            promise = leagueApi.findTournament(args[0], args[1]);
+        let parsedArguments = commandArgumentParser.parse(args);
+        if (parsedArguments && parsedArguments.tournamentName) {
+            let registeringMessage = `Registering ${msg.author.username} for Tournament ${parsedArguments.tournamentName}`;
+            if (parsedArguments.tournamentDay) {
+                registeringMessage = registeringMessage + ` on day ${parsedArguments.tournamentDay}`;
+            }
+            msg.channel.send(registeringMessage + '...');
+            promise = leagueApi.findTournament(parsedArguments.tournamentName, parsedArguments.tournamentDay);
         } else {
             msg.channel.send(`Registering ${msg.author.username} for the first available tournament you are not already registered to...`);
             promise = leagueApi.findTournament();
@@ -20,7 +27,15 @@ module.exports = {
         await promise.then((filteredClashTimes) => {
             if (!filteredClashTimes
                 || !filteredClashTimes.length) {
-                msg.reply(`We were unable to find a tournament for the following name given => ${args[0]}. Please try again.`);
+                if (!parsedArguments.tournamentName) {
+                    errorHandling.handleError(this.name, new Error('Failed to find any tournaments to attempt to register to.'), msg, 'Failed to find any tournaments to attempt to register to.');
+                } else {
+                    let returnMessage = `We were unable to find a Tournament with '${parsedArguments.tournamentName}'`
+                    if (parsedArguments.tournamentDay) {
+                        returnMessage = returnMessage + ` and '${parsedArguments.tournamentDay}'`;
+                    }
+                    msg.reply(returnMessage +'. Please try again.');
+                }
             } else {
                 function buildTournamentDetails(team) {
                     return {
@@ -30,7 +45,7 @@ module.exports = {
                     };
                 }
 
-                dbUtils.registerPlayer(msg.author.username, msg.guild.name, filteredClashTimes).then(data => {
+                dbUtils.registerPlayer(msg.author.username, msg.guild.name, filteredClashTimes, parsedArguments.createNewTeam).then(data => {
                     let copy = JSON.parse(JSON.stringify(registerReply));
                     if (Array.isArray(data) && data[0].exist) {
                         copy.description = 'You are already registered to the following Teams.';
