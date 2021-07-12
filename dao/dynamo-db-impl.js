@@ -202,9 +202,10 @@ class DynamoDBUtils {
         });
     }
 
-    unregisterPlayerWithSpecificTeam(playerName, filter, serverName, callback) {
-        console.log(`Unregistering ${playerName} from team ${filter[0].teamName}...`);
-        filter.forEach(record => {
+    unregisterPlayerWithSpecificTeam(playerName, teamsToBeRemovedFrom, serverName, callback) {
+        console.log(`Unregistering ${playerName} from teams ('${teamsToBeRemovedFrom.map(team => team.teamName)}')...`);
+        teamsToBeRemovedFrom.forEach(record => {
+            console.log(`Unregistering ${playerName} from team ('${record.teamName}')...`);
             let params = {};
             params.UpdateExpression = 'DELETE players :playerName';
             params.ConditionExpression = 'teamName = :nameOfTeam';
@@ -222,6 +223,8 @@ class DynamoDBUtils {
                 function (err) {
                     if (err) {
                         callback(err);
+                    } else {
+                        console.log(`Successfully unregistered ('${playerName}') from ('${record.teamName}').`);
                     }
                 });
         });
