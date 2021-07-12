@@ -156,19 +156,17 @@ describe('Register Player', () => {
             exec: mockStream,
 
         }
-        if (toUpdate) {
-            dynamoDBUtils.Team.update = jest.fn().mockImplementation((key, params, callback) => {
+        dynamoDBUtils.Team.update = jest.fn().mockImplementation((team, callback) => {
+            callback(undefined, {
+                attrs: teamToBeReturned
+            });
+        }).mockImplementation((key, params, callback) => {
+            if (callback) {
                 callback(undefined, {
                     attrs: teamToBeReturned
                 });
-            })
-        } else {
-            dynamoDBUtils.Team.update = jest.fn().mockImplementation((team, callback) => {
-                callback(undefined, {
-                    attrs: teamToBeReturned
-                });
-            })
-        }
+            }
+        })
         dynamodb.Set = jest.fn().mockReturnValue(teamToBeReturned.players);
     }
 
@@ -414,7 +412,7 @@ describe('Register Player', () => {
         const value = {
             Items: [{
                 attrs: {
-                    key: 'Sample Team#Sample Server',
+                    key: 'Team Sample#Sample Server#msi2021#3',
                     teamName: 'Team Sample',
                     serverName: 'Sample Server',
                     tournamentName: 'msi2021',
@@ -431,7 +429,7 @@ describe('Register Player', () => {
             tournamentDay: '3',
             players: expectedPlayers
         };
-        buildMockReturnForRegister(value, mockTeam, false);
+        buildMockReturnForRegister(value, mockTeam, true);
 
         let tournament = [{tournamentName: 'msi2021', tournamentDay: '3'},
             {tournamentName: 'msi2021', tournamentDay: '4'}];
@@ -440,9 +438,17 @@ describe('Register Player', () => {
                 expect(result).toBeTruthy();
                 expect(result.teamName).toEqual(`Team ${randomNames[value.Items.length + 1]}`);
                 expect(result.players).toEqual(['Player1']);
-                expect(dynamoDBUtils.Team.update.mock.calls.length).toEqual(1);
                 expect(result.tournamentName).toEqual('msi2021');
                 expect(result.tournamentDay).toEqual('3');
+                expect(dynamoDBUtils.Team.update.mock.calls.length).toEqual(2);
+                expect(dynamoDBUtils.Team.update).toBeCalledWith({key: value.Items[0].attrs.key}, {
+                    ExpressionAttributeValues: {
+                        ':playerName': expectedPlayers,
+                        ':nameOfTeam': 'Team Sample'
+                    },
+                    ConditionExpression: 'teamName = :nameOfTeam',
+                    UpdateExpression: 'DELETE players :playerName'
+                }, expect.any(Function));
             });
     })
 
@@ -480,7 +486,7 @@ describe('Register Player', () => {
         return dynamoDBUtils.registerPlayer('Player1', 'Sample Server', tournament, true)
             .then(result => {
                 expect(result).toEqual(mockTeam);
-                expect(dynamoDBUtils.Team.update.mock.calls.length).toEqual(1);
+                expect(dynamoDBUtils.Team.update.mock.calls.length).toEqual(2);
                 expect(dynamoDBUtils.Team.update).toBeCalledWith({key: mockTeam.key}, {
                     ExpressionAttributeValues: {
                         ':playerName': expectedPlayers
@@ -585,7 +591,6 @@ describe('Unregister Player', () => {
 
         return dynamoDBUtils.deregisterPlayer('Player1', 'Sample Server', leagueTimes).then((data) => {
             expect(data).toBeTruthy();
-            expect(dynamoDBUtils.Team.update.mock.calls.length).toEqual(1);
             expect(dynamoDBUtils.Team.update).toBeCalledWith({key: key}, {
                 ExpressionAttributeValues: {
                     ':playerName': expectedPlayers,
