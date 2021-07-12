@@ -86,17 +86,20 @@ class DynamoDBUtils {
                     currentTeams.forEach(record => record.exist = true);
                     resolve(currentTeams);
                 } else {
-                    createNewTeam = createNewTeam ? createNewTeam : requestingNewTeam;
-                    if (this.tentative.some(record => record.playerName === playerName
-                        && record.serverName === serverName
-                        && record.tournamentName === tournamentToUse.tournamentName)) {
-                        this.handleTentative(playerName, serverName, tournamentToUse.tournamentName).then((data) => {
-                            if (data) console.log('Pulled off tentative');
-                        });
-                    } if (!createNewTeam) {
-                        console.log(`Adding ${playerName} to first available team ${teamToJoin.teamName}...`);
-                        let selectedTeam = teamToJoin.existingTeams && teamToJoin.existingTeams.length > 0 ?
-                            teamToJoin.existingTeams[0] : teamToJoin.emptyTeams[0];
+                    this.removeIfExistingInTentative(playerName, serverName, tournamentToUse);
+                    let selectedTeam;
+
+                    if (teamToJoin) {
+                        if (requestingNewTeam && Array.isArray(teamToJoin.emptyTeams)) {
+                            selectedTeam = teamToJoin.emptyTeams[0];
+                        } else if (!createNewTeam) {
+                            selectedTeam = teamToJoin.existingTeams && teamToJoin.existingTeams.length > 0 ?
+                                teamToJoin.existingTeams[0] : teamToJoin.emptyTeams[0];
+                        }
+                    }
+
+                    if (selectedTeam) {
+                        console.log(`Adding ${playerName} to first available team ${selectedTeam.teamName}...`);
                         let params = {};
                         params.UpdateExpression = 'ADD players :playerName';
                         params.ExpressionAttributeValues = {
@@ -131,6 +134,16 @@ class DynamoDBUtils {
                 }
             });
         });
+    }
+
+    removeIfExistingInTentative(playerName, serverName, tournamentToUse) {
+        if (this.tentative.some(record => record.playerName === playerName
+            && record.serverName === serverName
+            && record.tournamentName === tournamentToUse.tournamentName)) {
+            this.handleTentative(playerName, serverName, tournamentToUse.tournamentName).then((data) => {
+                if (data) console.log('Pulled off tentative');
+            });
+        }
     }
 
     buildTeamLogic(tournaments, tournamentToTeamMap) {
