@@ -142,8 +142,35 @@ class DynamoDBUtils {
         });
     }
 
-    registerWithSpecificTeam(username, times, arg) {
-
+    registerWithSpecificTeam(playerName, serverName, tournaments, teamName) {
+        return new Promise((resolve, reject) => {
+            this.getTeams(serverName).then((teams) => {
+                let foundTeam = teams.find(team => team.tournamentName === tournaments[0].tournamentName
+                    && team.tournamentDay === tournaments[0].tournamentDay
+                    && team.teamName.includes(teamName));
+                console.log(`Team to be assigned to : ('${JSON.stringify(foundTeam)}')...`);
+                if (foundTeam) {
+                    let params = {};
+                    params.UpdateExpression = 'ADD players :playerName';
+                    params.ExpressionAttributeValues = {
+                        ':playerName': dynamodb.Set([playerName], 'S')
+                    };
+                    this.Team.update({
+                        key: this.getKey(foundTeam.teamName,
+                            foundTeam.serverName,
+                            foundTeam.tournamentName,
+                            foundTeam.tournamentDay)
+                    }, params, function (err, record) {
+                        if (err) reject(err);
+                        else {
+                            console.log(`Added ${playerName} to ${record.attrs.teamName}.`);
+                            resolve(record.attrs);
+                        }
+                    });
+                }
+                resolve(foundTeam);
+            }).catch(err => reject(err));
+        })
     }
 
     removeIfExistingInTentative(playerName, serverName, tournamentToUse) {

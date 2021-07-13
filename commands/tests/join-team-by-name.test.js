@@ -116,6 +116,9 @@ describe('Join Team Error', () => {
             reply: (value) => messagePassed = value,
             author: {
                 username: 'TestPlayer'
+            },
+            guild: {
+                name: 'Server'
             }
         };
         let args = ['msi2021', 'Sample Team']
