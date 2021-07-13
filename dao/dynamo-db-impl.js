@@ -106,23 +106,7 @@ class DynamoDBUtils {
 
                     if (selectedTeam) {
                         console.log(`Adding ${playerName} to first available team ${selectedTeam.teamName}...`);
-                        let params = {};
-                        params.UpdateExpression = 'ADD players :playerName';
-                        params.ExpressionAttributeValues = {
-                            ':playerName': dynamodb.Set([playerName], 'S')
-                        };
-                        this.Team.update({
-                            key: this.getKey(selectedTeam.teamName,
-                                selectedTeam.serverName,
-                                selectedTeam.tournamentName,
-                                selectedTeam.tournamentDay)
-                        }, params, function (err, record) {
-                            if (err) reject(err);
-                            else {
-                                console.log(`Added ${playerName} to ${record.attrs.teamName}.`);
-                                resolve(record.attrs);
-                            }
-                        });
+                        this.addUserToTeam(playerName, selectedTeam, reject, resolve);
                     } else {
                         let teamToReturn;
                         // If requesting Player is in a team by themselves. Do not create under any circumstance
@@ -149,28 +133,32 @@ class DynamoDBUtils {
                     && team.tournamentDay === tournaments[0].tournamentDay
                     && team.teamName.includes(teamName));
                 console.log(`Team to be assigned to : ('${JSON.stringify(foundTeam)}')...`);
-                if (foundTeam) {
-                    let params = {};
-                    params.UpdateExpression = 'ADD players :playerName';
-                    params.ExpressionAttributeValues = {
-                        ':playerName': dynamodb.Set([playerName], 'S')
-                    };
-                    this.Team.update({
-                        key: this.getKey(foundTeam.teamName,
-                            foundTeam.serverName,
-                            foundTeam.tournamentName,
-                            foundTeam.tournamentDay)
-                    }, params, function (err, record) {
-                        if (err) reject(err);
-                        else {
-                            console.log(`Added ${playerName} to ${record.attrs.teamName}.`);
-                            resolve(record.attrs);
-                        }
-                    });
+                if (!foundTeam) {
+                    resolve(foundTeam);
                 }
-                resolve(foundTeam);
+                this.addUserToTeam(playerName, foundTeam, reject, resolve);
             }).catch(err => reject(err));
         })
+    }
+
+    addUserToTeam(playerName, foundTeam, reject, resolve) {
+        let params = {};
+        params.UpdateExpression = 'ADD players :playerName';
+        params.ExpressionAttributeValues = {
+            ':playerName': dynamodb.Set([playerName], 'S')
+        };
+        this.Team.update({
+            key: this.getKey(foundTeam.teamName,
+                foundTeam.serverName,
+                foundTeam.tournamentName,
+                foundTeam.tournamentDay)
+        }, params, function (err, record) {
+            if (err) reject(err);
+            else {
+                console.log(`Added ${playerName} to ${record.attrs.teamName}.`);
+                resolve(record.attrs);
+            }
+        });
     }
 
     removeIfExistingInTentative(playerName, serverName, tournamentToUse) {

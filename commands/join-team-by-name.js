@@ -5,7 +5,7 @@ const errorHandling = require('../utility/error-handling');
 const timeTracker = require('../utility/time-tracker');
 
 module.exports = {
-    name: 'joinTeamByName',
+    name: 'join',
     description: 'Used to join a specific Team. The user must specify which Tournament and Team they would like to join.',
     execute: async function (msg, args) {
         const startTime = process.hrtime.bigint();

@@ -543,9 +543,6 @@ describe('Register Specific Team', () => {
             tournamentDay: '3'
         }];
         let teamName = 'Abra';
-        let expectedPlayers = [];
-        expectedPlayers.push(playerName);
-        expectedPlayers.push('Player3');
         const dynamoDbRetrieveList = {
             Items: [{
                 attrs: {
@@ -568,11 +565,12 @@ describe('Register Specific Team', () => {
             }
             ]
         };
+        let updatedExpectedPlayers = dynamoDbRetrieveList.Items[0].attrs.players.concat(playerName);
         let mockTeam = {
             key: dynamoDBUtils.getKey(teamName, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
             teamName: `Team ${teamName}`,
             serverName: serverName,
-            players: expectedPlayers,
+            players: updatedExpectedPlayers,
             tournamentName: tournaments[0].tournamentName,
             tournamentDay: tournaments[0].tournamentDay
         };
@@ -583,7 +581,7 @@ describe('Register Specific Team', () => {
             expect(data.serverName).toEqual(dynamoDbRetrieveList.Items[0].attrs.serverName);
             expect(data.tournamentName).toEqual(dynamoDbRetrieveList.Items[0].attrs.tournamentName);
             expect(data.tournamentDay).toEqual(dynamoDbRetrieveList.Items[0].attrs.tournamentDay);
-            expect(data.players).toContain(playerName);
+            expect(data.players).toEqual(updatedExpectedPlayers);
         })
     })
 
