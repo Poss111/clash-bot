@@ -11,11 +11,11 @@ module.exports = {
             value: "Go [>HERE<](https://github.com/Poss111/clash-bot#readme)."
         },
         {
-            name: "dance !clash dance",
+            name: "dance - !clash dance",
             value: "It is a secret."
         },
         {
-            name: "help !clash help",
+            name: "help - !clash help",
             value: "Asks the bot to print this menu for you :smiley:."
         },
         {
