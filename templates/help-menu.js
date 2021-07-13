@@ -23,7 +23,7 @@ module.exports = {
             value: "Asks the bot to assign you to an available Clash team based on the Tournament name and the Team name."
         },
         {
-            name: "ping",
+            name: "ping - !clash ping",
             value: "Asks the bot to pong you."
         },
         {
