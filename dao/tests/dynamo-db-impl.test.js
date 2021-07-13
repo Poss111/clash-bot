@@ -554,6 +554,15 @@ describe('Register Specific Team', () => {
         const dynamoDbRetrieveList = {
             Items: [{
                 attrs: {
+                    key: dynamoDBUtils.getKey(teamName, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
+                    teamName: `Team Awesome`,
+                    serverName: serverName,
+                    players: undefined,
+                    tournamentName: tournaments[0].tournamentName,
+                    tournamentDay: tournaments[0].tournamentDay
+                }
+            }, {
+                attrs: {
                     key: dynamoDBUtils.getKey(`Team Existing`, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
                     teamName: `Team Existing`,
                     serverName: serverName,
@@ -570,19 +579,10 @@ describe('Register Specific Team', () => {
                     tournamentName: tournaments[0].tournamentName,
                     tournamentDay: tournaments[0].tournamentDay
                 }
-            }, {
-                attrs: {
-                    key: dynamoDBUtils.getKey(teamName, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
-                    teamName: `Team ${teamName}`,
-                    serverName: serverName,
-                    players: ['Player1', 'Player2'],
-                    tournamentName: tournaments[0].tournamentName,
-                    tournamentDay: tournaments[0].tournamentDay
-                }
             }
             ]
         };
-        let updatedExpectedPlayers = JSON.parse(JSON.stringify(dynamoDbRetrieveList.Items[0].attrs.players)).concat(playerName);
+        let updatedExpectedPlayers = JSON.parse(JSON.stringify(dynamoDbRetrieveList.Items[1].attrs.players)).concat(playerName);
         let mockTeam = {
             key: dynamoDBUtils.getKey(teamName, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
             teamName: `Team ${teamName}`,
@@ -595,15 +595,15 @@ describe('Register Specific Team', () => {
         expect(dynamoDBUtils.tentative).toHaveLength(0);
         return dynamoDBUtils.registerWithSpecificTeam(playerName, serverName, tournaments, teamName).then(data => {
             expect(data).toBeTruthy();
-            expect(data.teamName).toEqual(dynamoDbRetrieveList.Items[1].attrs.teamName);
-            expect(data.serverName).toEqual(dynamoDbRetrieveList.Items[1].attrs.serverName);
-            expect(data.tournamentName).toEqual(dynamoDbRetrieveList.Items[1].attrs.tournamentName);
-            expect(data.tournamentDay).toEqual(dynamoDbRetrieveList.Items[1].attrs.tournamentDay);
+            expect(data.teamName).toEqual(dynamoDbRetrieveList.Items[2].attrs.teamName);
+            expect(data.serverName).toEqual(dynamoDbRetrieveList.Items[2].attrs.serverName);
+            expect(data.tournamentName).toEqual(dynamoDbRetrieveList.Items[2].attrs.tournamentName);
+            expect(data.tournamentDay).toEqual(dynamoDbRetrieveList.Items[2].attrs.tournamentDay);
             expect(data.players).toEqual(updatedExpectedPlayers);
             expect(dynamoDBUtils.tentative).toHaveLength(0);
             expect(dynamoDBUtils.Team.update.mock.calls).toEqual([
                 [
-                    {key: dynamoDbRetrieveList.Items[1].attrs.key},
+                    {key: dynamoDbRetrieveList.Items[2].attrs.key},
                     {
                         ExpressionAttributeValues: {
                             ':playerName': [playerName]
@@ -611,11 +611,11 @@ describe('Register Specific Team', () => {
                         UpdateExpression: 'ADD players :playerName'
                     }, expect.any(Function)
                 ], [
-                    {key: dynamoDbRetrieveList.Items[0].attrs.key},
+                    {key: dynamoDbRetrieveList.Items[1].attrs.key},
                     {
                         ExpressionAttributeValues: {
                             ':playerName': [playerName],
-                            ':nameOfTeam': dynamoDbRetrieveList.Items[0].attrs.teamName
+                            ':nameOfTeam': dynamoDbRetrieveList.Items[1].attrs.teamName
                         },
                         ConditionExpression: 'teamName = :nameOfTeam',
                         UpdateExpression: 'DELETE players :playerName'
@@ -624,7 +624,6 @@ describe('Register Specific Team', () => {
             ]);
         })
     })
-
 
     test('A user should be able to request to join a specific Team based on the Tournament and Team name and be removed from Tentative queue if they exist in it.', () => {
         let playerName = 'TestPlayer1';
@@ -789,6 +788,23 @@ describe('Register Specific Team', () => {
         })
     })
 
+})
+
+describe('Filter by Team Name', () => {
+
+    each([
+        [true, 'Team Existing', { teamName: `Team Existing` }],
+        [true, 'Existing', { teamName: `Team Existing` }],
+        [true, 'existing', { teamName: `Team Existing` }],
+        [true, 'isting', { teamName: `Team Existing` }],
+        [true, 'e', { teamName: `Team Existing` }],
+        [false, 'dne', { teamName: `Team Existing` }],
+        [false, undefined, { teamName: `Team Existing` }],
+        [false, 'Team Existing', {}],
+        [false, 'Team Existing', undefined],
+    ]).test("Match ('%s') Search Team Name ('%s') with Team ('%s')", (shouldMatch, teamNameToMatch, team) => {
+        expect(dynamoDBUtils.doesTeamNameMatch(teamNameToMatch, team)).toEqual(shouldMatch);
+    })
 })
 
 describe('Unregister Player', () => {

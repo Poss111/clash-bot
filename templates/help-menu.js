@@ -17,7 +17,7 @@ module.exports = {
         {
             name: "join",
             value: "Asks the bot to assign you to an available Clash team based on the Tournament name and the Team name. " +
-                "i.e. !clash join msi2021 Abra."
+                "i.e. !clash join msi2021 Abra"
         },
         {
             name: "ping",

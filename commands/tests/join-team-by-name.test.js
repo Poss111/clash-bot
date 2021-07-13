@@ -23,7 +23,16 @@ describe('Join an existing Team', () => {
             reply: (value) => messagePassed = value
         };
         await joinTeamByName.execute(msg);
-        expect(messagePassed).toBe("Please pass a Tournament name first and second a Team name to join. You can use '!clash teams' to find existing teams.");
+        expect(messagePassed).toBe("Tournament Name and Team are missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join ***msi2021*** ***Pikachu***");
+    })
+
+    test('When a user requests to join a team, they are required to pass the tournament and Team Name and it is given and empty.', async () => {
+        let messagePassed = '';
+        let msg = {
+            reply: (value) => messagePassed = value
+        };
+        await joinTeamByName.execute(msg, []);
+        expect(messagePassed).toBe("Tournament Name and Team are missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join ***msi2021*** ***Pikachu***");
     })
 
     test('When a user requests to join a team with only the tournament, they are required to pass the tournament and Team Name.', async () => {
@@ -33,7 +42,7 @@ describe('Join an existing Team', () => {
         };
         let args = ['msi2021']
         await joinTeamByName.execute(msg, args);
-        expect(messagePassed).toBe("Please pass a Team name to join. You can use '!clash teams' to find existing teams.");
+        expect(messagePassed).toBe("Team is missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join msi2021 ***Pikachu***");
     })
 
     test('When a user requests to join a team and they pass a Tournament that does not exist, they should be notified.', async () => {

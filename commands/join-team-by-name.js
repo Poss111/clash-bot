@@ -9,10 +9,10 @@ module.exports = {
     description: 'Used to join a specific Team. The user must specify which Tournament and Team they would like to join.',
     execute: async function (msg, args) {
         const startTime = process.hrtime.bigint();
-        if (!args) {
-            msg.reply("Please pass a Tournament name first and second a Team name to join. You can use '!clash teams' to find existing teams.");
+        if (!args || args.length === 0) {
+            msg.reply("Tournament Name and Team are missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join ***msi2021*** ***Pikachu***");
         } else if (!args[1]) {
-            msg.reply("Please pass a Team name to join. You can use '!clash teams' to find existing teams.")
+            msg.reply("Team is missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join msi2021 ***Pikachu***")
         } else {
             await leagueApi.findTournament(args[0]).then(times => {
                 if (times.length === 0) {

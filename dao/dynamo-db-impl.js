@@ -131,9 +131,11 @@ class DynamoDBUtils {
             this.getTeams(serverName).then((teams) => {
                 teams = teams.filter(team => team.tournamentName === tournaments[0].tournamentName
                     && team.tournamentDay === tournaments[0].tournamentDay);
-                let foundTeam = teams.find(team => team.teamName.includes(teamName)
+                let foundTeam = teams.find(team => this.doesTeamNameMatch(teamName, team)
+                    && team.players
                     && !team.players.includes(playerName));
-                let currentTeam = teams.find(team => team.players.includes(playerName));
+                let currentTeam = teams.find(team => team.players
+                    && team.players.includes(playerName));
                 console.log(`Team to be assigned to : ('${JSON.stringify(foundTeam)}')...`);
                 if (!foundTeam) {
                     resolve(foundTeam);
@@ -148,6 +150,15 @@ class DynamoDBUtils {
                 }
             }).catch(err => reject(err));
         })
+    }
+
+    doesTeamNameMatch(teamNameToSearch, team) {
+        if (!teamNameToSearch || !team || !team.teamName) {
+            return false;
+        }
+        let expectedName = team.teamName.toLowerCase();
+        teamNameToSearch = teamNameToSearch.toLowerCase();
+        return expectedName === teamNameToSearch || expectedName.includes(teamNameToSearch);
     }
 
     addUserToTeam(playerName, foundTeam, reject, resolve) {
