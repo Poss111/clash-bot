@@ -139,6 +139,10 @@ class DynamoDBUtils {
                     resolve(foundTeam);
                 }
                 this.addUserToTeam(playerName, foundTeam, reject, resolve);
+                this.removeIfExistingInTentative(playerName, serverName, {
+                    tournamentName: foundTeam.tournamentName,
+                    tournamentDay: foundTeam.tournamentDay
+                })
                 if (currentTeam) {
                     this.unregisterPlayerWithSpecificTeam(playerName, [currentTeam], serverName, reject);
                 }

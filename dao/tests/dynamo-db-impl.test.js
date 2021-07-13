@@ -294,6 +294,11 @@ describe('Register Player', () => {
         expectedPlayers.push(value.Items[0].attrs.players[0]);
         expectedPlayers.push(value.Items[0].attrs.players[1]);
         expectedPlayers.push('Player3');
+        dynamoDBUtils.tentative = [{
+            playerName: 'Player3',
+            serverName: 'Sample Server',
+            tournamentName: 'msi2021'
+        }];
         let mockTeam = {
             key: 'Sample Team#Sample Server',
             teamName: 'Team Sample',
@@ -305,6 +310,7 @@ describe('Register Player', () => {
         let foundTeam = value.Items[0].attrs;
         let key = dynamoDBUtils.getKey(foundTeam.teamName, foundTeam.serverName, foundTeam.tournamentName, foundTeam.tournamentDay);
         let tournament = [{tournamentName: 'msi2021', tournamentDay: 'day_3'}];
+        expect(dynamoDBUtils.tentative).toHaveLength(1);
         return dynamoDBUtils.registerPlayer('Player3', 'Sample Server', tournament).then(result => {
             expect(result).toBeTruthy();
             expect(result.teamName).toEqual(value.Items[0].attrs.teamName);
@@ -586,6 +592,7 @@ describe('Register Specific Team', () => {
             tournamentDay: tournaments[0].tournamentDay
         };
         buildMockReturnForRegister(dynamoDbRetrieveList, mockTeam);
+        expect(dynamoDBUtils.tentative).toHaveLength(0);
         return dynamoDBUtils.registerWithSpecificTeam(playerName, serverName, tournaments, teamName).then(data => {
             expect(data).toBeTruthy();
             expect(data.teamName).toEqual(dynamoDbRetrieveList.Items[1].attrs.teamName);
@@ -593,6 +600,95 @@ describe('Register Specific Team', () => {
             expect(data.tournamentName).toEqual(dynamoDbRetrieveList.Items[1].attrs.tournamentName);
             expect(data.tournamentDay).toEqual(dynamoDbRetrieveList.Items[1].attrs.tournamentDay);
             expect(data.players).toEqual(updatedExpectedPlayers);
+            expect(dynamoDBUtils.tentative).toHaveLength(0);
+            expect(dynamoDBUtils.Team.update.mock.calls).toEqual([
+                [
+                    {key: dynamoDbRetrieveList.Items[1].attrs.key},
+                    {
+                        ExpressionAttributeValues: {
+                            ':playerName': [playerName]
+                        },
+                        UpdateExpression: 'ADD players :playerName'
+                    }, expect.any(Function)
+                ], [
+                    {key: dynamoDbRetrieveList.Items[0].attrs.key},
+                    {
+                        ExpressionAttributeValues: {
+                            ':playerName': [playerName],
+                            ':nameOfTeam': dynamoDbRetrieveList.Items[0].attrs.teamName
+                        },
+                        ConditionExpression: 'teamName = :nameOfTeam',
+                        UpdateExpression: 'DELETE players :playerName'
+                    }, expect.any(Function)
+                ]
+            ]);
+        })
+    })
+
+
+    test('A user should be able to request to join a specific Team based on the Tournament and Team name and be removed from Tentative queue if they exist in it.', () => {
+        let playerName = 'TestPlayer1';
+        let serverName = 'Test Server';
+        let tournaments = [{
+            tournamentName: 'msi2021',
+            tournamentDay: '3'
+        }];
+        let teamName = 'Abra';
+        const dynamoDbRetrieveList = {
+            Items: [{
+                attrs: {
+                    key: dynamoDBUtils.getKey(`Team Existing`, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
+                    teamName: `Team Existing`,
+                    serverName: serverName,
+                    players: ['Player3', playerName],
+                    tournamentName: tournaments[0].tournamentName,
+                    tournamentDay: tournaments[0].tournamentDay
+                }
+            }, {
+                attrs: {
+                    key: dynamoDBUtils.getKey(`Team ${teamName}`, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
+                    teamName: `Team ${teamName}`,
+                    serverName: serverName,
+                    players: ['Player3'],
+                    tournamentName: tournaments[0].tournamentName,
+                    tournamentDay: tournaments[0].tournamentDay
+                }
+            }, {
+                attrs: {
+                    key: dynamoDBUtils.getKey(teamName, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
+                    teamName: `Team ${teamName}`,
+                    serverName: serverName,
+                    players: ['Player1', 'Player2'],
+                    tournamentName: tournaments[0].tournamentName,
+                    tournamentDay: tournaments[0].tournamentDay
+                }
+            }
+            ]
+        };
+        dynamoDBUtils.tentative = [{
+            playerName: playerName,
+            serverName: serverName,
+            tournamentName: tournaments[0].tournamentName
+        }];
+        let updatedExpectedPlayers = JSON.parse(JSON.stringify(dynamoDbRetrieveList.Items[0].attrs.players)).concat(playerName);
+        let mockTeam = {
+            key: dynamoDBUtils.getKey(teamName, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
+            teamName: `Team ${teamName}`,
+            serverName: serverName,
+            players: updatedExpectedPlayers,
+            tournamentName: tournaments[0].tournamentName,
+            tournamentDay: tournaments[0].tournamentDay
+        };
+        buildMockReturnForRegister(dynamoDbRetrieveList, mockTeam);
+        expect(dynamoDBUtils.tentative).toHaveLength(1);
+        return dynamoDBUtils.registerWithSpecificTeam(playerName, serverName, tournaments, teamName).then(data => {
+            expect(data).toBeTruthy();
+            expect(data.teamName).toEqual(dynamoDbRetrieveList.Items[1].attrs.teamName);
+            expect(data.serverName).toEqual(dynamoDbRetrieveList.Items[1].attrs.serverName);
+            expect(data.tournamentName).toEqual(dynamoDbRetrieveList.Items[1].attrs.tournamentName);
+            expect(data.tournamentDay).toEqual(dynamoDbRetrieveList.Items[1].attrs.tournamentDay);
+            expect(data.players).toEqual(updatedExpectedPlayers);
+            expect(dynamoDBUtils.tentative).toHaveLength(0);
             expect(dynamoDBUtils.Team.update.mock.calls).toEqual([
                 [
                     {key: dynamoDbRetrieveList.Items[1].attrs.key},
