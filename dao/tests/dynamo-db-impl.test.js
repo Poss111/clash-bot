@@ -27,7 +27,9 @@ function buildMockReturnForRegister(streamData, teamToBeReturned) {
                 });
             }
         })
-        dynamodb.Set = jest.fn().mockReturnValue(teamToBeReturned.players);
+        dynamodb.Set = jest.fn().mockImplementation(([players]) => {
+            return [players];
+        })
     }
 }
 
@@ -311,7 +313,7 @@ describe('Register Player', () => {
             expect(dynamoDBUtils.tentative.length).toEqual(0);
             expect(dynamoDBUtils.Team.update).toBeCalledWith({key: key}, {
                 ExpressionAttributeValues: {
-                    ':playerName': expectedPlayers
+                    ':playerName': ['Player3']
                 },
                 UpdateExpression: 'ADD players :playerName'
             }, expect.any(Function));
@@ -442,7 +444,7 @@ describe('Register Player', () => {
                 expect(dynamoDBUtils.Team.update.mock.calls.length).toEqual(2);
                 expect(dynamoDBUtils.Team.update).toBeCalledWith({key: value.Items[0].attrs.key}, {
                     ExpressionAttributeValues: {
-                        ':playerName': expectedPlayers,
+                        ':playerName': ['Player1'],
                         ':nameOfTeam': 'Team Sample'
                     },
                     ConditionExpression: 'teamName = :nameOfTeam',
@@ -488,7 +490,7 @@ describe('Register Player', () => {
                 expect(dynamoDBUtils.Team.update.mock.calls.length).toEqual(2);
                 expect(dynamoDBUtils.Team.update).toBeCalledWith({key: mockTeam.key}, {
                     ExpressionAttributeValues: {
-                        ':playerName': expectedPlayers
+                        ':playerName': ['Player1']
                     },
                     UpdateExpression: 'ADD players :playerName'
                 }, expect.any(Function));
@@ -546,7 +548,16 @@ describe('Register Specific Team', () => {
         const dynamoDbRetrieveList = {
             Items: [{
                 attrs: {
-                    key: dynamoDBUtils.getKey(teamName, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
+                    key: dynamoDBUtils.getKey(`Team Existing`, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
+                    teamName: `Team Existing`,
+                    serverName: serverName,
+                    players: ['Player3', playerName],
+                    tournamentName: tournaments[0].tournamentName,
+                    tournamentDay: tournaments[0].tournamentDay
+                }
+            }, {
+                attrs: {
+                    key: dynamoDBUtils.getKey(`Team ${teamName}`, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
                     teamName: `Team ${teamName}`,
                     serverName: serverName,
                     players: ['Player3'],
@@ -565,7 +576,7 @@ describe('Register Specific Team', () => {
             }
             ]
         };
-        let updatedExpectedPlayers = dynamoDbRetrieveList.Items[0].attrs.players.concat(playerName);
+        let updatedExpectedPlayers = JSON.parse(JSON.stringify(dynamoDbRetrieveList.Items[0].attrs.players)).concat(playerName);
         let mockTeam = {
             key: dynamoDBUtils.getKey(teamName, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
             teamName: `Team ${teamName}`,
@@ -577,11 +588,32 @@ describe('Register Specific Team', () => {
         buildMockReturnForRegister(dynamoDbRetrieveList, mockTeam);
         return dynamoDBUtils.registerWithSpecificTeam(playerName, serverName, tournaments, teamName).then(data => {
             expect(data).toBeTruthy();
-            expect(data.teamName).toEqual(dynamoDbRetrieveList.Items[0].attrs.teamName);
-            expect(data.serverName).toEqual(dynamoDbRetrieveList.Items[0].attrs.serverName);
-            expect(data.tournamentName).toEqual(dynamoDbRetrieveList.Items[0].attrs.tournamentName);
-            expect(data.tournamentDay).toEqual(dynamoDbRetrieveList.Items[0].attrs.tournamentDay);
+            expect(data.teamName).toEqual(dynamoDbRetrieveList.Items[1].attrs.teamName);
+            expect(data.serverName).toEqual(dynamoDbRetrieveList.Items[1].attrs.serverName);
+            expect(data.tournamentName).toEqual(dynamoDbRetrieveList.Items[1].attrs.tournamentName);
+            expect(data.tournamentDay).toEqual(dynamoDbRetrieveList.Items[1].attrs.tournamentDay);
             expect(data.players).toEqual(updatedExpectedPlayers);
+            expect(dynamoDBUtils.Team.update.mock.calls).toEqual([
+                [
+                    {key: dynamoDbRetrieveList.Items[1].attrs.key},
+                    {
+                        ExpressionAttributeValues: {
+                            ':playerName': [playerName]
+                        },
+                        UpdateExpression: 'ADD players :playerName'
+                    }, expect.any(Function)
+                ], [
+                    {key: dynamoDbRetrieveList.Items[0].attrs.key},
+                    {
+                        ExpressionAttributeValues: {
+                            ':playerName': [playerName],
+                            ':nameOfTeam': dynamoDbRetrieveList.Items[0].attrs.teamName
+                        },
+                        ConditionExpression: 'teamName = :nameOfTeam',
+                        UpdateExpression: 'DELETE players :playerName'
+                    }, expect.any(Function)
+                ]
+            ]);
         })
     })
 

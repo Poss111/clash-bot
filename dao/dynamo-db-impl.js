@@ -91,7 +91,7 @@ class DynamoDBUtils {
 
                     if (requestingNewTeam && currentTeams) {
                         let currentTeam = Array.isArray(currentTeams) ? currentTeams : [currentTeams];
-                        this.unregisterPlayerWithSpecificTeam(playerName, currentTeam, serverName, tournaments);
+                        this.unregisterPlayerWithSpecificTeam(playerName, currentTeam, serverName, reject);
                     }
 
                     let selectedTeam;
@@ -129,14 +129,19 @@ class DynamoDBUtils {
     registerWithSpecificTeam(playerName, serverName, tournaments, teamName) {
         return new Promise((resolve, reject) => {
             this.getTeams(serverName).then((teams) => {
-                let foundTeam = teams.find(team => team.tournamentName === tournaments[0].tournamentName
-                    && team.tournamentDay === tournaments[0].tournamentDay
-                    && team.teamName.includes(teamName));
+                teams = teams.filter(team => team.tournamentName === tournaments[0].tournamentName
+                    && team.tournamentDay === tournaments[0].tournamentDay);
+                let foundTeam = teams.find(team => team.teamName.includes(teamName)
+                    && !team.players.includes(playerName));
+                let currentTeam = teams.find(team => team.players.includes(playerName));
                 console.log(`Team to be assigned to : ('${JSON.stringify(foundTeam)}')...`);
                 if (!foundTeam) {
                     resolve(foundTeam);
                 }
                 this.addUserToTeam(playerName, foundTeam, reject, resolve);
+                if (currentTeam) {
+                    this.unregisterPlayerWithSpecificTeam(playerName, [currentTeam], serverName, reject);
+                }
             }).catch(err => reject(err));
         })
     }
