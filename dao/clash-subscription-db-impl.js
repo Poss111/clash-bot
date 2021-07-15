@@ -1,5 +1,6 @@
 const dynamodb = require('dynamodb');
 const Joi = require('joi');
+const moment = require('moment-timezone');
 
 class ClashSubscriptionDbImpl {
 
@@ -19,11 +20,12 @@ class ClashSubscriptionDbImpl {
                     });
                 }
                 this.clashSubscriptionTable = dynamodb.define(this.tableName, {
-                    hashKey: 'userId',
+                    hashKey: 'key',
                     timestamps: true,
                     schema: {
-                        userId: Joi.string(),
-                        serverName: Joi.string()
+                        key: Joi.string(),
+                        serverName: Joi.string(),
+                        timeAdded: Joi.string()
                     }
                 });
                 resolve(true);
@@ -35,29 +37,34 @@ class ClashSubscriptionDbImpl {
 
     subscribe(id, server) {
         return new Promise((resolve, reject) => {
+            const dateFormat = 'MMMM DD yyyy hh:mm a z';
+            const timeZone = 'America/Los_Angeles';
+            moment.tz.setDefault(timeZone);
             let subscription = {
-                userId: id,
-                serverName: server
+                key: id,
+                serverName: server,
+                timeAdded: new moment().format(dateFormat)
             };
             this.clashSubscriptionTable.create(subscription, (err, data) => {
                 if (err) reject(err);
-                else console.log(`Successfully saved subscription => ${JSON.stringify(data)}`);
+                else {
+                    console.log(`Successfully saved subscription => ${JSON.stringify(data)}`);
+                    resolve(subscription);
+                }
             })
-            resolve(subscription);
         });
     }
 
-    unsubscribe(id, server) {
+    unsubscribe(id) {
         return new Promise((resolve, reject) => {
-            let subscription = {
-                userId: id,
-                serverName: server
-            };
-            this.clashSubscriptionTable.delete(subscription, (err, data) => {
+            this.clashSubscriptionTable.destroy(id,
+                {ReturnValues: 'ALL_OLD'}, (err, data) => {
                 if (err) reject(err);
-                else console.log(`Successfully deleted subscription.`);
+                else {
+                    console.log(`Successfully deleted subscription for ('${JSON.stringify(data)}').`);
+                    resolve(data);
+                }
             })
-            resolve(subscription);
         });
     }
 }

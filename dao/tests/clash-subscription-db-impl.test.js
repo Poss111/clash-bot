@@ -1,5 +1,4 @@
 const clashSubscriptionDbImpl = require('../clash-subscription-db-impl');
-const streamTest = require('streamtest');
 const dynamodb = require('dynamodb');
 const Joi = require('joi');
 
@@ -19,9 +18,13 @@ describe('Initialize Table connection', () => {
             expect(dynamodb.define).toBeCalledTimes(1);
             expect(dynamodb.define).toBeCalledWith(clashSubscriptionDbImpl.tableName,
                 {
-                    hashKey: 'userId',
+                    hashKey: 'key',
                     timestamps: true,
-                    schema: {userId: Joi.string(), serverName: Joi.string()}
+                    schema: {
+                        key: Joi.string(),
+                        serverName: Joi.string(),
+                        timeAdded: Joi.string()
+                    }
                 });
         });
     })
@@ -31,7 +34,7 @@ describe('Initialize Table connection', () => {
         dynamodb.AWS.config.update = jest.fn();
         dynamodb.define = jest.fn();
         process.env.LOCAL = true;
-        return clashSubscriptionDbImpl.initialize().then((data) => {
+        return clashSubscriptionDbImpl.initialize().then(() => {
                 expect(dynamodb.AWS.config.loadFromPath.mock.calls.length).toEqual(1);
                 expect(dynamodb.AWS.config.update.mock.calls.length).toEqual(0);
                 expect(dynamodb.define.mock.calls.length).toEqual(1);
@@ -45,7 +48,7 @@ describe('Subscribe', () => {
         let id = '12345667';
         let server = 'TestServer';
         let expectedResults = {
-            userId: id,
+            key: id,
             serverName: server
         };
         clashSubscriptionDbImpl.clashSubscriptionTable = jest.fn();
@@ -53,8 +56,11 @@ describe('Subscribe', () => {
             callback(undefined, expectedResults)
         });
         return clashSubscriptionDbImpl.subscribe(id, server).then(data => {
-            expect(data).toEqual(expectedResults);
+            expect(data.key).toEqual(id);
+            expect(data.serverName).toEqual(server);
+            expect(data.timeAdded).toBeTruthy();
             expect(clashSubscriptionDbImpl.clashSubscriptionTable.create).toBeCalledTimes(1);
+            expect(clashSubscriptionDbImpl.clashSubscriptionTable.create).toBeCalledWith(expect.anything(), expect.any(Function));
         });
     })
 })
@@ -64,16 +70,17 @@ describe('Unsubscribe', () => {
         let id = '12345667';
         let server = 'TestServer';
         let expectedResults = {
-            userId: id,
+            key: id,
             serverName: server
         };
         clashSubscriptionDbImpl.clashSubscriptionTable = jest.fn();
-        clashSubscriptionDbImpl.clashSubscriptionTable.delete = jest.fn().mockImplementation((sub, callback) => {
+        clashSubscriptionDbImpl.clashSubscriptionTable.destroy = jest.fn().mockImplementation((sub, options, callback) => {
             callback(undefined, expectedResults)
         });
         return clashSubscriptionDbImpl.unsubscribe(id, server).then(data => {
             expect(data).toEqual(expectedResults);
-            expect(clashSubscriptionDbImpl.clashSubscriptionTable.delete).toBeCalledTimes(1);
+            expect(clashSubscriptionDbImpl.clashSubscriptionTable.destroy).toBeCalledTimes(1);
+            expect(clashSubscriptionDbImpl.clashSubscriptionTable.destroy).toBeCalledWith(id, {ReturnValues: 'ALL_OLD'}, expect.any(Function));
         });
     })
 })

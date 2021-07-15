@@ -4,6 +4,7 @@ const bot = new Discord.Client();
 bot.commands = new Discord.Collection();
 const botCommands = require('./commands');
 const clashTimesDbImpl = require('./dao/clashtime-db-impl');
+const clashSubscriptionDbImpl = require('./dao/clash-subscription-db-impl');
 const database = require('./dao/dynamo-db-impl');
 const TOKEN = process.env.TOKEN;
 
@@ -11,9 +12,10 @@ Object.keys(botCommands).map(key => {
     bot.commands.set(botCommands[key].name, botCommands[key]);
 });
 
-clashTimesDbImpl.initializeLeagueData().then(() => {
-    database.initializeClashBotDB().then(data => {
-        console.log(data);
+Promise.all([clashTimesDbImpl.initializeLeagueData(),
+    clashSubscriptionDbImpl.initialize(),
+    database.initializeClashBotDB()])
+    .then(() => {
         bot.login(TOKEN).then(() => {
 
             bot.on('ready', () => {
@@ -39,11 +41,7 @@ clashTimesDbImpl.initializeLeagueData().then(() => {
             });
         });
     }).catch(err => {
-        console.error(`Failed to initialize Clash-Bot DB to Error ('${err}')`);
-        process.exit(1);
-    });
-}).catch(err => {
-    console.error(`Failed to initialize Clash-Bot due to Error ('${err}')`);
+    console.error(`Failed to initialize Clash-Bot DB to Error ('${err}')`);
     process.exit(1);
 });
 
