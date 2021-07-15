@@ -32,6 +32,11 @@ module.exports = {
                 "Can create a new team by passing newTeam."
         },
         {
+            name: "subscribe - !clash subscribe",
+            value: "Subscribes the user notification of an upcoming League of Legends Clash Tournament. " +
+                "This notification will be sent on the Monday before a Tournament weekend."
+        },
+        {
             name: "teams - !clash teams",
             value: "Asks the bot to print a list of Teams for the upcoming clash tournaments."
         },
@@ -50,6 +55,10 @@ module.exports = {
             name: "unregister - !clash unregister msi2021 1",
             value: "Asks the bot to remove you from the assigned Clash team therefore freeing a spot for others on a " +
                 "tournament and a tournament day."
+        },
+        {
+            name: "unsubscribe - !clash unsubscribe",
+            value: "Unsubscribes the user from the notification of an upcoming League of Legends Clash Tournament."
         }
     ],
     footer: {

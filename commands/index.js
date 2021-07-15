@@ -1,11 +1,13 @@
 module.exports = {
-    Ping: require('./ping'),
+    Dance: require('./dance'),
     Help: require('./help'),
-    Teams: require('./teams'),
+    JoinTeamByName: require('./join-team-by-name'),
+    Ping: require('./ping'),
     Register: require('./register'),
-    Unregister: require('./unregister'),
+    Subscribe: require('./subscribe'),
+    Teams: require('./teams'),
     Tentative: require('./tentative'),
     Time: require('./time'),
-    Dance: require('./dance'),
-    JoinTeamByName: require('./join-team-by-name'),
+    Unregister: require('./unregister'),
+    Unsubscribe: require('./unsubscribe'),
 };
