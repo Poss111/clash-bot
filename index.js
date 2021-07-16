@@ -12,16 +12,16 @@ Object.keys(botCommands).map(key => {
     bot.commands.set(botCommands[key].name, botCommands[key]);
 });
 
+bot.on('ready', () => {
+    console.info(`Logged in as ${bot.user.tag}!`);
+    bot.guilds.cache.get('837685892885512202').channels.cache.get('837685892885512205').send(':wink:').then(() => console.log('Sent'));
+});
+
 Promise.all([clashTimesDbImpl.initializeLeagueData(),
     clashSubscriptionDbImpl.initialize(),
     database.initializeClashBotDB()])
     .then(() => {
         bot.login(TOKEN).then(() => {
-
-            bot.on('ready', () => {
-                console.info(`Logged in as ${bot.user.tag}!`);
-            });
-
             bot.on('message', msg => {
                 if (msg.channel.name === 'league' && msg.content.startsWith('!clash')) {
                     msg.content = msg.content.replace('!clash ', '');
