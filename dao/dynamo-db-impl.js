@@ -133,7 +133,8 @@ class DynamoDBUtils {
                     && team.tournamentDay === tournaments[0].tournamentDay);
                 let foundTeam = teams.find(team => this.doesTeamNameMatch(teamName, team)
                     && team.players
-                    && !team.players.includes(playerName));
+                    && !team.players.includes(playerName)
+                    && team.players.length < 5);
                 let currentTeam = teams.find(team => team.players
                     && team.players.includes(playerName));
                 console.log(`Team to be assigned to : ('${JSON.stringify(foundTeam)}')...`);

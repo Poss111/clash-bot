@@ -748,6 +748,32 @@ describe('Register Specific Team', () => {
         })
     })
 
+    test('If the team that the user is requesting, has 5 players, return with an undefined response.', () => {
+        let playerName = 'TestPlayer1';
+        let serverName = 'Test Server';
+        let tournaments = [{
+            tournamentName: 'msi2021',
+            tournamentDay: '3'
+        }];
+        let teamName = 'Abra';
+        const dynamoDbRetrieveList = {
+            Items: [{
+                attrs: {
+                    key: dynamoDBUtils.getKey(`Team DNE`, serverName, tournaments[0].tournamentName, tournaments[0].tournamentDay),
+                    teamName: `Team ${teamName}`,
+                    serverName: serverName,
+                    players: ['Player3', 'Player2', 'Player3', 'Player4', 'Player5'],
+                    tournamentName: tournaments[0].tournamentName,
+                    tournamentDay: tournaments[0].tournamentDay
+                }
+            }]
+        };
+        buildMockReturnForRegister(dynamoDbRetrieveList);
+        return dynamoDBUtils.registerWithSpecificTeam(playerName, serverName, tournaments, teamName).then(data => {
+            expect(data).toBeFalsy();
+        })
+    })
+
     describe('Error', () => {
         test('If there is an error upon querying for records, the error should be caught and rejected.', () => {
             let playerName = 'TestPlayer1';
