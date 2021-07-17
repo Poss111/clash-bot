@@ -14,7 +14,24 @@ Object.keys(botCommands).map(key => {
 
 bot.on('ready', () => {
     console.info(`Logged in as ${bot.user.tag}!`);
-    bot.guilds.cache.get('837685892885512202').channels.cache.get('837685892885512205').send(':wink:').then(() => console.log('Sent'));
+    try {
+        bot.guilds.cache.forEach((key) => {
+            const filter = key.channels.cache.find((key) => key.name === 'league');
+            console.log(`Sending Bot update message to ('${key}')...`);
+            filter.send({
+                content: "Clash-Bot has been updated :partying_face:!",
+                embed: {
+                    title: "Releases",
+                    description: "Please check the link for the Release details.",
+                    url: "https://github.com/Poss111/clash-bot/releases)",
+                    color: 71
+                }
+            });
+            console.log(`Successfully sent Bot update message to ('${key}')...`);
+        });
+    } catch (err) {
+        console.error('Failed to send update notification due to error.', err);
+    }
 });
 
 Promise.all([clashTimesDbImpl.initializeLeagueData(),
