@@ -19,11 +19,13 @@ bot.on('ready', () => {
             const filter = key.channels.cache.find((key) => key.name === 'league');
             console.log(`Sending Bot update message to ('${key}')...`);
             filter.send({
-                content: "Clash-Bot has been updated :partying_face:!",
                 embed: {
-                    title: "Releases",
-                    description: "Please check the link for the Release details.",
-                    url: "https://github.com/Poss111/clash-bot/releases)",
+                    title: "Clash-Bot has been updated :partying_face:!",
+                    url: "https://github.com/Poss111/clash-bot/releases",
+                    description: "Please check the Releases page for new updates and bug fixes :smile:.",
+                    image: {
+                        url: "https://repository-images.githubusercontent.com/363187357/577557c6-50c4-422c-adbf-8a06281c14e9"
+                    },
                     color: 71
                 }
             });
