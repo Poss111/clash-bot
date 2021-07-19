@@ -1,4 +1,4 @@
-name: CI
+name: Build
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
       uses: Poss111/discord-hook-action@v1.6.8
       with:
         discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        title: 'Clash Bot Deployment Notification'
+        title: 'Clash Bot Build Notification'
         message: 'Starting Github build...'
         message-color: '15258703'
 
@@ -28,14 +28,6 @@ jobs:
       run : echo build $GITHUB_RUN_NUMBER
 
     - uses: actions/checkout@v2
-
-    - name: Find and Replace
-      uses: jacobtomlinson/gha-find-replace@master
-      if: ${{ github.ref == 'refs/heads/master' }}
-      with:
-        find: "--DISCORD_KEY--"
-        replace: "${{ secrets.DISCORD_KEY }}"
-        include: "task-definition.json"
 
     - name: Cache node modules
       uses: actions/cache@v2
@@ -65,85 +57,15 @@ jobs:
       if: ${{ failure() }}
       with:
         discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        title: 'Clash Bot Deployment Notification'
+        title: 'Clash Bot Build Notification'
         message: 'Github build failed!'
         message-color: '16711680'
 
     - name: Build Succeded Discord Webhook
       uses: Poss111/discord-hook-action@v1.6.8
-      if: ${{ success() && github.ref != 'refs/heads/master'}}
+      if: ${{ success() }}
       with:
         discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        title: 'Clash Bot Deployment Notification'
+        title: 'Clash Bot Build Notification'
         message: 'Github build succeeded!'
-        message-color: '65345'
-
-    - name: Deployment In Progress Discord Webhook
-      uses: Poss111/discord-hook-action@v1.6.8
-      if: ${{ success() && github.ref == 'refs/heads/master'}}
-      with:
-        discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        title: 'Clash Bot Deployment Notification'
-        message: 'Deployment in progress...'
-        message-color: '16750902'
-
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      if: ${{ github.ref == 'refs/heads/master' }}
-      with:
-        aws-access-key-id: ${{ secrets.AWS_SECRET_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-        aws-region: us-east-1
-
-    - name: Login to ECR
-      id: login-ecr
-      if: ${{ github.ref == 'refs/heads/master' }}
-      uses: aws-actions/amazon-ecr-login@v1
-
-    - name: Build, tag, and push Clash-Bot image to Amazon ECR
-      id: build-image
-      if: ${{ github.ref == 'refs/heads/master' }}
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: poss11111
-        IMAGE_TAG: ${{ github.sha }}
-      run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-
-    - name: Update task-definition file for deployment
-      id: task-def
-      if: ${{ github.ref == 'refs/heads/master' }}
-      uses: aws-actions/amazon-ecs-render-task-definition@v1
-      with:
-        task-definition: task-definition.json
-        container-name: clash-bot-dynamic
-        image: ${{ steps.build-image.outputs.image }}
-
-    - name: Deploy Clash-Bot
-      if: ${{ github.ref == 'refs/heads/master' }}
-      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      with:
-        task-definition: ${{ steps.task-def.outputs.task-definition }}
-        service: clash-bot-secretive-service
-        cluster: clash-bot
-        wait-for-service-stability: true
-
-    - name: Deployment Failed Discord Webhook
-      uses: Poss111/discord-hook-action@v1.6.8
-      if: ${{ failure() && github.ref == 'refs/heads/master' }}
-      with:
-        discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        title: 'Clash Bot Deployment Notification'
-        message: 'Deployment failed!'
-        message-color: '16711680'
-
-    - name: Deployment Succeeded Discord Webhook
-      uses: Poss111/discord-hook-action@v1.6.8
-      if: ${{ success() && github.ref == 'refs/heads/master' }}
-      with:
-        discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        title: 'Clash Bot Deployment Notification'
-        message: 'Deployment succeeded!'
         message-color: '65345'

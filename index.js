@@ -7,9 +7,39 @@ const clashTimesDbImpl = require('./dao/clashtime-db-impl');
 const clashSubscriptionDbImpl = require('./dao/clash-subscription-db-impl');
 const database = require('./dao/dynamo-db-impl');
 const TOKEN = process.env.TOKEN;
+let channel = 'league';
+const COMMAND_PREFIX = '!clash';
 
 Object.keys(botCommands).map(key => {
     bot.commands.set(botCommands[key].name, botCommands[key]);
+});
+
+if (process.env.LOCAL) {
+    channel = 'league-test';
+}
+
+bot.on('ready', () => {
+    console.info(`Logged in as ${bot.user.tag}!`);
+    try {
+        bot.guilds.cache.forEach((key) => {
+            const filter = key.channels.cache.find((key) => key.name === channel);
+            console.log(`Sending Bot update message to ('${key}')...`);
+            filter.send({
+                embed: {
+                    title: "Clash-Bot has been updated :partying_face:!",
+                    url: "https://github.com/Poss111/clash-bot/releases",
+                    description: "Please check the Releases page for new updates and bug fixes :smile:.",
+                    image: {
+                        url: "https://repository-images.githubusercontent.com/363187357/577557c6-50c4-422c-adbf-8a06281c14e9"
+                    },
+                    color: 71
+                }
+            });
+            console.log(`Successfully sent Bot update message to ('${key}')...`);
+        });
+    } catch (err) {
+        console.error('Failed to send update notification due to error.', err);
+    }
 });
 
 Promise.all([clashTimesDbImpl.initializeLeagueData(),
@@ -17,14 +47,9 @@ Promise.all([clashTimesDbImpl.initializeLeagueData(),
     database.initializeClashBotDB()])
     .then(() => {
         bot.login(TOKEN).then(() => {
-
-            bot.on('ready', () => {
-                console.info(`Logged in as ${bot.user.tag}!`);
-            });
-
             bot.on('message', msg => {
-                if (msg.channel.name === 'league' && msg.content.startsWith('!clash')) {
-                    msg.content = msg.content.replace('!clash ', '');
+                if (msg.channel.name === channel && msg.content.startsWith(COMMAND_PREFIX)) {
+                    msg.content = msg.content.replace(COMMAND_PREFIX + ' ', '');
                     const args = msg.content.split(/ +/);
                     const command = args.shift().toLowerCase();
 
