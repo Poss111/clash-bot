@@ -74,58 +74,58 @@ jobs:
           message: 'Deployment in progress...'
           message-color: '16750902'
 
-#      - name: Configure AWS credentials
-#        uses: aws-actions/configure-aws-credentials@v1
-#        with:
-#          aws-access-key-id: ${{ secrets.AWS_SECRET_ID }}
-#          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-#          aws-region: us-east-1
-#
-#      - name: Login to ECR
-#        id: login-ecr
-#        uses: aws-actions/amazon-ecr-login@v1
-#
-#      - name: Build, tag, and push Clash-Bot image to Amazon ECR
-#        id: build-image
-#        env:
-#          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-#          ECR_REPOSITORY: poss11111
-#          IMAGE_TAG: ${{ github.sha }}
-#        run: |
-#          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-#          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-#          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-#
-#      - name: Update task-definition file for deployment
-#        id: task-def
-#        uses: aws-actions/amazon-ecs-render-task-definition@v1
-#        with:
-#          task-definition: task-definition.json
-#          container-name: clash-bot-dynamic
-#          image: ${{ steps.build-image.outputs.image }}
-#
-#      - name: Deploy Clash-Bot
-#        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-#        with:
-#          task-definition: ${{ steps.task-def.outputs.task-definition }}
-#          service: clash-bot-secretive-service
-#          cluster: clash-bot
-#          wait-for-service-stability: true
-#
-#      - name: Deployment Failed Discord Webhook
-#        uses: Poss111/discord-hook-action@v1.6.8
-#        if: ${{ failure() }}
-#        with:
-#          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-#          title: 'Clash Bot Deployment Notification'
-#          message: 'Deployment failed!'
-#          message-color: '16711680'
-#
-#      - name: Deployment Succeeded Discord Webhook
-#        uses: Poss111/discord-hook-action@v1.6.8
-#        if: ${{ success() }}
-#        with:
-#          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-#          title: 'Clash Bot Deployment Notification'
-#          message: 'Deployment succeeded!'
-#          message-color: '65345'
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_SECRET_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push Clash-Bot image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: poss11111
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+      - name: Update task-definition file for deployment
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: clash-bot-dynamic
+          image: ${{ steps.build-image.outputs.image }}
+
+      - name: Deploy Clash-Bot
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: clash-bot-secretive-service
+          cluster: clash-bot
+          wait-for-service-stability: true
+
+      - name: Deployment Failed Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        if: ${{ failure() }}
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Deployment Notification'
+          message: 'Deployment failed!'
+          message-color: '16711680'
+
+      - name: Deployment Succeeded Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        if: ${{ success() }}
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Deployment Notification'
+          message: 'Deployment succeeded!'
+          message-color: '65345'
