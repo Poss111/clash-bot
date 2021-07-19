@@ -7,16 +7,22 @@ const clashTimesDbImpl = require('./dao/clashtime-db-impl');
 const clashSubscriptionDbImpl = require('./dao/clash-subscription-db-impl');
 const database = require('./dao/dynamo-db-impl');
 const TOKEN = process.env.TOKEN;
+let channel = 'league';
+const COMMAND_PREFIX = '!clash';
 
 Object.keys(botCommands).map(key => {
     bot.commands.set(botCommands[key].name, botCommands[key]);
 });
 
+if (process.env.LOCAL) {
+    channel = 'league-test';
+}
+
 bot.on('ready', () => {
     console.info(`Logged in as ${bot.user.tag}!`);
     try {
         bot.guilds.cache.forEach((key) => {
-            const filter = key.channels.cache.find((key) => key.name === 'league');
+            const filter = key.channels.cache.find((key) => key.name === channel);
             console.log(`Sending Bot update message to ('${key}')...`);
             filter.send({
                 embed: {
@@ -42,8 +48,8 @@ Promise.all([clashTimesDbImpl.initializeLeagueData(),
     .then(() => {
         bot.login(TOKEN).then(() => {
             bot.on('message', msg => {
-                if (msg.channel.name === 'league' && msg.content.startsWith('!clash')) {
-                    msg.content = msg.content.replace('!clash ', '');
+                if (msg.channel.name === channel && msg.content.startsWith(COMMAND_PREFIX)) {
+                    msg.content = msg.content.replace(COMMAND_PREFIX + ' ', '');
                     const args = msg.content.split(/ +/);
                     const command = args.shift().toLowerCase();
 
