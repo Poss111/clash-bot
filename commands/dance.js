@@ -6,8 +6,9 @@ module.exports = {
     description: 'Just a command to dance!',
     execute(msg) {
         const startTime = process.hrtime.bigint();
-        if (!throttleHandling.isThrottled(this.name)) {
-            throttleHandling.placeThrottle(this.name, 30000);
+        if (!throttleHandling.isThrottled(this.name, msg.guild.name)) {
+            throttleHandling.placeThrottle(this.name, msg.guild.name,30000);
+            throttleHandling.removeServerNotified(this.name, msg.guild.name);
             setTimeout(() => {
                 msg.channel.send('I');
             }, 500);
@@ -38,7 +39,10 @@ module.exports = {
             }, 7500);
         } else {
             console.log(`('${msg.author.username}') is trying to spam this resource.`);
-            msg.reply('I see you know the ways of the spam. If you want me to dance again, you must wait 30 seconds ;)');
+            if (!throttleHandling.hasServerBeenNotified(this.name, msg.guild.name)) {
+                msg.reply('I see you know the ways of the spam. If you want me to dance again, you must wait 30 seconds ;)');
+                throttleHandling.setServerNotified(this.name, msg.guild.name);
+            }
             timeTracker.endExecution(this.name, startTime);
         }
     },
