@@ -1,0 +1,9 @@
+{
+  "cordeBotToken":  "ODM5NTg2OTQ5NzQ4MjI4MTU2.YJL0Rw.wZX-Jl2ELvrUhjE85l0zhk9ABvc",
+  "botTestId":  "839586949748228156",
+  "botToken":  "ODM5NTg2OTQ5NzQ4MjI4MTU2.YJL0Rw.wZX-Jl2ELvrUhjE85l0zhk9ABvc",
+  "guildId":  "837685892885512202",
+  "channelId":  "866614536542355466",
+  "botPrefix":  "!clash ",
+  "testMatches":  ["./integration/**"]
+}

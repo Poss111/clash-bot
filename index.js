@@ -41,31 +41,32 @@ bot.on('ready', () => {
         console.error('Failed to send update notification due to error.', err);
     }
 });
+let loginBot = async () => {
+    bot.login(TOKEN).then(() => {
+        bot.on('message', msg => {
+            if (msg.channel.name === channel && msg.content.startsWith(COMMAND_PREFIX)) {
+                msg.content = msg.content.replace(COMMAND_PREFIX + ' ', '');
+                const args = msg.content.split(/ +/);
+                const command = args.shift().toLowerCase();
+
+                if (!bot.commands.has(command)) return;
+
+                try {
+                    console.info(`('${msg.author.username}') called command: ('${command}')`);
+                    bot.commands.get(command).execute(msg, args);
+                } catch (error) {
+                    console.error(error);
+                    msg.channel.send('there was an error trying to execute that command! Please reach out to <@299370234228506627>.');
+                }
+            }
+        });
+    });
+}
 
 Promise.all([clashTimesDbImpl.initializeLeagueData(),
     clashSubscriptionDbImpl.initialize(),
     database.initializeClashBotDB()])
-    .then(() => {
-        bot.login(TOKEN).then(() => {
-            bot.on('message', msg => {
-                if (msg.channel.name === channel && msg.content.startsWith(COMMAND_PREFIX)) {
-                    msg.content = msg.content.replace(COMMAND_PREFIX + ' ', '');
-                    const args = msg.content.split(/ +/);
-                    const command = args.shift().toLowerCase();
-
-                    if (!bot.commands.has(command)) return;
-
-                    try {
-                        console.info(`('${msg.author.username}') called command: ('${command}')`);
-                        bot.commands.get(command).execute(msg, args);
-                    } catch (error) {
-                        console.error(error);
-                        msg.channel.send('there was an error trying to execute that command! Please reach out to <@299370234228506627>.');
-                    }
-                }
-            });
-        });
-    }).catch(err => {
+    .then(loginBot).catch(err => {
     console.error(`Failed to initialize Clash-Bot DB to Error ('${err}')`);
     process.exit(1);
 });
@@ -84,3 +85,6 @@ process.on('SIGINT', () => {
     console.log('Process interrupted');
     process.exit(0);
 });
+
+module.exports.bot = bot;
+module.exports.loginBot = loginBot;
