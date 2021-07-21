@@ -9,3 +9,4 @@ credentials.json
 local-credentials.json
 aws-resources.txt
 .github/workflows/discord*
+/coverage

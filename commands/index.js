@@ -10,4 +10,5 @@ module.exports = {
     Time: require('./time'),
     Unregister: require('./unregister'),
     Unsubscribe: require('./unsubscribe'),
+    WhereILive: require('./where-i-live')
 };
