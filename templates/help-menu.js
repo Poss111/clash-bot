@@ -27,9 +27,9 @@ module.exports = {
             value: "Asks the bot to pong you."
         },
         {
-            name: "register - !clash register > !clash register msi2021 1 > !clash register newTeam",
-            value: "Asks the bot to assign you to an available Clash team based on a tournament and a tournament day. " +
-                "Can create a new team by passing newTeam."
+            name: "register - !clash register > !clash register msi2021 1",
+            value: "Asks the bot to create a new Team for you. This will assign you to an available Clash team based on a tournament and a tournament day. " +
+                "If none are passed you will create a Team with the first available tournament for you."
         },
         {
             name: "subscribe - !clash subscribe",
