@@ -45,7 +45,7 @@ module.exports = {
                     };
                 }
 
-                dbUtils.registerPlayer(msg.author.username, msg.guild.name, filteredClashTimes, parsedArguments.createNewTeam).then(data => {
+                dbUtils.registerPlayer(msg.author.username, msg.guild.name, filteredClashTimes).then(data => {
                     let copy = JSON.parse(JSON.stringify(registerReply));
                     if (Array.isArray(data) && data[0].exist) {
                         copy.description = 'You are already registered to the following Teams.';

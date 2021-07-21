@@ -63,7 +63,7 @@ describe('Register', () => {
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
         ];
-        commandArgumentParser.parse.mockReturnValue({createNewTeam: false});
+        commandArgumentParser.parse.mockReturnValue({});
         leagueApi.findTournament = jest.fn().mockResolvedValue(leagueTimes);
         const sampleRegisterReturn = {
             teamName: 'SampleTeam',
@@ -74,7 +74,7 @@ describe('Register', () => {
         dynamoDBUtils.registerPlayer.mockResolvedValue(sampleRegisterReturn);
         await register.execute(msg);
 
-        expect(dynamoDBUtils.registerPlayer).toBeCalledWith(msg.author.username, msg.guild.name, leagueTimes, false);
+        expect(dynamoDBUtils.registerPlayer).toBeCalledWith(msg.author.username, msg.guild.name, leagueTimes);
         expect(sendMessage).toEqual(`Registering ${msg.author.username} for the first available tournament you are not already registered to...`);
         verifyReply(messagePassed, sampleRegisterReturn);
     })
@@ -108,7 +108,7 @@ describe('Register', () => {
                 "registrationTime": "May 30 2021 04:15 pm PDT"
             }
         ];
-        commandArgumentParser.parse.mockReturnValue({createNewTeam: false});
+        commandArgumentParser.parse.mockReturnValue({});
         leagueApi.findTournament = jest.fn().mockResolvedValue(leagueTimes);
         const sampleRegisterReturn = {
             teamName: 'SampleTeam',
@@ -119,7 +119,7 @@ describe('Register', () => {
         dynamoDBUtils.registerPlayer.mockResolvedValue(sampleRegisterReturn);
         await register.execute(msg, []);
 
-        expect(dynamoDBUtils.registerPlayer).toBeCalledWith(msg.author.username, msg.guild.name, leagueTimes, false);
+        expect(dynamoDBUtils.registerPlayer).toBeCalledWith(msg.author.username, msg.guild.name, leagueTimes);
         expect(sendMessage).toEqual(`Registering ${msg.author.username} for the first available tournament you are not already registered to...`);
         verifyReply(messagePassed, sampleRegisterReturn);
     })
@@ -146,7 +146,7 @@ describe('Register', () => {
             tournamentDay: '3'
         };
         const args = ['dne'];
-        commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], createNewTeam: false});
+        commandArgumentParser.parse.mockReturnValue({tournamentName: args[0]});
         dynamoDBUtils.registerPlayer.mockResolvedValue(sampleRegisterReturn);
         leagueApi.findTournament = jest.fn().mockResolvedValue(undefined);
         await register.execute(msg, args);
@@ -176,7 +176,7 @@ describe('Register', () => {
             tournamentDay: '3'
         };
         const args = ['dne'];
-        commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], createNewTeam: false});
+        commandArgumentParser.parse.mockReturnValue({tournamentName: args[0]});
         dynamoDBUtils.registerPlayer.mockResolvedValue(sampleRegisterReturn);
         leagueApi.findTournament = jest.fn().mockResolvedValue([]);
         await register.execute(msg, args);
@@ -206,7 +206,7 @@ describe('Register', () => {
             tournamentDay: '3'
         };
         const args = ['dne', '1'];
-        commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], tournamentDay: args[1], createNewTeam: false});
+        commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], tournamentDay: args[1]});
         dynamoDBUtils.registerPlayer.mockResolvedValue(sampleRegisterReturn);
         leagueApi.findTournament = jest.fn().mockResolvedValue([]);
         await register.execute(msg, args);
@@ -238,7 +238,7 @@ describe('Register', () => {
             }
         ];
         const args = ['msi2021'];
-        commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], createNewTeam: false});
+        commandArgumentParser.parse.mockReturnValue({tournamentName: args[0]});
         leagueApi.findTournament = jest.fn().mockResolvedValue(leagueApi.leagueTimes);
         const sampleRegisterReturn = {
             teamName: 'SampleTeam',
@@ -276,7 +276,7 @@ describe('Register', () => {
                 "registrationTime": "May 29 2021 04:15 pm PDT"
             }
         ];
-        commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], tournamentDay: args[1], createNewTeam: false});
+        commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], tournamentDay: args[1]});
         leagueApi.findTournament = jest.fn().mockResolvedValue(leagueApi.leagueTimes);
         const sampleRegisterReturn = {
             teamName: 'SampleTeam',
@@ -288,46 +288,6 @@ describe('Register', () => {
         await register.execute(msg, args);
 
         expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[0]} on day ${args[1]}...`);
-        verifyReply(messagePassed, sampleRegisterReturn);
-    })
-
-    test('The user should be able to pass if they want to register for a new team.', async () => {
-        let messagePassed = '';
-        let sendMessage = '';
-        let msg = {
-            reply: (value) => messagePassed = value,
-            channel: {
-                send: (value) => sendMessage = value
-            },
-            author: {
-                username: 'TestPlayer'
-            },
-            guild: {
-                name: 'TestServer'
-            }
-        };
-        const args = ['newTeam'];
-        leagueApi.leagueTimes = [
-            {
-                tournamentName: "shurima2021",
-                tournamentDay: "1",
-                "startTime": "May 29 2021 07:00 pm PDT",
-                "registrationTime": "May 29 2021 04:15 pm PDT"
-            }
-        ];
-        commandArgumentParser.parse.mockReturnValue({createNewTeam: true});
-        leagueApi.findTournament = jest.fn().mockResolvedValue(leagueApi.leagueTimes);
-        const sampleRegisterReturn = {
-            teamName: 'SampleTeam',
-            players: [msg.author.username, 'Player2'],
-            tournamentName:  leagueApi.leagueTimes.tournamentName,
-            tournamentDay: leagueApi.leagueTimes.tournamentDay
-        };
-        dynamoDBUtils.registerPlayer.mockResolvedValue(sampleRegisterReturn);
-        await register.execute(msg, args);
-
-        expect(sendMessage).toEqual(`Registering ${msg.author.username} for the first available tournament you are not already registered to...`);
-        expect(dynamoDBUtils.registerPlayer).toBeCalledWith(msg.author.username, msg.guild.name, leagueApi.leagueTimes, true);
         verifyReply(messagePassed, sampleRegisterReturn);
     })
 
@@ -362,7 +322,7 @@ describe('Register', () => {
             tournamentName: args[0],
             tournamentDay: args[1]
         }];
-        commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], tournamentDay: args[1], createNewTeam: false});
+        commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], tournamentDay: args[1]});
 
         dynamoDBUtils.registerPlayer.mockResolvedValue(sampleRegisterReturn);
         leagueApi.findTournament = jest.fn().mockResolvedValue(leagueTime)
@@ -414,7 +374,7 @@ describe('Register', () => {
                 tournamentName: leagueTime[1].tournamentName,
                 tournamentDay: leagueTime[1].tournamentDay
             }];
-        commandArgumentParser.parse.mockReturnValue({createNewTeam: false});
+        commandArgumentParser.parse.mockReturnValue({});
         dynamoDBUtils.registerPlayer.mockResolvedValue(sampleRegisterReturn);
         leagueApi.findTournament = jest.fn().mockResolvedValue(leagueTime);
         await register.execute(msg, args);
@@ -450,7 +410,7 @@ describe('Register Error', () => {
             }
         ];
         const args = ['shurima2021', '1'];
-        commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], tournamentDay: args[1], createNewTeam: false});
+        commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], tournamentDay: args[1]});
         dynamoDBUtils.registerPlayer.mockRejectedValue('Some error occurred.');
         leagueApi.findTournament = jest.fn().mockResolvedValue(leagueTime);
         await register.execute(msg, args);
@@ -482,7 +442,7 @@ describe('Register Error', () => {
         };
         errorHandling.handleError = jest.fn();
         const args = [];
-        commandArgumentParser.parse.mockReturnValue({createNewTeam: false});
+        commandArgumentParser.parse.mockReturnValue({});
         dynamoDBUtils.registerPlayer.mockResolvedValue(sampleRegisterReturn);
         leagueApi.findTournament = jest.fn().mockResolvedValue([]);
         await register.execute(msg, args);
