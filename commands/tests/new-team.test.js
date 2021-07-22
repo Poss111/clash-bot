@@ -1,4 +1,4 @@
-const register = require('../register');
+const newTeam = require('../new-team');
 const dynamoDBUtils = require('../../dao/dynamo-db-impl');
 const errorHandling = require('../../utility/error-handling');
 const leagueApi = require('../../dao/clashtime-db-impl');
@@ -72,7 +72,7 @@ describe('New Team', () => {
             tournamentDay: '3'
         };
         dynamoDBUtils.registerPlayer.mockResolvedValue(sampleRegisterReturn);
-        await register.execute(msg);
+        await newTeam.execute(msg);
 
         expect(dynamoDBUtils.registerPlayer).toBeCalledWith(msg.author.username, msg.guild.name, leagueTimes);
         expect(sendMessage).toEqual(`Registering ${msg.author.username} for the first available tournament you are not already registered to...`);
@@ -117,7 +117,7 @@ describe('New Team', () => {
             tournamentDay: '3'
         };
         dynamoDBUtils.registerPlayer.mockResolvedValue(sampleRegisterReturn);
-        await register.execute(msg, []);
+        await newTeam.execute(msg, []);
 
         expect(dynamoDBUtils.registerPlayer).toBeCalledWith(msg.author.username, msg.guild.name, leagueTimes);
         expect(sendMessage).toEqual(`Registering ${msg.author.username} for the first available tournament you are not already registered to...`);
@@ -149,7 +149,7 @@ describe('New Team', () => {
         commandArgumentParser.parse.mockReturnValue({tournamentName: args[0]});
         dynamoDBUtils.registerPlayer.mockResolvedValue(sampleRegisterReturn);
         leagueApi.findTournament = jest.fn().mockResolvedValue(undefined);
-        await register.execute(msg, args);
+        await newTeam.execute(msg, args);
         expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[0]}...`);
         expect(messagePassed).toEqual(`We were unable to find a Tournament with '${args[0]}'. Please try again.`)
     })
@@ -179,7 +179,7 @@ describe('New Team', () => {
         commandArgumentParser.parse.mockReturnValue({tournamentName: args[0]});
         dynamoDBUtils.registerPlayer.mockResolvedValue(sampleRegisterReturn);
         leagueApi.findTournament = jest.fn().mockResolvedValue([]);
-        await register.execute(msg, args);
+        await newTeam.execute(msg, args);
         expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[0]}...`);
         expect(messagePassed).toEqual(`We were unable to find a Tournament with '${args[0]}'. Please try again.`)
     })
@@ -209,7 +209,7 @@ describe('New Team', () => {
         commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], tournamentDay: args[1]});
         dynamoDBUtils.registerPlayer.mockResolvedValue(sampleRegisterReturn);
         leagueApi.findTournament = jest.fn().mockResolvedValue([]);
-        await register.execute(msg, args);
+        await newTeam.execute(msg, args);
         expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[0]} on day ${args[1]}...`);
         expect(messagePassed).toEqual(`We were unable to find a Tournament with '${args[0]}' and '${args[1]}'. Please try again.`)
     })
@@ -247,7 +247,7 @@ describe('New Team', () => {
             tournamentDay: 'day_3'
         };
         dynamoDBUtils.registerPlayer.mockResolvedValue(sampleRegisterReturn);
-        await register.execute(msg, args);
+        await newTeam.execute(msg, args);
         expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[0]}...`);
         verifyReply(messagePassed, sampleRegisterReturn);
     })
@@ -285,7 +285,7 @@ describe('New Team', () => {
             tournamentDay: args[1]
         };
         dynamoDBUtils.registerPlayer.mockResolvedValue(sampleRegisterReturn);
-        await register.execute(msg, args);
+        await newTeam.execute(msg, args);
 
         expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[0]} on day ${args[1]}...`);
         verifyReply(messagePassed, sampleRegisterReturn);
@@ -326,7 +326,7 @@ describe('New Team', () => {
 
         dynamoDBUtils.registerPlayer.mockResolvedValue(sampleRegisterReturn);
         leagueApi.findTournament = jest.fn().mockResolvedValue(leagueTime)
-        await register.execute(msg, args);
+        await newTeam.execute(msg, args);
 
         expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[0]} on day ${args[1]}...`);
         verifyRedundantRegistration(messagePassed, sampleRegisterReturn);
@@ -377,7 +377,7 @@ describe('New Team', () => {
         commandArgumentParser.parse.mockReturnValue({});
         dynamoDBUtils.registerPlayer.mockResolvedValue(sampleRegisterReturn);
         leagueApi.findTournament = jest.fn().mockResolvedValue(leagueTime);
-        await register.execute(msg, args);
+        await newTeam.execute(msg, args);
 
         expect(sendMessage).toEqual(`Registering ${msg.author.username} for the first available tournament you are not already registered to...`);
         verifyRedundantRegistration(messagePassed, sampleRegisterReturn);
@@ -413,7 +413,7 @@ describe('Register Error', () => {
         commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], tournamentDay: args[1]});
         dynamoDBUtils.registerPlayer.mockRejectedValue('Some error occurred.');
         leagueApi.findTournament = jest.fn().mockResolvedValue(leagueTime);
-        await register.execute(msg, args);
+        await newTeam.execute(msg, args);
 
         expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[0]} on day ${args[1]}...`);
         expect(errorHandling.handleError.mock.calls.length).toEqual(1);
@@ -445,7 +445,7 @@ describe('Register Error', () => {
         commandArgumentParser.parse.mockReturnValue({});
         dynamoDBUtils.registerPlayer.mockResolvedValue(sampleRegisterReturn);
         leagueApi.findTournament = jest.fn().mockResolvedValue([]);
-        await register.execute(msg, args);
+        await newTeam.execute(msg, args);
         expect(sendMessage).toEqual(`Registering ${msg.author.username} for the first available tournament you are not already registered to...`);
         expect(errorHandling.handleError.mock.calls.length).toEqual(1);
     })
