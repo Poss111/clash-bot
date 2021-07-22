@@ -1,7 +1,8 @@
 module.exports = {
     title: "Clash Bot Helpful Commands! :nerd_face:",
     color: 0x071A32,
-    description: "Help is on the way! Here are a few quick commands to get you started.\n" +
+    description: "Help is on the way! ***Clash Bot is restricted to answer from a channel with the name #league*** " +
+        "Here are a few quick commands to get you started.\n" +
         "***Note***: Use !clash at the beginning of each of your commands to make use of this bot. " +
         "Any improvements to be suggested, please create an issue at the following location " +
         "[Clash Bot Issues](https://github.com/Poss111/clash-bot/issues)",

@@ -6,6 +6,7 @@ const botCommands = require('./commands');
 const clashTimesDbImpl = require('./dao/clashtime-db-impl');
 const clashSubscriptionDbImpl = require('./dao/clash-subscription-db-impl');
 const database = require('./dao/dynamo-db-impl');
+const helpMenu = require('./templates/help-menu');
 const TOKEN = process.env.TOKEN;
 let channel = 'league';
 const COMMAND_PREFIX = '!clash';
@@ -40,6 +41,12 @@ bot.on('ready', () => {
     } catch (err) {
         console.error('Failed to send update notification due to error.', err);
     }
+});
+
+bot.on('guildCreate', (guild) => {
+   let channel = guild.channels.cache.find((key) => key.name === 'general');
+   let copy = JSON.parse(JSON.stringify(helpMenu));
+   channel.send({embed: copy});
 });
 
 Promise.all([clashTimesDbImpl.initializeLeagueData(),
