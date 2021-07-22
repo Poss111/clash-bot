@@ -21,26 +21,26 @@ if (process.env.LOCAL) {
 
 bot.on('ready', () => {
     console.info(`Logged in as ${bot.user.tag}!`);
-    try {
-        bot.guilds.cache.forEach((key) => {
-            const filter = key.channels.cache.find((key) => key.name === channel);
-            console.log(`Sending Bot update message to ('${key}')...`);
-            filter.send({
-                embed: {
-                    title: "Clash-Bot has been updated :partying_face:!",
-                    url: "https://github.com/Poss111/clash-bot/releases",
-                    description: "Please check the Releases page for new updates and bug fixes :smile:. Donations are always welcome [Paypal](https://www.paypal.com/paypalme/poss11111), it takes :moneybag: to keep a bot alive these days.",
-                    image: {
-                        url: "https://repository-images.githubusercontent.com/363187357/577557c6-50c4-422c-adbf-8a06281c14e9"
-                    },
-                    color: 71
-                }
-            });
-            console.log(`Successfully sent Bot update message to ('${key}')...`);
-        });
-    } catch (err) {
-        console.error('Failed to send update notification due to error.', err);
-    }
+    // try {
+    //     bot.guilds.cache.forEach((key) => {
+    //         const filter = key.channels.cache.find((key) => key.name === channel);
+    //         console.log(`Sending Bot update message to ('${key}')...`);
+    //         filter.send({
+    //             embed: {
+    //                 title: "Clash-Bot has been updated :partying_face:!",
+    //                 url: "https://github.com/Poss111/clash-bot/releases",
+    //                 description: "Please check the Releases page for new updates and bug fixes :smile:. Donations are always welcome [Paypal](https://www.paypal.com/paypalme/poss11111), it takes :moneybag: to keep a bot alive these days.",
+    //                 image: {
+    //                     url: "https://repository-images.githubusercontent.com/363187357/577557c6-50c4-422c-adbf-8a06281c14e9"
+    //                 },
+    //                 color: 71
+    //             }
+    //         });
+    //         console.log(`Successfully sent Bot update message to ('${key}')...`);
+    //     });
+    // } catch (err) {
+    //     console.error('Failed to send update notification due to error.', err);
+    // }
 });
 
 bot.on('guildCreate', (guild) => {
@@ -55,6 +55,7 @@ Promise.all([clashTimesDbImpl.initializeLeagueData(),
     .then(() => {
         bot.login(TOKEN).then(() => {
             bot.on('message', msg => {
+                console.log(`Message received ${JSON.stringify(msg)}`)
                 if (msg.channel.name === channel && msg.content.startsWith(COMMAND_PREFIX)) {
                     msg.content = msg.content.replace(COMMAND_PREFIX + ' ', '');
                     const args = msg.content.split(/ +/);
@@ -69,6 +70,25 @@ Promise.all([clashTimesDbImpl.initializeLeagueData(),
                         console.error(error);
                         msg.channel.send('there was an error trying to execute that command! Please reach out to <@299370234228506627>.');
                     }
+                }
+            });
+            bot.ws.on('INTERACTION_CREATE', msg => {
+                console.log(`Message received ${JSON.stringify(msg)}`);
+                const command = msg.data.name;
+
+                if (!bot.commands.has(command)) return;
+
+                try {
+                    console.info(`('${msg.member.user.username}') called command: ('${command}')`);
+                    bot.api.interactions(msg.id, msg.token).callback.post({data: {
+                            type: 4,
+                            data: {
+                                content: 'hello world!'
+                            }
+                        }});
+                } catch (error) {
+                    console.error(error);
+                    msg.channel.send('there was an error trying to execute that command! Please reach out to <@299370234228506627>.');
                 }
             });
         });
