@@ -19,17 +19,18 @@ module.exports = {
             value: "Asks the bot to print this menu for you :smiley:."
         },
         {
-            name: "join - !clash join msi2021 Abra",
+            name: "~~register~~ join - !clash join msi2021 Abra",
             value: "Asks the bot to assign you to an available Clash team based on the Tournament name and the Team name."
+        },
+        {
+            name: "~~register~~ newTeam - !clash newTeam > !clash newTeam msi2021 1",
+            value: "Asks the bot to create a new Team for you based on the tournament provided. " +
+                "You will only be able to join a new Team for the specified tournament if you are not " +
+                "on a Team by yourself for that Tournament."
         },
         {
             name: "ping - !clash ping",
             value: "Asks the bot to pong you."
-        },
-        {
-            name: "register - !clash register > !clash register msi2021 1 > !clash register newTeam",
-            value: "Asks the bot to assign you to an available Clash team based on a tournament and a tournament day. " +
-                "Can create a new team by passing newTeam."
         },
         {
             name: "subscribe - !clash subscribe",
