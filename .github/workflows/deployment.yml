@@ -30,7 +30,6 @@ jobs:
 
       - name: Find and Replace
         uses: jacobtomlinson/gha-find-replace@master
-        if: ${{ github.ref == 'refs/heads/master' }}
         with:
           find: "--DISCORD_KEY--"
           replace: "${{ secrets.DISCORD_KEY }}"
