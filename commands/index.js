@@ -1,4 +1,5 @@
 module.exports = {
+    Champions: require('./champions'),
     Dance: require('./dance'),
     Help: require('./help'),
     JoinTeamByName: require('./join-team-by-name'),
