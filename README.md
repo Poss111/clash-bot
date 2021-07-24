@@ -8,6 +8,7 @@
 # Bot Commands
 | Command |  Sample | Description |
 | -------- | ----------- | -------------- |
+| champions | ```!clash champions Aatrox``` | Will display quick information on a specific or multiple champions. |
 | dance | ```!clash dance``` | It is a secret. |
 | help | ```!clash help``` | Asks the bot to print this menu for you. |
 | join | ```!clash join msi2021 Pikachu``` | Asks the bot to register a player with a given Team based on the Tournament and the Team Name. |

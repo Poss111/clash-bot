@@ -12,6 +12,10 @@ module.exports = {
             value: "Go [>HERE<](https://github.com/Poss111/clash-bot#readme)."
         },
         {
+            name: "champions - !clash champions > !clash champions Aatrox",
+            value: "Will display quick information on a specific or multiple champions."
+        },
+        {
             name: "dance - !clash dance",
             value: "It is a secret."
         },
