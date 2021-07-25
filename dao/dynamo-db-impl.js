@@ -75,7 +75,7 @@ class DynamoDBUtils {
                 console.log(JSON.stringify(teams));
                 const tournamentToTeamMap = this.buildTournamentToTeamsMap(playerName, data);
                 let teamsCurrentlyOn = [];
-                let availableUndefinedTeam = undefined;
+                let availableTeam = undefined;
                 let tournamentToUseKey = undefined;
                 tournaments.every((entry) => {
                     tournamentToUseKey = `${entry.tournamentName}#${entry.tournamentDay}`;
@@ -86,7 +86,7 @@ class DynamoDBUtils {
                             tournamentToUseKey = undefined;
                             return true;
                         } else {
-                            availableUndefinedTeam = teamsForTournamentDetails.availableTeams;
+                            availableTeam = teamsForTournamentDetails.availableTeams;
                             return false;
                         }
                     } else {
@@ -95,7 +95,7 @@ class DynamoDBUtils {
                 });
                 console.log(`Number of Tournaments from Teams found => ('${tournamentToTeamMap.size}')`);
                 console.log(`Requesting User ('${playerName}') Tournament To Use ('${tournamentToUseKey}')`);
-                console.log(`Requesting User ('${playerName}') Available Team ('${JSON.stringify(availableUndefinedTeam)}')`);
+                console.log(`Requesting User ('${playerName}') Available Team ('${JSON.stringify(availableTeam)}')`);
                 console.log(`Requesting User ('${playerName}') Teams Currently on ('${JSON.stringify(teamsCurrentlyOn)}')`);
                 if (!tournamentToUseKey) {
                     teamsCurrentlyOn.forEach(record => record.exist = true);
@@ -121,10 +121,12 @@ class DynamoDBUtils {
                             resolve(record.attrs);
                         }
                     };
+                    
+                    availableTeam = Array.isArray(availableTeam) ? availableTeam.find(record => !record.players) : availableTeam;
 
-                    if (availableUndefinedTeam) {
-                        console.log(`Adding ${playerName} to first available team ${availableUndefinedTeam.teamName}...`);
-                        this.addUserToTeam(playerName, availableUndefinedTeam, updateCallback);
+                    if (availableTeam) {
+                        console.log(`Adding ${playerName} to first available team ${availableTeam.teamName}...`);
+                        this.addUserToTeam(playerName, availableTeam, updateCallback);
                     } else {
                         this.createNewTeam(playerName, serverName, tournamentToUse, teams.length + 1, updateCallback);
                     }

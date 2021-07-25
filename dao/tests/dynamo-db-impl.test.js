@@ -25,12 +25,12 @@ function buildMockReturnForRegister(streamData, teamToBeReturned, add, update, d
         }
         if (update) {
             dynamoDBUtils.Team.update.mockImplementationOnce((key, params, callback) => {
-            if (callback) {
-                callback(undefined, {
-                    attrs: teamToBeReturned
-                });
-            }
-        })
+                if (callback) {
+                    callback(undefined, {
+                        attrs: teamToBeReturned
+                    });
+                }
+            })
         }
         if (del) {
             dynamoDBUtils.Team.update.mockImplementationOnce((key, params, callback) => {
@@ -281,7 +281,7 @@ describe('Register Player', () => {
             Items: [
                 {
                     attrs: {
-                        key: 'Sample Team#Sample Server',
+                        key: 'Sample Team#Sample Server#msi2021#day_3',
                         teamName: 'Team Sample',
                         serverName: 'Sample Server',
                         tournamentName: 'msi2021',
@@ -291,11 +291,13 @@ describe('Register Player', () => {
             ]
         };
         let expectedPlayers = [];
-        expectedPlayers.push('Player1');
+        expectedPlayers.push('Player2');
         let mockTeam = {
-            key: 'Sample Team#Sample Server',
+            key: 'Team Sample#Sample Server#msi2021#day_3',
             teamName: 'Team Sample',
             serverName: 'Sample Server',
+            tournamentName: 'msi2021',
+            tournamentDay: 'day_3',
             players: expectedPlayers
         };
         buildMockReturnForRegister(value, mockTeam, false, true);
@@ -305,7 +307,18 @@ describe('Register Player', () => {
             expect(result).toBeTruthy();
             expect(result.teamName).toEqual(value.Items[0].attrs.teamName);
             expect(result.players.length).toEqual(1);
-            expect(result.players).toContain('Player1');
+            expect(result.players).toContain('Player2');
+            expect(dynamoDBUtils.Team.update.mock.calls).toEqual([
+                [
+                    {key: mockTeam.key},
+                    {
+                        ExpressionAttributeValues: {
+                            ':playerName': ['Player2']
+                        },
+                        UpdateExpression: 'ADD players :playerName'
+                    }, expect.any(Function)
+                ]
+            ]);
         });
     })
 
@@ -450,7 +463,9 @@ describe('Register Specific Team', () => {
         };
         buildMockReturnForRegister(dynamoDbRetrieveList, mockTeam, false, true, true);
         expect(dynamoDBUtils.tentative).toHaveLength(0);
-        return dynamoDBUtils.registerWithSpecificTeam(playerName, serverName, tournaments, teamName, () => { console.log('Do Something.');}).then(data => {
+        return dynamoDBUtils.registerWithSpecificTeam(playerName, serverName, tournaments, teamName, () => {
+            console.log('Do Something.');
+        }).then(data => {
             expect(data).toBeTruthy();
             expect(data.teamName).toEqual(dynamoDbRetrieveList.Items[2].attrs.teamName);
             expect(data.serverName).toEqual(dynamoDbRetrieveList.Items[2].attrs.serverName);
