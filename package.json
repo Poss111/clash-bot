@@ -11,6 +11,7 @@
   "author": "Daniel Poss",
   "license": "ISC",
   "dependencies": {
+    "@fightmegg/riot-api": "0.0.7",
     "aws-sdk": "^2.898.0",
     "discord.js": "^12.2.0",
     "dotenv": "^8.2.0",
