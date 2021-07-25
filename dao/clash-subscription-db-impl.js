@@ -75,14 +75,13 @@ class ClashSubscriptionDbImpl {
         });
     }
 
-    updatePreferredChampions(id, champion, removeChampion) {
+    updatePreferredChampions(id, champion) {
         return new Promise((resolve, reject) => {
             this.retrieveUserDetails(id).then(userData => {
-                if (removeChampion && !Array.isArray(userData.preferredChampions)) {
-                    resolve({emptyChampionArray: true});
-                } else if (userData.key) {
+                if (userData.key) {
                     console.log(`Updating user preferences id ('${id}') champions ('${champion}')`);
-                    if (removeChampion) {
+
+                    if (Array.isArray(userData.preferredChampions) && userData.preferredChampions.includes(champion)) {
                         userData.preferredChampions = userData.preferredChampions.filter(championName => championName !== champion);
                     } else {
                         Array.isArray(userData.preferredChampions) ? userData.preferredChampions.push(champion) : userData.preferredChampions = [champion];
@@ -100,7 +99,6 @@ class ClashSubscriptionDbImpl {
                     moment.tz.setDefault(timeZone);
                     let subscription = {
                         key: id,
-                        serverName: server,
                         timeAdded: new moment().format(dateFormat),
                         subscribed: false,
                         preferredChampions: [champion]

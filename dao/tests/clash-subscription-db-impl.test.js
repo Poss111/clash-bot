@@ -97,11 +97,9 @@ describe('Unsubscribe', () => {
 describe('Update preferred Champion', () => {
     test('Should be able to create a new record of the Users preferred champions if the user does not exist.', () => {
         let id = '12345667';
-        let server = 'TestServer';
         let championToAdd = 'Akali';
         let expectedResults = {
             key: id,
-            serverName: server,
             preferredChampions: ['Akali'],
             subscribed: false,
             timeAdded: expect.any(String)
@@ -115,18 +113,6 @@ describe('Update preferred Champion', () => {
             expect(data).toEqual(expectedResults);
             expect(clashSubscriptionDbImpl.clashSubscriptionTable.create).toBeCalledTimes(1);
             expect(clashSubscriptionDbImpl.clashSubscriptionTable.create).toBeCalledWith(expectedResults, expect.any(Function));
-        });
-    })
-
-    test('Should be returned with emptyChampionArray as true if user is trying to remove a champion from their list and they do not exist.', () => {
-        let id = '12345667';
-        let championToAdd = 'Akali';
-        clashSubscriptionDbImpl.clashSubscriptionTable = jest.fn();
-        clashSubscriptionDbImpl.clashSubscriptionTable.query = jest.fn().mockImplementation((id, callback) => callback());
-        clashSubscriptionDbImpl.clashSubscriptionTable.create = jest.fn();
-        return clashSubscriptionDbImpl.updatePreferredChampions(id, championToAdd, true).then(data => {
-            expect(data).toEqual({emptyChampionArray: true});
-            expect(clashSubscriptionDbImpl.clashSubscriptionTable.create).toBeCalledTimes(0);
         });
     })
 
@@ -164,13 +150,11 @@ describe('Update preferred Champion', () => {
         });
     })
 
-    test('Should be able to remove a found champion of the Users preferred champions if the user does exist and the user requets it.', () => {
+    test('Should be able to remove a found champion of the Users preferred champions if the user does exist and the user request it.', () => {
         let id = '12345667';
-        let server = 'TestServer';
         let championToRemove = 'Aatrox';
         let initialData = {
             key: id,
-            serverName: server,
             preferredChampions: ['Akali', 'Aatrox'],
             subscribed: false,
             timeAdded: expect.any(String)
@@ -191,7 +175,7 @@ describe('Update preferred Champion', () => {
             }
             callback();
         });
-        return clashSubscriptionDbImpl.updatePreferredChampions(id, championToRemove, true).then(data => {
+        return clashSubscriptionDbImpl.updatePreferredChampions(id, championToRemove).then(data => {
             expect(data).toEqual(expectedData);
             expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledTimes(1);
             expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledWith(expectedData, expect.any(Function));
@@ -228,37 +212,6 @@ describe('Update preferred Champion', () => {
             expect(data).toEqual(expectedData);
             expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledTimes(1);
             expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledWith(expectedData, expect.any(Function));
-        });
-    })
-
-    test('If the user is requesting to remove a champion and the champion array is undefined, they should be returned with emptyChampionArray as true.', () => {
-        let id = '12345667';
-        let server = 'TestServer';
-        let championToRemove = 'Aatrox';
-        let initialData = {
-            key: id,
-            serverName: server,
-            subscribed: false,
-            timeAdded: expect.any(String)
-        };
-        let expectedData = JSON.parse(JSON.stringify(initialData));
-        expectedData.preferredChampions = [];
-        expectedData.timeAdded = expect.any(String);
-        clashSubscriptionDbImpl.clashSubscriptionTable = jest.fn();
-        clashSubscriptionDbImpl.clashSubscriptionTable.query = jest.fn().mockImplementation((data, callback) => {
-            if (data && data === id) {
-                callback(undefined, initialData);
-            }
-            callback(new Error('Failed to retrieve'));
-        })
-        clashSubscriptionDbImpl.clashSubscriptionTable.update = jest.fn().mockImplementation((sub, callback) => {
-            if (sub.id === expectedData.id) {
-                callback(undefined, expectedData);
-            }
-            callback();
-        });
-        return clashSubscriptionDbImpl.updatePreferredChampions(id, championToRemove, true).then(data => {
-            expect(data).toEqual({emptyChampionArray: true});
         });
     })
 
