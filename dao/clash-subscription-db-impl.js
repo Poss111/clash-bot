@@ -75,13 +75,13 @@ class ClashSubscriptionDbImpl {
         });
     }
 
-    updatePreferredChampions(id, server, champion, removeChampion) {
+    updatePreferredChampions(id, champion, removeChampion) {
         return new Promise((resolve, reject) => {
             this.retrieveUserDetails(id).then(userData => {
                 if (removeChampion && !Array.isArray(userData.preferredChampions)) {
                     resolve({emptyChampionArray: true});
                 } else if (userData.key) {
-                    console.log(`Updating user preferences id ('${id}') server ('${server}') champions ('${champion}')`);
+                    console.log(`Updating user preferences id ('${id}') champions ('${champion}')`);
                     if (removeChampion) {
                         userData.preferredChampions = userData.preferredChampions.filter(championName => championName !== champion);
                     } else {
@@ -94,7 +94,7 @@ class ClashSubscriptionDbImpl {
                         resolve(data);
                     });
                 } else {
-                    console.log(`Creating user preferences id ('${id}') server ('${server}') champions ('${champion}')`);
+                    console.log(`Creating user preferences id ('${id}') champions ('${champion}')`);
                     const dateFormat = 'MMMM DD yyyy hh:mm a z';
                     const timeZone = 'America/Los_Angeles';
                     moment.tz.setDefault(timeZone);

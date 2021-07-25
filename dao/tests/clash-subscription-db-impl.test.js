@@ -111,7 +111,7 @@ describe('Update preferred Champion', () => {
         clashSubscriptionDbImpl.clashSubscriptionTable.create = jest.fn().mockImplementation((sub, callback) => {
             callback(undefined, expectedResults)
         });
-        return clashSubscriptionDbImpl.updatePreferredChampions(id, server, championToAdd).then(data => {
+        return clashSubscriptionDbImpl.updatePreferredChampions(id, championToAdd).then(data => {
             expect(data).toEqual(expectedResults);
             expect(clashSubscriptionDbImpl.clashSubscriptionTable.create).toBeCalledTimes(1);
             expect(clashSubscriptionDbImpl.clashSubscriptionTable.create).toBeCalledWith(expectedResults, expect.any(Function));
@@ -120,12 +120,11 @@ describe('Update preferred Champion', () => {
 
     test('Should be returned with emptyChampionArray as true if user is trying to remove a champion from their list and they do not exist.', () => {
         let id = '12345667';
-        let server = 'TestServer';
         let championToAdd = 'Akali';
         clashSubscriptionDbImpl.clashSubscriptionTable = jest.fn();
         clashSubscriptionDbImpl.clashSubscriptionTable.query = jest.fn().mockImplementation((id, callback) => callback());
         clashSubscriptionDbImpl.clashSubscriptionTable.create = jest.fn();
-        return clashSubscriptionDbImpl.updatePreferredChampions(id, server, championToAdd, true).then(data => {
+        return clashSubscriptionDbImpl.updatePreferredChampions(id, championToAdd, true).then(data => {
             expect(data).toEqual({emptyChampionArray: true});
             expect(clashSubscriptionDbImpl.clashSubscriptionTable.create).toBeCalledTimes(0);
         });
@@ -158,7 +157,7 @@ describe('Update preferred Champion', () => {
             }
             callback();
         });
-        return clashSubscriptionDbImpl.updatePreferredChampions(id, server, championToAdd).then(data => {
+        return clashSubscriptionDbImpl.updatePreferredChampions(id, championToAdd).then(data => {
             expect(data).toEqual(expectedData);
             expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledTimes(1);
             expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledWith(expectedData, expect.any(Function));
@@ -192,7 +191,7 @@ describe('Update preferred Champion', () => {
             }
             callback();
         });
-        return clashSubscriptionDbImpl.updatePreferredChampions(id, server, championToRemove, true).then(data => {
+        return clashSubscriptionDbImpl.updatePreferredChampions(id, championToRemove, true).then(data => {
             expect(data).toEqual(expectedData);
             expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledTimes(1);
             expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledWith(expectedData, expect.any(Function));
@@ -225,7 +224,7 @@ describe('Update preferred Champion', () => {
             }
             callback();
         });
-        return clashSubscriptionDbImpl.updatePreferredChampions(id, server, championToAdd).then(data => {
+        return clashSubscriptionDbImpl.updatePreferredChampions(id, championToAdd).then(data => {
             expect(data).toEqual(expectedData);
             expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledTimes(1);
             expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledWith(expectedData, expect.any(Function));
@@ -258,7 +257,7 @@ describe('Update preferred Champion', () => {
             }
             callback();
         });
-        return clashSubscriptionDbImpl.updatePreferredChampions(id, server, championToRemove, true).then(data => {
+        return clashSubscriptionDbImpl.updatePreferredChampions(id, championToRemove, true).then(data => {
             expect(data).toEqual({emptyChampionArray: true});
         });
     })
@@ -287,7 +286,7 @@ describe('Update preferred Champion', () => {
         clashSubscriptionDbImpl.clashSubscriptionTable.update = jest.fn().mockImplementation((sub, callback) => {
             callback(new Error('Failed to update.'));
         });
-        return clashSubscriptionDbImpl.updatePreferredChampions(id, server, championToRemove, true).then(data => {
+        return clashSubscriptionDbImpl.updatePreferredChampions(id, championToRemove, true).then(data => {
             expect(data).toEqual(expectedData);
             expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledTimes(1);
             expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledWith(expectedData, expect.any(Function));
@@ -311,7 +310,7 @@ describe('Update preferred Champion', () => {
         clashSubscriptionDbImpl.clashSubscriptionTable = jest.fn();
         clashSubscriptionDbImpl.clashSubscriptionTable.query = jest.fn().mockImplementation((data, callback) => callback());
         clashSubscriptionDbImpl.clashSubscriptionTable.create = jest.fn().mockImplementation((sub, callback) => callback(new Error('Failed to create.')));
-        return clashSubscriptionDbImpl.updatePreferredChampions(id, server, championToRemove).then(data => {
+        return clashSubscriptionDbImpl.updatePreferredChampions(id, championToRemove).then(data => {
             expect(data).toEqual(expectedData);
             expect(clashSubscriptionDbImpl.clashSubscriptionTable.create).toBeCalledTimes(1);
             expect(clashSubscriptionDbImpl.clashSubscriptionTable.create).toBeCalledWith(expectedData, expect.any(Function));

@@ -7,6 +7,7 @@ module.exports = {
     Ping: require('./ping'),
     Register: require('./register'),
     Subscribe: require('./subscribe'),
+    SuggestChampion: require('./suggest-champion'),
     Teams: require('./teams'),
     Tentative: require('./tentative'),
     Time: require('./time'),
