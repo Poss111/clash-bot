@@ -58,7 +58,7 @@ Promise.all([clashTimesDbImpl.initializeLeagueData(),
                 if (msg.channel.name === channel && msg.content.startsWith(COMMAND_PREFIX)) {
                     msg.content = msg.content.replace(COMMAND_PREFIX + ' ', '');
                     const args = msg.content.split(/ +/);
-                    const command = args.shift().toLowerCase();
+                    const command = args.shift();
 
                     if (!bot.commands.has(command)) return;
 
