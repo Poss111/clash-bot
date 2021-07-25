@@ -11,9 +11,10 @@ module.exports = {
             if (Array.isArray(args) && args.length < 1) {
                 msg.reply('no champion name was passed. Please pass one.');
             } else {
-                let championData = await riotApi.DDragon.champion.all();
+                let ddragon = new riotApi.DDragon();
+                let championData = await ddragon.champion.all();
                 if (Object.keys(championData.data).find(record => record === args[0])) {
-                    await clashSubscriptionDb.updatePreferredChampions(msg.author.id, args[0]).then(results => {
+                    await clashSubscriptionDb.updatePreferredChampions(msg.author.id, args[0], msg.guild.name).then(results => {
                         msg.reply(`Successfully updated your preferred champions list, here are your current Champions: '${results.preferredChampions}'`);
                     }).catch(err =>
                         errorHandler.handleError(this.name, err, msg,

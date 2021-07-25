@@ -32,7 +32,7 @@ describe('Suggest Champion Command', () => {
         clashSubscriptionDb.updatePreferredChampions = jest.fn().mockResolvedValue(expectedResults);
         await suggestChampion.execute(msg, args)
         expect(msg.reply).toBeCalledWith(`Successfully updated your preferred champions list, here are your current Champions: '${expectedResults.preferredChampions}'`);
-        expect(clashSubscriptionDb.updatePreferredChampions).toBeCalledWith(msg.author.id, args[0]);
+        expect(clashSubscriptionDb.updatePreferredChampions).toBeCalledWith(msg.author.id, args[0], msg.guild.name);
     })
 
     describe('Should validate user input', () => {
@@ -108,10 +108,12 @@ function prepareDDragonApiData() {
             }
         }
     }
-    riotApi.DDragon = {
-        champion: {
-            all: jest.fn().mockReturnValue(expectedChampionsData)
+    riotApi.DDragon = jest.fn().mockImplementation(() => {
+        return {
+            champion: {
+                all: jest.fn().mockReturnValue(expectedChampionsData)
+            }
         }
-    };
+    });
 }
 

@@ -26,7 +26,7 @@ class ClashSubscriptionDbImpl {
                         key: Joi.string(),
                         serverName: Joi.string(),
                         timeAdded: Joi.string(),
-                        subscribed: Joi.boolean(),
+                        subscribed: Joi.string(),
                         preferredChampions: Joi.array()
                     }
                 });
@@ -75,7 +75,7 @@ class ClashSubscriptionDbImpl {
         });
     }
 
-    updatePreferredChampions(id, champion) {
+    updatePreferredChampions(id, champion, serverName) {
         return new Promise((resolve, reject) => {
             this.retrieveUserDetails(id).then(userData => {
                 if (userData.key) {
@@ -89,8 +89,10 @@ class ClashSubscriptionDbImpl {
 
                     this.clashSubscriptionTable.update(userData, (err, data) => {
                         if (err) reject(err);
-                        console.log(`Successfully updated record ('${JSON.stringify(data)}')`);
-                        resolve(data);
+                        else {
+                            console.log(`Successfully updated record ('${JSON.stringify(data.attrs)}')`);
+                            resolve(data.attrs);
+                        }
                     });
                 } else {
                     console.log(`Creating user preferences id ('${id}') champions ('${champion}')`);
@@ -101,12 +103,15 @@ class ClashSubscriptionDbImpl {
                         key: id,
                         timeAdded: new moment().format(dateFormat),
                         subscribed: false,
-                        preferredChampions: [champion]
+                        preferredChampions: [champion],
+                        serverName: serverName
                     };
                     this.clashSubscriptionTable.create(subscription, (err, dataPersisted) => {
                         if (err) reject(err);
-                        console.log(`Successfully persisted record ('${JSON.stringify(dataPersisted)}')`);
-                        resolve(dataPersisted);
+                        else {
+                            console.log(`Successfully persisted record ('${JSON.stringify(dataPersisted.attrs)}')`);
+                            resolve(dataPersisted.attrs);
+                        }
                     })
                 }
             });
@@ -117,12 +122,13 @@ class ClashSubscriptionDbImpl {
     retrieveUserDetails(id) {
         return new Promise((resolve, reject) => {
             console.log(`Retrieving User Details for id ('${id}')`);
-            this.clashSubscriptionTable.query(id, (err, data) => {
+            this.clashSubscriptionTable.query(id).exec((err, data) => {
                 if (err) reject(err);
-                if (!data) {
+                if (!data.Items[0]) {
                     resolve({});
+                } else {
+                    resolve(data.Items[0].attrs);
                 }
-                resolve(data);
             });
         });
     }
