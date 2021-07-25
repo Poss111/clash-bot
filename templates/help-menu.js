@@ -43,6 +43,10 @@ module.exports = {
                 "This notification will be sent on the Monday before a Tournament weekend."
         },
         {
+            name: "suggestChampion - !clash suggestChampion Volibear",
+            value: "Adds a LoL Champion to user preferred champions list. This will display so you can better coordinate with your Clash teams."
+        },
+        {
             name: "teams - !clash teams",
             value: "Asks the bot to print a list of Teams for the upcoming clash tournaments."
         },
