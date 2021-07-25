@@ -46,7 +46,7 @@ class ClashSubscriptionDbImpl {
                 key: id,
                 serverName: server,
                 timeAdded: new moment().format(dateFormat),
-                subscribed: true
+                subscribed: 'true'
             };
             this.updateUser(subscription, reject, resolve);
         });
@@ -64,7 +64,7 @@ class ClashSubscriptionDbImpl {
 
     unsubscribe(id) {
         return new Promise((resolve, reject) => {
-            this.clashSubscriptionTable.update({key: id, subscribed: false},
+            this.clashSubscriptionTable.update({key: id, subscribed: ''},
                 (err, data) => {
                     if (err) reject(err);
                     else {

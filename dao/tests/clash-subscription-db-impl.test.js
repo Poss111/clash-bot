@@ -52,7 +52,7 @@ describe('Subscribe', () => {
         let expectedResults = {
             key: id,
             serverName: server,
-            subscribed: true
+            subscribed: 'true'
         };
         clashSubscriptionDbImpl.clashSubscriptionTable = jest.fn();
         clashSubscriptionDbImpl.clashSubscriptionTable.create = jest.fn().mockImplementation((sub, callback) => {
@@ -62,7 +62,7 @@ describe('Subscribe', () => {
             expect(data.key).toEqual(id);
             expect(data.serverName).toEqual(server);
             expect(data.timeAdded).toBeTruthy();
-            expect(data.subscribed).toBeTruthy();
+            expect(data.subscribed).toEqual('true')
             expect(clashSubscriptionDbImpl.clashSubscriptionTable.create).toBeCalledTimes(1);
             expect(clashSubscriptionDbImpl.clashSubscriptionTable.create).toBeCalledWith(expect.anything(), expect.any(Function));
         });
@@ -77,7 +77,7 @@ describe('Unsubscribe', () => {
             key: id,
             serverName: server,
             timeAdded: 'Jan 20 2021 11:30 PM EST',
-            subscribed: false
+            subscribed: ''
         };
         clashSubscriptionDbImpl.clashSubscriptionTable = jest.fn();
         clashSubscriptionDbImpl.clashSubscriptionTable.update = jest.fn().mockImplementation((sub, callback) => {
@@ -87,9 +87,9 @@ describe('Unsubscribe', () => {
             expect(data.key).toEqual(id);
             expect(data.serverName).toEqual(server);
             expect(data.timeAdded).toBeTruthy();
-            expect(data.subscribed).toBeFalsy();
+            expect(data.subscribed).toHaveLength(0);
             expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledTimes(1);
-            expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledWith(expect.anything(), expect.any(Function));
+            expect(clashSubscriptionDbImpl.clashSubscriptionTable.update).toBeCalledWith({key: id, subscribed: ''}, expect.any(Function));
         });
     })
 })
