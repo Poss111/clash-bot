@@ -15,7 +15,9 @@ class ClashSubscriptionDbImpl {
                 schema: {
                     key: Joi.string(),
                     serverName: Joi.string(),
-                    timeAdded: Joi.string()
+                    timeAdded: Joi.string(),
+                    subscribed: Joi.string(),
+                    preferredChampions: Joi.array()
                 }
             }).then((tableDef) => {
                 console.log(`Successfully setup table def for ('${this.tableName}')`);

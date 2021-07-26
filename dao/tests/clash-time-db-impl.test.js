@@ -5,6 +5,10 @@ const moment = require('moment-timezone');
 
 jest.mock('../impl/dynamo-db-helper');
 
+beforeEach(() => {
+    jest.resetAllMocks();
+})
+
 describe('Initialize Table connection', () => {
     test('Initialize the table connection to be used.', async () => {
         let expectedTableDef = { hashKey: 'key' };
@@ -20,47 +24,6 @@ describe('Initialize Table connection', () => {
         dynamoDbHelper.initialize = jest.fn().mockRejectedValue(expectedError);
         return clashtimeDb.initialize('Sample Table', {}).catch(err => expect(err).toEqual(expectedError));
     })
-})
-
-test('Should return a parsed array of human readable dates from the League Clash API and should be sorted by day.', () => {
-    process.env.TOKEN = 'testToken';
-    const value = {
-        Items: [{
-            attrs: {
-                key: "msi2021#3",
-                tournamentName: "msi2021",
-                tournamentDay: "4",
-                registrationTime: "June 13 2021 04:15 pm PDT",
-                startTime: "June 13 2021 05:15 pm PDT"
-            }
-        }, {
-            attrs: {
-                key: "msi2021#4",
-                tournamentName: "msi2021",
-                tournamentDay: "3",
-                registrationTime: "June 12 2021 04:15 pm PDT",
-                startTime: "June 12 2021 05:15 pm PDT",
-            }
-        }]
-    };
-    const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
-    dynamodb.define = jest.fn().mockReturnValue({
-        scan: jest.fn().mockReturnThis(),
-        filterExpression: jest.fn().mockReturnThis(),
-        expressionAttributeValues: jest.fn().mockReturnThis(),
-        expressionAttributeNames: jest.fn().mockReturnThis(),
-        exec: mockStream
-    });
-
-    let expectedData = [];
-    value.Items.forEach(record => {
-        expectedData.push(JSON.parse(JSON.stringify(record.attrs)));
-    });
-    expectedData.sort((a, b) => parseInt(a.tournamentDay) - parseInt(b.tournamentDay));
-
-    return clashtimeDb.initialize().then(data => {
-        expect(data).toEqual(expectedData);
-    });
 })
 
 describe('Find Tournament', () => {
@@ -171,7 +134,6 @@ describe('Find Tournament', () => {
 
 describe('Retrieve Tournaments', () => {
     test('Should be able to retrieve all tournaments from stream and should be sorted by greatest to least day number.', () => {
-        process.env.TOKEN = 'testToken';
         const value = {
             Items: [{
                 attrs: {
