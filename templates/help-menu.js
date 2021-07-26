@@ -1,7 +1,8 @@
 module.exports = {
     title: "Clash Bot Helpful Commands! :nerd_face:",
     color: 0x071A32,
-    description: "Help is on the way! Here are a few quick commands to get you started.\n" +
+    description: "Help is on the way! ***Clash Bot is restricted to answer from a channel with the name #league*** " +
+        "Here are a few quick commands to get you started.\n" +
         "***Note***: Use !clash at the beginning of each of your commands to make use of this bot. " +
         "Any improvements to be suggested, please create an issue at the following location " +
         "[Clash Bot Issues](https://github.com/Poss111/clash-bot/issues)",
@@ -19,17 +20,18 @@ module.exports = {
             value: "Asks the bot to print this menu for you :smiley:."
         },
         {
-            name: "join - !clash join msi2021 Abra",
+            name: "~~register~~ join - !clash join msi2021 Abra",
             value: "Asks the bot to assign you to an available Clash team based on the Tournament name and the Team name."
+        },
+        {
+            name: "~~register~~ newTeam - !clash newTeam > !clash newTeam msi2021 1",
+            value: "Asks the bot to create a new Team for you based on the tournament provided. " +
+                "You will only be able to join a new Team for the specified tournament if you are not " +
+                "on a Team by yourself for that Tournament."
         },
         {
             name: "ping - !clash ping",
             value: "Asks the bot to pong you."
-        },
-        {
-            name: "register - !clash register > !clash register msi2021 1 > !clash register newTeam",
-            value: "Asks the bot to assign you to an available Clash team based on a tournament and a tournament day. " +
-                "Can create a new team by passing newTeam."
         },
         {
             name: "subscribe - !clash subscribe",

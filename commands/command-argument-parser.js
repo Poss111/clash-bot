@@ -1,15 +1,11 @@
 class CommandArgumentParser {
 
     parse(args) {
-        let commands = {
-            createNewTeam: false
-        };
+        let commands = {};
         if (args) {
             args.forEach(record => {
                 let re = new RegExp('^[0-9]{0,2}$');
-                if (record === 'newTeam') {
-                    commands.createNewTeam = true;
-                } else if (re.test(record)) {
+                if (re.test(record)) {
                     commands.tournamentDay = record;
                 } else {
                     commands.tournamentName = record;

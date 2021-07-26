@@ -6,6 +6,7 @@ const botCommands = require('./commands');
 const clashTimesDbImpl = require('./dao/clashtime-db-impl');
 const clashSubscriptionDbImpl = require('./dao/clash-subscription-db-impl');
 const database = require('./dao/dynamo-db-impl');
+const helpMenu = require('./templates/help-menu');
 const TOKEN = process.env.TOKEN;
 let channel = 'league';
 const COMMAND_PREFIX = '!clash';
@@ -28,7 +29,7 @@ bot.on('ready', () => {
                 embed: {
                     title: "Clash-Bot has been updated :partying_face:!",
                     url: "https://github.com/Poss111/clash-bot/releases",
-                    description: "Please check the Releases page for new updates and bug fixes :smile:.",
+                    description: "Please check the Releases page for new updates and bug fixes :smile:. Donations are always welcome [Paypal](https://www.paypal.com/paypalme/poss11111), it takes :moneybag: to keep a bot alive these days.",
                     image: {
                         url: "https://repository-images.githubusercontent.com/363187357/577557c6-50c4-422c-adbf-8a06281c14e9"
                     },
@@ -41,32 +42,37 @@ bot.on('ready', () => {
         console.error('Failed to send update notification due to error.', err);
     }
 });
-let loginBot = async () => {
-    bot.login(TOKEN).then(() => {
-        bot.on('message', msg => {
-            if (msg.channel.name === channel && msg.content.startsWith(COMMAND_PREFIX)) {
-                msg.content = msg.content.replace(COMMAND_PREFIX + ' ', '');
-                const args = msg.content.split(/ +/);
-                const command = args.shift().toLowerCase();
 
-                if (!bot.commands.has(command)) return;
-
-                try {
-                    console.info(`('${msg.author.username}') called command: ('${command}')`);
-                    bot.commands.get(command).execute(msg, args);
-                } catch (error) {
-                    console.error(error);
-                    msg.channel.send('there was an error trying to execute that command! Please reach out to <@299370234228506627>.');
-                }
-            }
-        });
-    });
-}
+bot.on('guildCreate', (guild) => {
+   let channel = guild.channels.cache.find((key) => key.name === 'general');
+   let copy = JSON.parse(JSON.stringify(helpMenu));
+   channel.send({embed: copy});
+});
 
 Promise.all([clashTimesDbImpl.initializeLeagueData(),
     clashSubscriptionDbImpl.initialize(),
     database.initializeClashBotDB()])
-    .then(loginBot).catch(err => {
+    .then(() => {
+        bot.login(TOKEN).then(() => {
+            bot.on('message', msg => {
+                if (msg.channel.name === channel && msg.content.startsWith(COMMAND_PREFIX)) {
+                    msg.content = msg.content.replace(COMMAND_PREFIX + ' ', '');
+                    const args = msg.content.split(/ +/);
+                    const command = args.shift();
+
+                    if (!bot.commands.has(command)) return;
+
+                    try {
+                        console.info(`('${msg.author.username}') called command: ('${command}')`);
+                        bot.commands.get(command).execute(msg, args);
+                    } catch (error) {
+                        console.error(error);
+                        msg.channel.send('there was an error trying to execute that command! Please reach out to <@299370234228506627>.');
+                    }
+                }
+            });
+        });
+    }).catch(err => {
     console.error(`Failed to initialize Clash-Bot DB to Error ('${err}')`);
     process.exit(1);
 });
@@ -85,6 +91,3 @@ process.on('SIGINT', () => {
     console.log('Process interrupted');
     process.exit(0);
 });
-
-module.exports.bot = bot;
-module.exports.loginBot = loginBot;
