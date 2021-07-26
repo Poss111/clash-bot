@@ -1,22 +1,21 @@
 const clashSubscriptionDbImpl = require('../clash-subscription-db-impl');
-const dynamodb = require('dynamodb');
+const dynamoDbHelper = require('../impl/dynamo-db-helper');
 const Joi = require('joi');
 
 jest.mock('dynamodb');
+jest.mock('../impl/dynamo-db-helper');
 
 beforeEach(() => {
     jest.resetModules();
-    delete process.env.LOCAL;
 });
 
 describe('Initialize Table connection', () => {
     test('Initialize the table connection to be used.', async () => {
-        dynamodb.define = jest.fn();
+        let expectedTableObject = { setupTable: true};
+        dynamoDbHelper.initialize = jest.fn().mockResolvedValue(expectedTableObject);
         return clashSubscriptionDbImpl.initialize().then(() => {
-            expect(dynamodb.AWS.config.loadFromPath.mock.calls.length).toEqual(0);
-            expect(dynamodb.AWS.config.update.mock.calls.length).toEqual(1);
-            expect(dynamodb.define).toBeCalledTimes(1);
-            expect(dynamodb.define).toBeCalledWith(clashSubscriptionDbImpl.tableName,
+            expect(clashSubscriptionDbImpl.clashSubscriptionTable).toEqual(expectedTableObject);
+            expect(dynamoDbHelper.initialize).toBeCalledWith(clashSubscriptionDbImpl.tableName,
                 {
                     hashKey: 'key',
                     timestamps: true,
@@ -27,19 +26,6 @@ describe('Initialize Table connection', () => {
                     }
                 });
         });
-    })
-
-    test('Initialize the table connection to be used with Local.', () => {
-        dynamodb.AWS.config.loadFromPath = jest.fn();
-        dynamodb.AWS.config.update = jest.fn();
-        dynamodb.define = jest.fn();
-        process.env.LOCAL = true;
-        return clashSubscriptionDbImpl.initialize().then(() => {
-                expect(dynamodb.AWS.config.loadFromPath.mock.calls.length).toEqual(1);
-                expect(dynamodb.AWS.config.update.mock.calls.length).toEqual(0);
-                expect(dynamodb.define.mock.calls.length).toEqual(1);
-            }
-        )
     })
 })
 

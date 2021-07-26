@@ -1,4 +1,4 @@
-const dynamodb = require('dynamodb');
+const dynamoDbHelper = require('./impl/dynamo-db-helper');
 const Joi = require('joi');
 const moment = require('moment-timezone');
 
@@ -9,29 +9,19 @@ class ClashSubscriptionDbImpl {
 
     initialize() {
         return new Promise((resolve, reject) => {
-            try {
-                if (process.env.LOCAL) {
-                    console.log('Loading credentials from local.');
-                    dynamodb.AWS.config.loadFromPath('./credentials.json');
-                } else {
-                    console.log('Loading credentials from remote.');
-                    dynamodb.AWS.config.update({
-                        region: `${process.env.REGION}`
-                    });
+            dynamoDbHelper.initialize(this.tableName, {
+                hashKey: 'key',
+                timestamps: true,
+                schema: {
+                    key: Joi.string(),
+                    serverName: Joi.string(),
+                    timeAdded: Joi.string()
                 }
-                this.clashSubscriptionTable = dynamodb.define(this.tableName, {
-                    hashKey: 'key',
-                    timestamps: true,
-                    schema: {
-                        key: Joi.string(),
-                        serverName: Joi.string(),
-                        timeAdded: Joi.string()
-                    }
-                });
-                resolve(true);
-            } catch (err) {
-                reject(err);
-            }
+            }).then((tableDef) => {
+                console.log(`Successfully setup table def for ('${this.tableName}')`);
+                this.clashSubscriptionTable = tableDef;
+                resolve(tableDef);
+            }).catch(err => reject(err));
         });
     }
 
@@ -59,12 +49,12 @@ class ClashSubscriptionDbImpl {
         return new Promise((resolve, reject) => {
             this.clashSubscriptionTable.destroy(id,
                 {ReturnValues: 'ALL_OLD'}, (err, data) => {
-                if (err) reject(err);
-                else {
-                    console.log(`Successfully deleted subscription for ('${JSON.stringify(data)}').`);
-                    resolve(data);
-                }
-            })
+                    if (err) reject(err);
+                    else {
+                        console.log(`Successfully deleted subscription for ('${JSON.stringify(data)}').`);
+                        resolve(data);
+                    }
+                })
         });
     }
 }
