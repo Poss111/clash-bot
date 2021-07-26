@@ -2,7 +2,7 @@ const dynamodb = require('dynamodb');
 const Joi = require('joi');
 const names = require('../random-names');
 
-class DynamoDBUtils {
+class ClashTeamsDbImpl {
     Team;
     tentative = [];
 
@@ -418,4 +418,4 @@ class DynamoDBUtils {
     }
 }
 
-module.exports = new DynamoDBUtils;
+module.exports = new ClashTeamsDbImpl;
