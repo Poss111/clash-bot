@@ -1,4 +1,4 @@
-const clashtimeDb = require('../clashtime-db-impl');
+const clashtimeDb = require('../clash-time-db-impl');
 const dynamodb = require('dynamodb');
 const streamTest = require('streamtest');
 const moment = require('moment-timezone');

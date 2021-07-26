@@ -1,4 +1,4 @@
-const leagueApi = require('../dao/clashtime-db-impl');
+const leagueApi = require('../dao/clash-time-db-impl');
 const clashTimeMenu = require('../templates/clash-times-menu');
 const timeTracker = require('../utility/time-tracker');
 module.exports = {

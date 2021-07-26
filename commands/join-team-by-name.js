@@ -1,5 +1,5 @@
-const leagueApi = require('../dao/clashtime-db-impl');
-const dynamoDBUtils = require('../dao/dynamo-db-impl');
+const leagueApi = require('../dao/clash-time-db-impl');
+const dynamoDBUtils = require('../dao/clash-teams-db-impl');
 const registerReply = require('../templates/register-reply');
 const errorHandling = require('../utility/error-handling');
 const timeTracker = require('../utility/time-tracker');

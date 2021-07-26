@@ -1,4 +1,4 @@
-const dynamoDBUtils = require('../dynamo-db-impl');
+const dynamoDBUtils = require('../clash-teams-db-impl');
 const dynamodb = require('dynamodb');
 const streamTest = require('streamtest');
 const randomNames = require('../../random-names');

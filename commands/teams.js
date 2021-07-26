@@ -1,4 +1,4 @@
-const dbUtils = require('../dao/dynamo-db-impl');
+const dbUtils = require('../dao/clash-teams-db-impl');
 const teamsCard = require('../templates/teams');
 const errorHandler = require('../utility/error-handling');
 const timeTracker = require('../utility/time-tracker');
