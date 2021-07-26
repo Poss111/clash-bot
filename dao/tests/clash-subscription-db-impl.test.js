@@ -29,6 +29,12 @@ describe('Initialize Table connection', () => {
                 });
         });
     })
+
+    test('Error should be handled if it occurs during table initialization', async () => {
+        const expectedError = new Error('Failed to compile table def');
+        dynamoDbHelper.initialize = jest.fn().mockRejectedValue(expectedError);
+        return clashSubscriptionDbImpl.initialize('Sample Table', {}).catch(err => expect(err).toEqual(expectedError));
+    })
 })
 
 describe('Subscribe', () => {
