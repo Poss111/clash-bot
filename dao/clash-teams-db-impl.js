@@ -1,48 +1,33 @@
 const dynamodb = require('dynamodb');
+const dynamoDbHelper = require('./impl/dynamo-db-helper');
 const Joi = require('joi');
 const names = require('../random-names');
 
 class ClashTeamsDbImpl {
     Team;
     tentative = [];
+    tableName = 'ClashTeam';
 
     constructor() {
     }
 
-    initializeClashBotDB() {
-        let tableName = 'ClashTeam';
+    initialize() {
         return new Promise((resolve, reject) => {
-            if (process.env.LOCAL) {
-                console.log('Loading credentials from local.');
-                dynamodb.AWS.config.loadFromPath('./credentials.json');
-                tableName = `${tableName}-local`;
-            } else {
-                console.log('Loading credentials from remote.');
-                dynamodb.AWS.config.update({
-                    region: `${process.env.REGION}`
-                });
-            }
-            this.Team = dynamodb.define(tableName, {
+            dynamoDbHelper.initialize(this.tableName, {
                 hashKey: 'key',
                 timestamps: true,
                 schema: {
                     key: Joi.string(),
-                    teamName: Joi.string(),
                     serverName: Joi.string(),
-                    players: dynamodb.types.stringSet(),
-                    tournamentName: Joi.string(),
-                    tournamentDay: Joi.string(),
-                    startTime: Joi.string()
+                    timeAdded: Joi.string(),
+                    subscribed: Joi.string(),
+                    preferredChampions: Joi.array()
                 }
-            });
-            const dbCallback = (err) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve('Successfully initialized Database.');
-                }
-            };
-            dynamodb.createTables(dbCallback);
+            }).then(data => {
+                console.log(`Successfully setup table def for ('${this.tableName}')`);
+                this.Team = data;
+                resolve(data);
+            }).catch((err) => reject(err));
         })
     }
 

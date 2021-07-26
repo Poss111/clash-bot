@@ -55,7 +55,7 @@ bot.on('guildCreate', (guild) => {
 let initializeBot = () => {
     Promise.all([clashTimesDbImpl.initializeLeagueData(),
         clashSubscriptionDbImpl.initialize(),
-        database.initializeClashBotDB()])
+        database.initialize()])
         .then(() => {
             bot.login(TOKEN).then(() => {
                 bot.on('message', msg => {
