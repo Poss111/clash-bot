@@ -1,12 +1,25 @@
 const clashtimeDb = require('../clash-time-db-impl');
-const dynamodb = require('dynamodb');
+const dynamoDbHelper = require('../impl/dynamo-db-helper');
 const streamTest = require('streamtest');
 const moment = require('moment-timezone');
 
-jest.mock('dynamodb');
+jest.mock('../impl/dynamo-db-helper');
 
-test('Should fail a return with a reject if the TOKEN is not passed.', () => {
-    return expect(clashtimeDb.initializeLeagueData()).rejects.toMatch('TOKEN not found.');
+describe('Initialize Table connection', () => {
+    test('Initialize the table connection to be used.', async () => {
+        let expectedTableDef = { hashKey: 'key' };
+        dynamoDbHelper.initialize = jest.fn().mockResolvedValue(expectedTableDef);
+        return clashtimeDb.initialize().then(() => {
+            expect(clashtimeDb.clashTimesTable).toEqual(expectedTableDef);
+            expect(dynamoDbHelper.initialize).toBeCalledWith(clashtimeDb.tableName, expectedTableDef);
+        });
+    })
+
+    test('Error should be handled if it occurs during table initialization', async () => {
+        const expectedError = new Error('Failed to compile table def');
+        dynamoDbHelper.initialize = jest.fn().mockRejectedValue(expectedError);
+        return clashtimeDb.initialize('Sample Table', {}).catch(err => expect(err).toEqual(expectedError));
+    })
 })
 
 test('Should return a parsed array of human readable dates from the League Clash API and should be sorted by day.', () => {
@@ -45,7 +58,7 @@ test('Should return a parsed array of human readable dates from the League Clash
     });
     expectedData.sort((a, b) => parseInt(a.tournamentDay) - parseInt(b.tournamentDay));
 
-    return clashtimeDb.initializeLeagueData().then(data => {
+    return clashtimeDb.initialize().then(data => {
         expect(data).toEqual(expectedData);
     });
 })

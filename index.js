@@ -53,7 +53,7 @@ bot.on('guildCreate', (guild) => {
 });
 
 let initializeBot = () => {
-    Promise.all([clashTimesDbImpl.initializeLeagueData(),
+    Promise.all([clashTimesDbImpl.initialize(),
         clashSubscriptionDbImpl.initialize(),
         database.initialize()])
         .then(() => {

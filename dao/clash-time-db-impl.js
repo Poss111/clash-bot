@@ -1,36 +1,18 @@
-const dynamodb = require('dynamodb');
+const dynamoDbHelper = require('./impl/dynamo-db-helper');
 
 class ClashTimeDbImpl {
 
     clashTimesTable;
-    leagueTimes;
     tableName = 'clashtime';
 
-    constructor() {
-        this.leagueTimes = [];
-    }
-
-    initializeLeagueData() {
+    initialize() {
         return new Promise((resolve, reject) => {
-            if (!process.env.TOKEN) {
-                reject(`TOKEN not found.`)
-            } else {
-                if (process.env.LOCAL) {
-                    console.log('Loading credentials from local.');
-                    dynamodb.AWS.config.loadFromPath('./credentials.json');
-                } else {
-                    console.log('Loading credentials from remote.');
-                    dynamodb.AWS.config.update({
-                        region: `${process.env.REGION}`
-                    });
-                }
-                this.clashTimesTable = dynamodb.define(this.tableName, {
-                    hashKey: 'key'
-                });
-            }
-            this.retrieveTournaments()
-                .then(data => resolve(data))
-                .catch(err => reject(err));
+            dynamoDbHelper
+                .initialize(this.tableName, {hashKey: 'key'})
+                .then((tableDef) => {
+                    this.clashTimesTable = tableDef;
+                    resolve(tableDef);
+                }).catch(err => reject(err));
         });
     }
 
