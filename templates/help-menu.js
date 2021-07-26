@@ -12,6 +12,10 @@ module.exports = {
             value: "Go [>HERE<](https://github.com/Poss111/clash-bot#readme)."
         },
         {
+            name: "champions - !clash champions > !clash champions Aatrox",
+            value: "Will display quick information on a specific or multiple champions."
+        },
+        {
             name: "dance - !clash dance",
             value: "It is a secret."
         },
@@ -37,6 +41,10 @@ module.exports = {
             name: "subscribe - !clash subscribe",
             value: "Subscribes the user notification of an upcoming League of Legends Clash Tournament. " +
                 "This notification will be sent on the Monday before a Tournament weekend."
+        },
+        {
+            name: "suggestChampion - !clash suggestChampion Volibear",
+            value: "Adds a LoL Champion to user preferred champions list. This will display so you can better coordinate with your Clash teams."
         },
         {
             name: "teams - !clash teams",
