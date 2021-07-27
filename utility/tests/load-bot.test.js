@@ -128,9 +128,10 @@ describe('Load Bot - INTEGRATION_TEST', () => {
             expect(clashSubscriptionDbImpl.initialize).toBeCalledTimes(1);
             expect(clashTeamsDbImpl.initialize).toBeCalledTimes(1);
             expect(loginMockObject).toBeCalledWith(process.env.TOKEN);
-            expect(actualEvents.size).toEqual(2);
+            expect(actualEvents.size).toEqual(3);
             expect(actualEvents.get('guildCreate')).toBeTruthy();
             expect(actualEvents.get('message')).toBeTruthy();
+            expect(actualEvents.get('ready')).toBeTruthy();
             expect(botSetup).toBeTruthy();
         })
     })
@@ -431,6 +432,48 @@ describe('Events', () => {
             expect(mockDiscordBot.guilds.cache[1].channels.cache[0].send).toBeCalledTimes(0);
             expect(mockDiscordBot.guilds.cache[1].channels.cache[1].send).toBeCalledTimes(1);
             expect(mockDiscordBot.guilds.cache[1].channels.cache[1].send).toBeCalledWith({ embed: updateNotification });
+        })
+
+        test('When the integration test argument is given, then the ready command should not send the update.', () => {
+            let mockDiscordBot = {
+                user: {
+                    tag: 'ClashBot-Test:1234'
+                },
+                guilds: {
+                    cache: [
+                        {
+                            name: 'Guild 1',
+                            channels: {
+                                cache: [
+                                    {
+                                        name: 'general',
+                                        send: jest.fn()
+                                    }
+                                ]
+                            },
+                        },
+                        {
+                            name: 'Guild 2',
+                            channels: {
+                                cache: [
+                                    {
+                                        name: 'general',
+                                        send: jest.fn()
+                                    },
+                                    {
+                                        name: 'league',
+                                        send: jest.fn()
+                                    }
+                                ]
+                            },
+                        },
+                    ]
+                }
+            }
+            loadBot.readyHandler(mockDiscordBot, 'league', true);
+            expect(mockDiscordBot.guilds.cache[0].channels.cache[0].send).toBeCalledTimes(0);
+            expect(mockDiscordBot.guilds.cache[1].channels.cache[0].send).toBeCalledTimes(0);
+            expect(mockDiscordBot.guilds.cache[1].channels.cache[1].send).toBeCalledTimes(0);
         })
     })
 })

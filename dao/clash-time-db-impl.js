@@ -1,4 +1,5 @@
 const dynamoDbHelper = require('./impl/dynamo-db-helper');
+const Joi = require('joi');
 
 class ClashTimeDbImpl {
 
@@ -8,8 +9,19 @@ class ClashTimeDbImpl {
     initialize() {
         return new Promise((resolve, reject) => {
             dynamoDbHelper
-                .initialize(this.tableName, {hashKey: 'key'})
+                .initialize(this.tableName, {
+                    hashKey: 'key',
+                    timestamps: true,
+                    schema: {
+                        key: Joi.string(),
+                        startTime: Joi.string(),
+                        tournamentName: Joi.string(),
+                        tournamentDay: Joi.string(),
+                        registrationTime: Joi.string()
+                    }
+                })
                 .then((tableDef) => {
+                    console.log(`Successfully setup table def for ('${this.tableName}')`);
                     this.clashTimesTable = tableDef;
                     resolve(tableDef);
                 }).catch(err => reject(err));

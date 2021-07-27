@@ -6,7 +6,9 @@ module.exports = {
     description: 'Places a player on tentative. Will deregister them if they belong to a team.',
     async execute(msg) {
         const startTime = process.hrtime.bigint();
+
         await leagueApi.findTournament().then(clashTimes => {
+            console.log('Time retrieved.');
             const copy = JSON.parse(JSON.stringify(clashTimeMenu));
             try {
                 if (clashTimes && clashTimes.length > 0) {
@@ -43,6 +45,6 @@ module.exports = {
             } finally {
                 timeTracker.endExecution(this.name, startTime);
             }
-        });
+        })
     },
 };

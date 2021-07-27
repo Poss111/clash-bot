@@ -61,6 +61,7 @@ describe('Initialize Table connection', () => {
 
     test('Initialize the table connection to be used with Integration Tests.', async () => {
         process.env.INTEGRATION_TEST = true;
+        process.env.REGION = 'us-east-1';
         const tableData = { created: true };
         dynamodb.define = jest.fn().mockReturnValue(tableData);
         const expectedTableName = 'TableName';
@@ -74,9 +75,7 @@ describe('Initialize Table connection', () => {
             }
         };
         return dynamoDbHepler.initialize(expectedTableName, expectedTableDef).then((data) => {
-            expect(dynamodb.AWS.config.loadFromPath).toBeCalledTimes(1);
-            expect(dynamodb.AWS.config.loadFromPath).toBeCalledWith('./credentials.json');
-            expect(dynamodb.AWS.config.update).toBeCalledWith({endpoint: "http://localhost:8000"});
+            expect(dynamodb.AWS.config.update).toBeCalledWith({region: process.env.REGION, endpoint: "http://localhost:8000"});
             expect(dynamodb.define).toBeCalledTimes(1);
             expect(dynamodb.define).toBeCalledWith(expectedTableName, expectedTableDef);
             expect(data).toEqual(tableData);

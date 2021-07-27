@@ -2,6 +2,7 @@ const clashtimeDb = require('../clash-time-db-impl');
 const dynamoDbHelper = require('../impl/dynamo-db-helper');
 const streamTest = require('streamtest');
 const moment = require('moment-timezone');
+const Joi = require('joi');
 
 jest.mock('../impl/dynamo-db-helper');
 
@@ -11,7 +12,17 @@ beforeEach(() => {
 
 describe('Initialize Table connection', () => {
     test('Initialize the table connection to be used.', async () => {
-        let expectedTableDef = { hashKey: 'key' };
+        let expectedTableDef = {
+            hashKey: 'key',
+            timestamps: true,
+            schema: {
+                key: Joi.string(),
+                startTime: Joi.string(),
+                tournamentName: Joi.string(),
+                tournamentDay: Joi.string(),
+                registrationTime: Joi.string()
+            }
+        };
         dynamoDbHelper.initialize = jest.fn().mockResolvedValue(expectedTableDef);
         return clashtimeDb.initialize().then(() => {
             expect(clashtimeDb.clashTimesTable).toEqual(expectedTableDef);

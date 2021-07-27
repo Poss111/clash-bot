@@ -19,13 +19,15 @@ let initializeBot = () => {
                 bot = new Discord.Client();
                 bot.commands = new Discord.Collection();
 
-                if (process.env.LOCAL) {
+                if (process.env.INTEGRATION_TEST) {
+                    channel = 'league-integration';
+                } else if (process.env.LOCAL) {
                     channel = 'league-test';
                 }
 
-                if (!process.env.INTEGRATION_TEST) {
-                    bot.on('ready', () => readyHandler(bot, channel));
-                }
+                bot.on('ready', () => {
+                    readyHandler(bot, channel, process.env.INTEGRATION_TEST);
+                });
 
                 bot.on('guildCreate', (guild) => guildCreateHandler(guild));
 
@@ -36,13 +38,13 @@ let initializeBot = () => {
                     });
 
                     bot.on('message', (msg) => messageHandler(msg, channel, COMMAND_PREFIX, bot));
+                    resolve(bot);
                 });
-                resolve(true);
             }).catch(err => reject(`Failed to initialize Clash-Bot DB to Error ('${err}')`));
     });
 }
 
-let messageHandler = (msg, restrictedChannel, commandPrefix, discordBot) => {
+let messageHandler = async (msg, restrictedChannel, commandPrefix, discordBot) => {
     if (msg.channel.name === restrictedChannel && msg.content.startsWith(commandPrefix)) {
         msg.content = msg.content.replace(commandPrefix + ' ', '');
         const args = msg.content.split(/ +/);
@@ -52,7 +54,7 @@ let messageHandler = (msg, restrictedChannel, commandPrefix, discordBot) => {
 
         try {
             console.info(`('${msg.author.username}') called command: ('${command}')`);
-            discordBot.commands.get(command).execute(msg, args);
+            await discordBot.commands.get(command).execute(msg, args);
         } catch (error) {
             console.error(`Failed to execute command ('${discordBot.commands.get(command).name}') due to error.`, error);
             msg.channel.send('there was an error trying to execute that command! Please reach out to <@299370234228506627>.');
@@ -65,20 +67,23 @@ let guildCreateHandler = (guild) => {
     channel.send({embed: JSON.parse(JSON.stringify(helpMenu))});
 }
 
-let readyHandler = (discordBot, restrictedChannel) => {
+let readyHandler = (discordBot, restrictedChannel, isIntegrationTesting) => {
     console.info(`Logged in as ${discordBot.user.tag}!`);
-    discordBot.guilds.cache.forEach((guildKey) => {
-        const filter = guildKey.channels.cache.find((key) => key.name === restrictedChannel);
-        if (filter) {
-            console.log(`Sending Bot update message to ('${guildKey}')...`);
-            try {
-                filter.send({embed: JSON.parse(JSON.stringify(updateNotification))});
-            } catch (err) {
-                console.error('Failed to send update notification due to error.', err);
+    if (!isIntegrationTesting) {
+        discordBot.guilds.cache.forEach((guildKey) => {
+            const filter = guildKey.channels.cache.find((key) => key.name === restrictedChannel);
+            if (filter) {
+                console.log(`Sending Bot update message to ('${guildKey}')...`);
+                try {
+                    filter.send({embed: JSON.parse(JSON.stringify(updateNotification))});
+                } catch (err) {
+                    console.error('Failed to send update notification due to error.', err);
+                }
+                console.log(`Successfully sent Bot update message to ('${guildKey}')...`);
             }
-            console.log(`Successfully sent Bot update message to ('${guildKey}')...`);
-        }
-    });
+
+        });
+    }
 }
 
 module.exports.client = bot;

@@ -65,10 +65,12 @@ describe('Initialize Table connection', () => {
             timestamps: true,
             schema: {
                 key: Joi.string(),
+                teamName: Joi.string(),
                 serverName: Joi.string(),
-                timeAdded: Joi.string(),
-                subscribed: Joi.string(),
-                preferredChampions: Joi.array()
+                players: dynamodb.types.stringSet(),
+                tournamentName: Joi.string(),
+                tournamentDay: Joi.string(),
+                startTime: Joi.string()
             }
         };
         return clashTeamsDbImpl.initialize().then(() => {
