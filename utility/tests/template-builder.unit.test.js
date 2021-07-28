@@ -19,6 +19,10 @@ describe('Build message from JSON Object and template', () => {
                 {
                     name: "Type",
                     value: ":tagOne - :tagTwo"
+                },
+                {
+                    name: ":championName - :championTitle",
+                    value: ":Blurb"
                 }
             ],
             thumbnail: {
@@ -30,6 +34,8 @@ describe('Build message from JSON Object and template', () => {
         expect(actualMessage.title).toEqual(`${data.championName} - ${data.championTitle}`);
         expect(actualMessage.description).toEqual(data.Blurb);
         expect(actualMessage.fields[0].value).toEqual(`${data.tagOne} - ${data.tagTwo}`);
+        expect(actualMessage.fields[1].name).toEqual(`${data.championName} - ${data.championTitle}`);
+        expect(actualMessage.fields[1].value).toEqual(data.Blurb);
         expect(actualMessage.thumbnail.url).toContain(data.imageUrl);
     })
 
