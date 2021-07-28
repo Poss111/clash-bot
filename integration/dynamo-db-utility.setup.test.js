@@ -4,16 +4,40 @@ const clashSubscriptionDb = require('../dao/clash-subscription-db-impl');
 const clashTimesData = require('./mock-data/clash-times-sample-data');
 const clashTeamsData = require('./mock-data/clash-teams-sample-data');
 const clashSubscriptionData = require('./mock-data/clash-subscriptions-sample-data');
+const templateBuilder = require('../utility/template-builder');
+const moment = require('moment-timezone');
 
 process.env.INTEGRATION_TEST = true;
 
 let createdTables = new Map();
 
-let loadAllTables = () => new Promise((resolve, reject) => {
+let loadAllTables = async () => new Promise((resolve, reject) => {
+    const dateFormat = 'MMMM DD yyyy hh:mm a z';
+    let currentDate = new moment();
+    let formattedCurrentDate = currentDate.add(1, 'hour').format(dateFormat);
+    let currentDatePlusOne = currentDate.add(1, 'day').format(dateFormat);
+    let currentDatePlusTwo = currentDate.add(2, 'day').format(dateFormat);
+    let currentDatePlusThree = currentDate.add(3, 'day').format(dateFormat);
+    let overrides = {
+        tournamentName: 'awesome_sauce',
+        currentDate: formattedCurrentDate,
+        tournamentDayOne: '1',
+        datePlusOneDay: currentDatePlusOne,
+        tournamentDayTwo: '2',
+        datePlusTwoDays: currentDatePlusTwo,
+        tournamentDayThree: '3',
+        datePlusThreeDays: currentDatePlusThree,
+        tournamentDayFour: '4',
+        serverName: 'Integration Server'
+    }
+    console.log(`Dynamic Data for Integration Tests : ${JSON.stringify(overrides)}`);
+    let clashTimesDynamicData = templateBuilder.buildMessage(clashTimesData, overrides);
+    let clashTeamDynamicData = templateBuilder.buildMessage(clashTeamsData, overrides);
+    let clashSubscriptionDynamicData = templateBuilder.buildMessage(clashSubscriptionData, overrides);
     Promise.all([
-        persistSampleData(clashTimeDb, clashTimesData),
-        persistSampleData(clashTeamsDb, clashTeamsData),
-        persistSampleData(clashSubscriptionDb, clashSubscriptionData)])
+        persistSampleData(clashTimeDb, clashTimesDynamicData),
+        persistSampleData(clashTeamsDb, clashTeamDynamicData),
+        persistSampleData(clashSubscriptionDb, clashSubscriptionDynamicData)])
         .then(results => {
             results.forEach(table => {
                 createdTables.set(table.tableName, {
@@ -32,6 +56,21 @@ let loadAllTables = () => new Promise((resolve, reject) => {
         reject(err);
     });
 });
+
+function getAllDataFromTable(table) {
+    return new Promise((resolve, reject) => {
+        table.scan().exec((err, data) => {
+            if (err) reject(err);
+            else {
+                let results = [];
+                data.Items.forEach(record => {
+                    results.push(record.attrs);
+                })
+                resolve(results);
+            }
+        });
+    })
+}
 
 function persistSampleData(module, data) {
     return new Promise((resolve, reject) => {
@@ -63,7 +102,7 @@ function persistSampleData(module, data) {
                         })
                     }
                 })
-            }).catch(console.error(`Failed to delete table ('${module.tableName}')`));
+            }).catch(err => console.error(`Failed to delete table ('${module.tableName}')`, err));
         }).catch(err => console.error(`Failed to load data for ('${module.tableName}').`, err));
     })
 }
@@ -84,4 +123,5 @@ function clearAllTables() {
 }
 
 module.exports.loadAllTables = loadAllTables;
+module.exports.getAllDataFromTable = getAllDataFromTable;
 module.exports.clearAllTables = clearAllTables;
