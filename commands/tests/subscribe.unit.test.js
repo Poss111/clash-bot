@@ -8,7 +8,7 @@ jest.mock('../../utility/error-handling');
 describe('Subscribe', () => {
 
     test('When a user requests to subscribe, they should have their ServerName and Id passed along to be persisted then responded with a message letting them know it was succesful.', async () => {
-        let messagePassed;
+        let messagePassed = undefined;
         let msg = {
             reply: (value) => messagePassed = value,
             author: {
