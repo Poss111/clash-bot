@@ -6,9 +6,9 @@
   "scripts": {
     "start": "nodemon index.js",
     "test": "jest unit --coverage --coverageReporters=\"json\" --coverageReporters=\"json-summary\" --coverageReporters=\"lcov\" --coverageReporters=\"text\"",
-    "preintegration": "docker compose start",
+    "preintegration": "docker-compose start",
     "integration": "jest int",
-    "postintegration": "docker compose stop"
+    "postintegration": "docker-compose stop"
   },
   "keywords": [],
   "author": "Daniel Poss",
