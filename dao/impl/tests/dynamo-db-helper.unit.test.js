@@ -13,7 +13,7 @@ beforeEach(() => {
 
 describe('Initialize Table connection', () => {
     test('Initialize the table connection to be used.', async () => {
-        const tableData = { created: true };
+        const tableData = {created: true};
         dynamodb.define = jest.fn().mockReturnValue(tableData);
         const expectedTableName = 'TableName';
         const expectedTableDef = {
@@ -37,7 +37,7 @@ describe('Initialize Table connection', () => {
 
     test('Initialize the table connection to be used with Local.', async () => {
         process.env.LOCAL = true;
-        const tableData = { created: true };
+        const tableData = {created: true};
         dynamodb.define = jest.fn().mockReturnValue(tableData);
         const expectedTableName = 'TableName';
         const expectedTableDef = {
@@ -62,7 +62,7 @@ describe('Initialize Table connection', () => {
     test('Initialize the table connection to be used with Integration Tests.', async () => {
         process.env.INTEGRATION_TEST = true;
         process.env.REGION = 'us-east-1';
-        const tableData = { created: true };
+        const tableData = {created: true};
         dynamodb.define = jest.fn().mockReturnValue(tableData);
         const expectedTableName = 'TableName';
         const expectedTableDef = {
@@ -75,7 +75,12 @@ describe('Initialize Table connection', () => {
             }
         };
         return dynamoDbHepler.initialize(expectedTableName, expectedTableDef).then((data) => {
-            expect(dynamodb.AWS.config.update).toBeCalledWith({region: process.env.REGION, endpoint: "http://localhost:8000"});
+            expect(dynamodb.AWS.config.update).toBeCalledWith({
+                region: process.env.REGION,
+                endpoint: "http://localhost:8000",
+                accessKeyId: 'Dummy',
+                secretAccessKey: 'Dummy'
+            });
             expect(dynamodb.define).toBeCalledTimes(1);
             expect(dynamodb.define).toBeCalledWith(expectedTableName, expectedTableDef);
             expect(data).toEqual(tableData);
@@ -85,7 +90,7 @@ describe('Initialize Table connection', () => {
 
     test('Initialize should only setup AWS config once.', async () => {
         process.env.LOCAL = true;
-        const tableData = { created: true };
+        const tableData = {created: true};
         dynamodb.define = jest.fn().mockReturnValue(tableData);
         const expectedTableName = 'TableName';
         const expectedTableDef = {
