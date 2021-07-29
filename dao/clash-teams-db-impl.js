@@ -137,14 +137,6 @@ class ClashTeamsDbImpl {
                 if (!foundTeam) {
                     resolve(foundTeam);
                 }
-                let callback = (err, data) => {
-                    if (err) reject(err);
-                    else {
-                        console.log(`Successfully added user to Team ('${JSON.stringify(data)}').`);
-                        foundTeam = data.attrs;
-                    }
-                };
-                this.addUserToTeam(playerName, foundTeam, callback);
                 this.removeIfExistingInTentative(playerName, serverName, {
                     tournamentName: foundTeam.tournamentName,
                     tournamentDay: foundTeam.tournamentDay
@@ -152,7 +144,15 @@ class ClashTeamsDbImpl {
                 if (currentTeam) {
                     this.unregisterPlayerWithSpecificTeam(playerName, [currentTeam], serverName, reject);
                 }
-                resolve(foundTeam);
+                let callback = (err, data) => {
+                    if (err) reject(err);
+                    else {
+                        console.log(`Successfully added user to Team ('${JSON.stringify(data)}').`);
+                        foundTeam = data.attrs;
+                        resolve(foundTeam);
+                    }
+                };
+                this.addUserToTeam(playerName, foundTeam, callback);
             }).catch(err => reject(err));
         })
     }

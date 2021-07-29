@@ -14,7 +14,8 @@ module.exports = {
         } else if (!args[1]) {
             msg.reply("Team is missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join msi2021 ***Pikachu***")
         } else {
-            await leagueApi.findTournament(args[0]).then(times => {
+            try {
+                let times = await leagueApi.findTournament(args[0]);
                 if (times.length === 0) {
                     msg.reply(`The tournament you are trying to join does not exist ('${args[0]}'). Please use '!clash times' to see valid tournaments.`)
                 } else {
@@ -25,9 +26,10 @@ module.exports = {
                             inline: true
                         };
                     }
+
                     let copy = JSON.parse(JSON.stringify(registerReply));
                     console.log(`Registering ('${msg.author.username}') with Tournaments ('${JSON.stringify(times)}')...`);
-                    dynamoDBUtils.registerWithSpecificTeam(msg.author.username, msg.guild.name, times, args[1]).then(team => {
+                    await dynamoDBUtils.registerWithSpecificTeam(msg.author.username, msg.guild.name, times, args[1]).then(team => {
                         if (team) {
                             console.log(`Registered ('${msg.author.username}') with Tournament ('${team.tournamentName}') Team ('${team.teamName}').`);
                             copy.fields.push({name: team.teamName, value: team.players, inline: true});
@@ -36,12 +38,13 @@ module.exports = {
                             copy.description = `Failed to find an available team with the following criteria Tournament ('${args[0]}') Team Name ('${args[1]}')`;
                         }
                         msg.reply({embed: copy});
-                    }).catch(err => errorHandling.handleError(this.name, err, msg, 'Failed to join the requested team.'))
-                        .finally(() => {
-                            timeTracker.endExecution(this.name, startTime);
-                        });
+                    });
                 }
-            });
+            } catch (err) {
+                errorHandling.handleError(this.name, err, msg, 'Failed to join the requested team.');
+            } finally {
+                timeTracker.endExecution(this.name, startTime);
+            }
         }
     }
 }

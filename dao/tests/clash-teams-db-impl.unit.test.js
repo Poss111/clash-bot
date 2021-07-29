@@ -58,7 +58,7 @@ beforeEach(() => {
 
 describe('Initialize Table connection', () => {
     test('Initialize the table connection to be used.', async () => {
-        let expectedTableObject = { setupTable: true};
+        let expectedTableObject = {setupTable: true};
         dynamoDbHelper.initialize = jest.fn().mockResolvedValue(expectedTableObject);
         const expectedTableDef = {
             hashKey: 'key',
@@ -468,14 +468,6 @@ describe('Register Specific Team', () => {
             expect(clashTeamsDbImpl.tentative).toHaveLength(0);
             expect(clashTeamsDbImpl.Team.update.mock.calls).toEqual([
                 [
-                    {key: dynamoDbRetrieveList.Items[2].attrs.key},
-                    {
-                        ExpressionAttributeValues: {
-                            ':playerName': [playerName]
-                        },
-                        UpdateExpression: 'ADD players :playerName'
-                    }, expect.any(Function)
-                ], [
                     {key: dynamoDbRetrieveList.Items[1].attrs.key},
                     {
                         ExpressionAttributeValues: {
@@ -485,7 +477,16 @@ describe('Register Specific Team', () => {
                         ConditionExpression: 'teamName = :nameOfTeam',
                         UpdateExpression: 'DELETE players :playerName'
                     }, expect.any(Function)
-                ]
+                ],
+                [
+                    {key: dynamoDbRetrieveList.Items[2].attrs.key},
+                    {
+                        ExpressionAttributeValues: {
+                            ':playerName': [playerName]
+                        },
+                        UpdateExpression: 'ADD players :playerName'
+                    }, expect.any(Function)
+                ],
             ]);
         })
     })
@@ -543,7 +544,7 @@ describe('Register Specific Team', () => {
             tournamentName: tournaments[0].tournamentName,
             tournamentDay: tournaments[0].tournamentDay
         };
-        buildMockReturnForRegister(dynamoDbRetrieveList, mockTeam, false, true);
+        buildMockReturnForRegister(dynamoDbRetrieveList, mockTeam, false, true, true);
         expect(clashTeamsDbImpl.tentative).toHaveLength(1);
         return clashTeamsDbImpl.registerWithSpecificTeam(playerName, serverName, tournaments, teamName).then(data => {
             expect(data).toBeTruthy();
@@ -555,14 +556,6 @@ describe('Register Specific Team', () => {
             expect(clashTeamsDbImpl.tentative).toHaveLength(0);
             expect(clashTeamsDbImpl.Team.update.mock.calls).toEqual([
                 [
-                    {key: dynamoDbRetrieveList.Items[1].attrs.key},
-                    {
-                        ExpressionAttributeValues: {
-                            ':playerName': [playerName]
-                        },
-                        UpdateExpression: 'ADD players :playerName'
-                    }, expect.any(Function)
-                ], [
                     {key: dynamoDbRetrieveList.Items[0].attrs.key},
                     {
                         ExpressionAttributeValues: {
@@ -571,6 +564,15 @@ describe('Register Specific Team', () => {
                         },
                         ConditionExpression: 'teamName = :nameOfTeam',
                         UpdateExpression: 'DELETE players :playerName'
+                    }, expect.any(Function)
+                ],
+                [
+                    {key: dynamoDbRetrieveList.Items[1].attrs.key},
+                    {
+                        ExpressionAttributeValues: {
+                            ':playerName': [playerName]
+                        },
+                        UpdateExpression: 'ADD players :playerName'
                     }, expect.any(Function)
                 ]
             ]);

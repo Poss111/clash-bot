@@ -91,14 +91,39 @@ describe('!clash unsubscribe', () => {
 })
 
 describe('!clash join', () => {
-    test('When the User wants to join a specific Team, they should be able to pass the team name and be successfully assigned to them.', () => {
-
+    test('When the User wants to join a specific Team, they should be able to pass the team name and be successfully assigned to them.', async () => {
+        let {restrictedChannel, commandPrefix, mockDiscordMessage, mockDiscordBot} = setupBotCommand('join');
+        const expectedTeamName = "Absol";
+        mockDiscordMessage.content = mockDiscordMessage.content.concat(" awesome_sauce " + expectedTeamName);
+        let tableData = clashTableData.get('ClashTeam');
+        let testedTeam = tableData.dataPersisted.find(record => record.teamName === `Team ${expectedTeamName}`);
+        expect(testedTeam.players).not.toContain(mockDiscordMessage.author.username);
+        await loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
+        let updatedData = await dynamoDbUtility.getAllDataFromTable(tableData.table);
+        testedTeam = updatedData.find(record => record.teamName === `Team ${expectedTeamName}`);
+        expect(mockDiscordMessage.reply.mock.calls[0][0].embed.description).not.toContain('Failed to find');
+        expect(mockDiscordMessage.reply.mock.calls[0][0].embed.fields[0].name).toContain(`Team ${expectedTeamName}`);
+        expect(mockDiscordMessage.reply.mock.calls[0][0].embed.fields[0].value).toContain(mockDiscordMessage.author.username);
+        expect(testedTeam.players).toContain(mockDiscordMessage.author.username);
     })
 })
 
 describe('!clash newTeam', () => {
-    test('When the User wants to create a new Team, they should be able to create for the specified Tournament and Day.', () => {
-
+    test('When the User wants to create a new Team, they should be able to create for the specified Tournament and Day.', async () => {
+        let {restrictedChannel, commandPrefix, mockDiscordMessage, mockDiscordBot} = setupBotCommand('newTeam');
+        mockDiscordMessage.content = mockDiscordMessage.content.concat(" awesome_sauce");
+        let tableData = clashTableData.get('ClashTeam');
+        expect(tableData.dataPersisted.find(record => record.players && record.players.includes(mockDiscordMessage.author.username))).toBeFalsy()
+        let expectedTeamToJoin = tableData.dataPersisted.find(record => !record.players && record.tournamentDay === '1');
+        await loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
+        let updatedData = await dynamoDbUtility.getAllDataFromTable(tableData.table);
+        testedTeam = updatedData.find(record => record.teamName === expectedTeamToJoin.teamName);
+        expect(mockDiscordMessage.reply.mock.calls[0][0]).not.toContain('We were unable to find a Tournament with');
+        expect(mockDiscordMessage.reply.mock.calls[0][0].embed.fields[0].name).toEqual(expectedTeamToJoin.teamName);
+        expect(mockDiscordMessage.reply.mock.calls[0][0].embed.fields[0].value).toContain(mockDiscordMessage.author.username);
+        expect(mockDiscordMessage.reply.mock.calls[0][0].embed.fields[1].name).toContain('Tournament Details');
+        expect(mockDiscordMessage.reply.mock.calls[0][0].embed.fields[1].value).toEqual('awesome_sauce Day 1');
+        expect(testedTeam.players).toContain(mockDiscordMessage.author.username);
     })
 })
 
@@ -137,6 +162,12 @@ function setupBotCommand(command, userId) {
             break;
         case 'unsubscribe':
             module = botCommands.Unsubscribe;
+            break;
+        case 'join':
+            module = botCommands.JoinTeamByName;
+            break;
+        case 'newteam':
+            module = botCommands.NewTeam;
             break;
     }
     mockCommands.set(command, module);

@@ -24,7 +24,8 @@ module.exports = {
             promise = leagueApi.findTournament();
         }
 
-        await promise.then((filteredClashTimes) => {
+        try {
+            let filteredClashTimes = await promise;
             if (!filteredClashTimes
                 || !filteredClashTimes.length) {
                 if (!parsedArguments.tournamentName) {
@@ -34,7 +35,7 @@ module.exports = {
                     if (parsedArguments.tournamentDay) {
                         returnMessage = returnMessage + ` and '${parsedArguments.tournamentDay}'`;
                     }
-                    msg.reply(returnMessage +'. Please try again.');
+                    msg.reply(returnMessage + '. Please try again.');
                 }
             } else {
                 function buildTournamentDetails(team) {
@@ -45,28 +46,29 @@ module.exports = {
                     };
                 }
 
-                dbUtils.registerPlayer(msg.author.username, msg.guild.name, filteredClashTimes).then(data => {
-                    let copy = JSON.parse(JSON.stringify(registerReply));
-                    if (Array.isArray(data) && data[0].exist) {
-                        copy.description = 'You are already registered to the following Teams.';
-                        let i;
-                        for (i = 0; i < data.length; i++) {
-                            copy.fields.push({name: data[i].teamName, value: data[i].players, inline: true});
-                            copy.fields.push(buildTournamentDetails(data[i]));
-                            if (i < data.length - 1) {
-                                copy.fields.push({name: '\u200B', value: '\u200B'});
-                            }
+                let data = await dbUtils.registerPlayer(msg.author.username, msg.guild.name, filteredClashTimes);
+                let copy = JSON.parse(JSON.stringify(registerReply));
+                if (Array.isArray(data) && data[0].exist) {
+                    copy.description = 'You are already registered to the following Teams.';
+                    let i;
+                    for (i = 0; i < data.length; i++) {
+                        copy.fields.push({name: data[i].teamName, value: data[i].players, inline: true});
+                        copy.fields.push(buildTournamentDetails(data[i]));
+                        if (i < data.length - 1) {
+                            copy.fields.push({name: '\u200B', value: '\u200B'});
                         }
-                    } else {
-                        copy.fields.push({name: data.teamName, value: data.players, inline: true});
-                        copy.fields.push(buildTournamentDetails(data));
                     }
-                    msg.reply({embed: copy});
-                }).catch(err => errorHandling.handleError(this.name, err, msg, 'Failed to register you to team.'))
-                    .finally(() => {
-                        timeTracker.endExecution(this.name, startTime);
-                    });
+                } else {
+                    copy.fields.push({name: data.teamName, value: data.players, inline: true});
+                    copy.fields.push(buildTournamentDetails(data));
+                }
+                msg.reply({embed: copy});
             }
-        });
-    },
-};
+        } catch
+            (err) {
+            errorHandling.handleError(this.name, err, msg, 'Failed to register you to team.')
+        } finally {
+            timeTracker.endExecution(this.name, startTime);
+        }
+    }
+}
