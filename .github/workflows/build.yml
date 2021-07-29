@@ -47,6 +47,9 @@ jobs:
     - name: Run unit tests
       run: npm test
 
+    - name: Run integration tests on Local DynamoDb
+      run: npm integration
+
     - uses: actions/upload-artifact@v2
       with:
         name: coverage-artifact

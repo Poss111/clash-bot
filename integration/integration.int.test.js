@@ -2,7 +2,7 @@ const discordModulePath = 'discord.js';
 const botCommands = require('../commands');
 const helpMenu = require('../templates/help-menu');
 const loadBot = require('../utility/load-bot');
-const dynamoDbUtility = require('./dynamo-db-utility.setup.test');
+const dynamoDbUtility = require('./dynamo-db-utility.setup');
 
 jest.mock(discordModulePath);
 
