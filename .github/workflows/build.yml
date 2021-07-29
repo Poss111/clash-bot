@@ -47,6 +47,13 @@ jobs:
     - name: Run unit tests
       run: npm test
 
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: 'Dummy'
+        aws-secret-access-key: 'Dummy'
+        aws-region: us-east-1
+
     - name: Run integration tests on Local DynamoDb
       run: npm run integration
 
