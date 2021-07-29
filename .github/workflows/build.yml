@@ -49,6 +49,7 @@ jobs:
 
     - name: Run integration tests on Local DynamoDb
       run: npm run integration
+      timeout-minutes: 2
 
     - uses: actions/upload-artifact@v2
       with:

@@ -16,7 +16,7 @@ beforeEach(async () => {
     jest.resetAllMocks();
     delete process.env.LOCAL;
     delete process.env.TOKEN;
-    await dynamoDbUtility.loadAllTables()
+    return dynamoDbUtility.loadAllTables()
         .then(data => {
             console.log('Table data setup successfully.');
             clashTableData = data;
