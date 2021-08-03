@@ -21,7 +21,7 @@ beforeEach(async () => {
     let promise = new Promise((resolve, reject) => {
         const timer = setTimeout(() => {
             reject(new Error('Failed to load db data in set time.'))
-        }, 8000);
+        }, 58000);
 
         dynamoDbUtility.loadAllTables()
             .then(data => {
@@ -38,7 +38,7 @@ beforeEach(async () => {
         console.error('Failed to load DB data for setup.', err);
         process.exit(1);
     });
-}, 10000)
+}, 60000)
 
 describe('!clash help', () => {
     test('When a message event is received, the message should execute the expected command from channel league and the command following the prefix !clash', () => {
