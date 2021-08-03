@@ -1,8 +1,8 @@
 const teams = require('../teams');
-const dynamoDBUtils = require('../../dao/dynamo-db-impl');
+const dynamoDBUtils = require('../../dao/clash-teams-db-impl');
 const errorHandling = require('../../utility/error-handling');
 
-jest.mock('../../dao/dynamo-db-impl');
+jest.mock('../../dao/clash-teams-db-impl');
 jest.mock('../../utility/error-handling');
 
 describe('Retrieve Teams', () => {

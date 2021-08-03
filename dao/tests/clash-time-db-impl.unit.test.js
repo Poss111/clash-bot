@@ -1,53 +1,40 @@
-const clashtimeDb = require('../clashtime-db-impl');
-const dynamodb = require('dynamodb');
+const clashtimeDb = require('../clash-time-db-impl');
+const dynamoDbHelper = require('../impl/dynamo-db-helper');
 const streamTest = require('streamtest');
 const moment = require('moment-timezone');
+const Joi = require('joi');
 
-jest.mock('dynamodb');
+jest.mock('../impl/dynamo-db-helper');
 
-test('Should fail a return with a reject if the TOKEN is not passed.', () => {
-    return expect(clashtimeDb.initializeLeagueData()).rejects.toMatch('TOKEN not found.');
+beforeEach(() => {
+    jest.resetAllMocks();
 })
 
-test('Should return a parsed array of human readable dates from the League Clash API and should be sorted by day.', () => {
-    process.env.TOKEN = 'testToken';
-    const value = {
-        Items: [{
-            attrs: {
-                key: "msi2021#3",
-                tournamentName: "msi2021",
-                tournamentDay: "4",
-                registrationTime: "June 13 2021 04:15 pm PDT",
-                startTime: "June 13 2021 05:15 pm PDT"
+describe('Initialize Table connection', () => {
+    test('Initialize the table connection to be used.', async () => {
+        let expectedTableDef = {
+            hashKey: 'key',
+            timestamps: true,
+            schema: {
+                key: Joi.string(),
+                startTime: Joi.string(),
+                tournamentName: Joi.string(),
+                tournamentDay: Joi.string(),
+                registrationTime: Joi.string()
             }
-        }, {
-            attrs: {
-                key: "msi2021#4",
-                tournamentName: "msi2021",
-                tournamentDay: "3",
-                registrationTime: "June 12 2021 04:15 pm PDT",
-                startTime: "June 12 2021 05:15 pm PDT",
-            }
-        }]
-    };
-    const mockStream = jest.fn().mockImplementation(() => streamTest.v2.fromObjects([value]));
-    dynamodb.define = jest.fn().mockReturnValue({
-        scan: jest.fn().mockReturnThis(),
-        filterExpression: jest.fn().mockReturnThis(),
-        expressionAttributeValues: jest.fn().mockReturnThis(),
-        expressionAttributeNames: jest.fn().mockReturnThis(),
-        exec: mockStream
-    });
+        };
+        dynamoDbHelper.initialize = jest.fn().mockResolvedValue(expectedTableDef);
+        return clashtimeDb.initialize().then(() => {
+            expect(clashtimeDb.clashTimesTable).toEqual(expectedTableDef);
+            expect(dynamoDbHelper.initialize).toBeCalledWith(clashtimeDb.tableName, expectedTableDef);
+        });
+    })
 
-    let expectedData = [];
-    value.Items.forEach(record => {
-        expectedData.push(JSON.parse(JSON.stringify(record.attrs)));
-    });
-    expectedData.sort((a, b) => parseInt(a.tournamentDay) - parseInt(b.tournamentDay));
-
-    return clashtimeDb.initializeLeagueData().then(data => {
-        expect(data).toEqual(expectedData);
-    });
+    test('Error should be handled if it occurs during table initialization', async () => {
+        const expectedError = new Error('Failed to compile table def');
+        dynamoDbHelper.initialize = jest.fn().mockRejectedValue(expectedError);
+        return clashtimeDb.initialize('Sample Table', {}).catch(err => expect(err).toEqual(expectedError));
+    })
 })
 
 describe('Find Tournament', () => {
@@ -158,7 +145,6 @@ describe('Find Tournament', () => {
 
 describe('Retrieve Tournaments', () => {
     test('Should be able to retrieve all tournaments from stream and should be sorted by greatest to least day number.', () => {
-        process.env.TOKEN = 'testToken';
         const value = {
             Items: [{
                 attrs: {

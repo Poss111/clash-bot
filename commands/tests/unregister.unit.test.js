@@ -1,12 +1,12 @@
 const unregister = require('../unregister');
-const dynamoDbUtils = require('../../dao/dynamo-db-impl');
+const dynamoDbUtils = require('../../dao/clash-teams-db-impl');
 const errorHandling = require('../../utility/error-handling');
-const leagueApi = require('../../dao/clashtime-db-impl');
+const leagueApi = require('../../dao/clash-time-db-impl');
 const commandArgumentParser = require('../command-argument-parser');
 
-jest.mock('../../dao/dynamo-db-impl');
+jest.mock('../../dao/clash-teams-db-impl');
 jest.mock('../../utility/error-handling');
-jest.mock('../../dao/clashtime-db-impl');
+jest.mock('../../dao/clash-time-db-impl');
 jest.mock('../command-argument-parser');
 
 describe('Unregister', () => {

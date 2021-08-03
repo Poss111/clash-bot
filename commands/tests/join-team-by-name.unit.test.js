@@ -1,10 +1,10 @@
 const joinTeamByName = require('../join-team-by-name');
-const leagueApi = require('../../dao/clashtime-db-impl');
-const dynamoDBUtils = require('../../dao/dynamo-db-impl');
+const leagueApi = require('../../dao/clash-time-db-impl');
+const dynamoDBUtils = require('../../dao/clash-teams-db-impl');
 const errorHandling = require('../../utility/error-handling');
 
-jest.mock('../../dao/clashtime-db-impl');
-jest.mock('../../dao/dynamo-db-impl');
+jest.mock('../../dao/clash-time-db-impl');
+jest.mock('../../dao/clash-teams-db-impl');
 jest.mock('../../utility/error-handling');
 
 function verifyReply(messagePassed, sampleRegisterReturn) {

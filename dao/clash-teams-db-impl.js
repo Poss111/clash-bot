@@ -1,28 +1,19 @@
 const dynamodb = require('dynamodb');
+const dynamoDbHelper = require('./impl/dynamo-db-helper');
 const Joi = require('joi');
 const names = require('../random-names');
 
-class DynamoDBUtils {
+class ClashTeamsDbImpl {
     Team;
     tentative = [];
+    tableName = 'ClashTeam';
 
     constructor() {
     }
 
-    initializeClashBotDB() {
-        let tableName = 'ClashTeam';
+    initialize() {
         return new Promise((resolve, reject) => {
-            if (process.env.LOCAL) {
-                console.log('Loading credentials from local.');
-                dynamodb.AWS.config.loadFromPath('./credentials.json');
-                tableName = `${tableName}-local`;
-            } else {
-                console.log('Loading credentials from remote.');
-                dynamodb.AWS.config.update({
-                    region: `${process.env.REGION}`
-                });
-            }
-            this.Team = dynamodb.define(tableName, {
+            dynamoDbHelper.initialize(this.tableName, {
                 hashKey: 'key',
                 timestamps: true,
                 schema: {
@@ -34,15 +25,11 @@ class DynamoDBUtils {
                     tournamentDay: Joi.string(),
                     startTime: Joi.string()
                 }
-            });
-            const dbCallback = (err) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve('Successfully initialized Database.');
-                }
-            };
-            dynamodb.createTables(dbCallback);
+            }).then(data => {
+                console.log(`Successfully setup table def for ('${this.tableName}')`);
+                this.Team = data;
+                resolve(data);
+            }).catch((err) => reject(err));
         })
     }
 
@@ -150,14 +137,6 @@ class DynamoDBUtils {
                 if (!foundTeam) {
                     resolve(foundTeam);
                 }
-                let callback = (err, data) => {
-                    if (err) reject(err);
-                    else {
-                        console.log(`Successfully added user to Team ('${JSON.stringify(data)}').`);
-                        foundTeam = data.attrs;
-                    }
-                };
-                this.addUserToTeam(playerName, foundTeam, callback);
                 this.removeIfExistingInTentative(playerName, serverName, {
                     tournamentName: foundTeam.tournamentName,
                     tournamentDay: foundTeam.tournamentDay
@@ -165,7 +144,15 @@ class DynamoDBUtils {
                 if (currentTeam) {
                     this.unregisterPlayerWithSpecificTeam(playerName, [currentTeam], serverName, reject);
                 }
-                resolve(foundTeam);
+                let callback = (err, data) => {
+                    if (err) reject(err);
+                    else {
+                        console.log(`Successfully added user to Team ('${JSON.stringify(data)}').`);
+                        foundTeam = data.attrs;
+                        resolve(foundTeam);
+                    }
+                };
+                this.addUserToTeam(playerName, foundTeam, callback);
             }).catch(err => reject(err));
         })
     }
@@ -418,4 +405,4 @@ class DynamoDBUtils {
     }
 }
 
-module.exports = new DynamoDBUtils;
+module.exports = new ClashTeamsDbImpl;

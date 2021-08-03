@@ -1,7 +1,7 @@
-const dbUtils = require('../dao/dynamo-db-impl');
+const dbUtils = require('../dao/clash-teams-db-impl');
 const errorHandler = require('../utility/error-handling');
 const timeTracker = require('../utility/time-tracker');
-const leagueApi = require('../dao/clashtime-db-impl');
+const leagueApi = require('../dao/clash-time-db-impl');
 const commandArgumentParser = require('./command-argument-parser');
 
 module.exports = {

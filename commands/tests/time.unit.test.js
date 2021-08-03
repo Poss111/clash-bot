@@ -1,7 +1,7 @@
 const time = require('../time');
-const leagueApi = require('../../dao/clashtime-db-impl');
+const leagueApi = require('../../dao/clash-time-db-impl');
 
-jest.mock('../../dao/clashtime-db-impl');
+jest.mock('../../dao/clash-time-db-impl');
 
 describe('League Clash Times', () => {
 
