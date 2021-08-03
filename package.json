@@ -7,7 +7,7 @@
     "start": "nodemon index.js",
     "test": "jest unit --coverage --coverageReporters=\"json\" --coverageReporters=\"json-summary\" --coverageReporters=\"lcov\" --coverageReporters=\"text\" --silent",
     "preintegration": "docker-compose up --no-start --force-recreate dynamodb-local && docker-compose start && docker inspect dynamodb-local",
-    "integration": "jest int --detectOpenHandles",
+    "integration": "docker ps && docker images && jest int --detectOpenHandles",
     "postintegration": "docker-compose stop"
   },
   "keywords": [],
