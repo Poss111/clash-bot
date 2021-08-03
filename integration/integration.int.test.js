@@ -22,7 +22,7 @@ beforeEach(async () => {
     let promise = new Promise((resolve, reject) => {
         const timer = setTimeout(() => {
             reject(new Error('Failed to load db data in set time.'))
-        }, 8000);
+        }, 9000);
 
         dynamoDbUtility.loadAllTables()
             .then(data => {
@@ -33,6 +33,7 @@ beforeEach(async () => {
             }).catch(err => {
                 clearTimeout(timer);
                 console.error('Failed to setup data', err);
+                reject(err);
             });
     });
     return promise.catch((err) => {
