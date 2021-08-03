@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon index.js",
     "test": "jest unit --coverage --coverageReporters=\"json\" --coverageReporters=\"json-summary\" --coverageReporters=\"lcov\" --coverageReporters=\"text\" --silent --detectOpenHandles",
-    "integration": "jest int"
+    "integration": "jest int --silent"
   },
   "keywords": [],
   "author": "Daniel Poss",

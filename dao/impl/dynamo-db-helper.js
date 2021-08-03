@@ -14,12 +14,10 @@ class DynamoDbHelper {
                         endpoint: 'http://localhost:8000',
                         accessKeyId: 'Dummy',
                         secretAccessKey: 'Dummy',
-                        maxRetries: 0,
                         httpOptions: {
                             connectTimeout: 2000,
                             timeout: 2000
-                        },
-                        logger: console
+                        }
                     });
                 } else if (process.env.LOCAL) {
                     console.log('Loading credentials for local.');
