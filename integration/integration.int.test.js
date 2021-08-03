@@ -16,16 +16,30 @@ beforeEach(async () => {
     jest.resetAllMocks();
     delete process.env.LOCAL;
     delete process.env.TOKEN;
-    return dynamoDbUtility.loadAllTables()
-        .then(data => {
-            console.log('Table data setup successfully.');
-            clashTableData = data;
-        })
-        .catch(err => console.error('Failed to setup data', err));
-})
+
+    let promise = new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+            reject(new Error('Failed to load db data in set time.'))
+        }, 8000);
+
+        dynamoDbUtility.loadAllTables()
+            .then(data => {
+                console.log('Table data setup successfully.');
+                clashTableData = data;
+                clearTimeout(timer);
+                resolve(data);
+            }).catch(err => {
+                clearTimeout(timer);
+                console.error('Failed to setup data', err);
+            });
+    });
+    return promise.catch((err) => {
+        console.error('Failed to load DB data for setup.', err);
+        process.exit(1);
+    });
+}, 10000)
 
 describe('!clash help', () => {
-
     test('When a message event is received, the message should execute the expected command from channel league and the command following the prefix !clash', () => {
         let {restrictedChannel, commandPrefix, mockDiscordMessage, mockDiscordBot} = setupBotCommand('help');
         let copy = JSON.parse(JSON.stringify(helpMenu));
