@@ -112,6 +112,7 @@ function persistSampleData(module, data) {
 
 function cleanUpTable(tableName, table) {
     return new Promise((resolve) => {
+        console.log(`Attempting to delete table ('${tableName}')...`);
         table.deleteTable((err) => {
             if (err) console.error('Table was unable to be deleted.', err);
             resolve(`Successfully deleted ${tableName}.`);
