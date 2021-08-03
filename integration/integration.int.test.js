@@ -14,6 +14,7 @@ beforeAll(() => {
 
 beforeEach(async () => {
     jest.resetAllMocks();
+    process.env.IP_ADDRESS = '172.18.0.2';
     console.log(process.env.IP_ADDRESS);
     delete process.env.LOCAL;
     delete process.env.TOKEN;
@@ -21,7 +22,7 @@ beforeEach(async () => {
     let promise = new Promise((resolve, reject) => {
         const timer = setTimeout(() => {
             reject(new Error('Failed to load db data in set time.'))
-        }, 58000);
+        }, 8000);
 
         dynamoDbUtility.loadAllTables()
             .then(data => {
@@ -38,7 +39,7 @@ beforeEach(async () => {
         console.error('Failed to load DB data for setup.', err);
         process.exit(1);
     });
-}, 60000)
+}, 10000)
 
 describe('!clash help', () => {
     test('When a message event is received, the message should execute the expected command from channel league and the command following the prefix !clash', () => {
