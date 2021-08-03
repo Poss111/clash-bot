@@ -34,7 +34,7 @@ let loadAllTables = async () => new Promise((resolve, reject) => {
     let clashTimesDynamicData = templateBuilder.buildMessage(clashTimesData, overrides);
     let clashTeamDynamicData = templateBuilder.buildMessage(clashTeamsData, overrides);
     let clashSubscriptionDynamicData = templateBuilder.buildMessage(clashSubscriptionData, overrides);
-    Promise.allSettled([
+    Promise.all([
         persistSampleData(clashTimeDb, clashTimesDynamicData),
         persistSampleData(clashTeamsDb, clashTeamDynamicData),
         persistSampleData(clashSubscriptionDb, clashSubscriptionDynamicData)])
