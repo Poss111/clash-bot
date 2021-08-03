@@ -79,7 +79,11 @@ describe('Initialize Table connection', () => {
                 region: process.env.REGION,
                 endpoint: "http://localhost:8000",
                 accessKeyId: 'Dummy',
-                secretAccessKey: 'Dummy'
+                secretAccessKey: 'Dummy',
+                httpOptions: {
+                    connectTimeout: 5000,
+                    timeout: 5000
+                }
             });
             expect(dynamodb.define).toBeCalledTimes(1);
             expect(dynamodb.define).toBeCalledWith(expectedTableName, expectedTableDef);
