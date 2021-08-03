@@ -13,7 +13,11 @@ class DynamoDbHelper {
                         region: `${process.env.REGION}`,
                         endpoint: 'http://localhost:8000',
                         accessKeyId: 'Dummy',
-                        secretAccessKey: 'Dummy'
+                        secretAccessKey: 'Dummy',
+                        httpOptions: {
+                            connectTimeout: 5000,
+                            timeout: 5000
+                        }
                     });
                     this.setupConfig = true;
                 } else if (process.env.LOCAL) {

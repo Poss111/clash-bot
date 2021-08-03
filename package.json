@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",
-    "test": "jest unit --coverage --coverageReporters=\"json\" --coverageReporters=\"json-summary\" --coverageReporters=\"lcov\" --coverageReporters=\"text\" --silent",
+    "test": "jest unit --coverage --coverageReporters=\"json\" --coverageReporters=\"json-summary\" --coverageReporters=\"lcov\" --coverageReporters=\"text\" --silent --detectOpenHandles",
     "preintegration": "docker-compose up --no-start --force-recreate dynamodb-local && docker-compose start && docker inspect dynamodb-local",
-    "integration": "telnet localhost 8000",
+    "integration": "jest int",
     "postintegration": "docker-compose stop"
   },
   "keywords": [],
