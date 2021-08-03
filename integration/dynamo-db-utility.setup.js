@@ -76,13 +76,16 @@ function persistSampleData(module, data) {
     return new Promise((resolve, reject) => {
         module.initialize().then(table => {
             cleanUpTable(module.tableName, table).then(() => {
+                console.log(`Creating table ('${module.tableName}')...`);
                 table.createTable((err) => {
                     if (err) console.error(`Failed to create ${module.tableName}.`, err);
                     else {
                         let successful = 0;
                         let failed = 0;
                         let dataPersisted = [];
+                        console.log(`Successfully created table ('${module.tableName}').`);
                         data.Items.forEach(recordToInsert => {
+                            console.debug(`Inserting record into ('${module.tableName}')...`);
                             table.create(recordToInsert, (err) => {
                                 if (err) {
                                     console.error(`Failed to load data`, err);
