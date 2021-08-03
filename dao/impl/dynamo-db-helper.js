@@ -11,7 +11,7 @@ class DynamoDbHelper {
                     console.log('Loading credentials for Integration Test.');
                     dynamodb.AWS.config.update({
                         region: `${process.env.REGION}`,
-                        endpoint: 'http://localhost:8000',
+                        endpoint: process.env.IP_ADDRESS ? `http://${process.env.IP_ADDRESS}:8000` : 'http://localhost:8000',
                         accessKeyId: 'Dummy',
                         secretAccessKey: 'Dummy'
                     })

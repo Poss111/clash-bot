@@ -14,6 +14,7 @@ beforeAll(() => {
 
 beforeEach(async () => {
     jest.resetAllMocks();
+    console.log(process.env.IP_ADDRESS);
     delete process.env.LOCAL;
     delete process.env.TOKEN;
 
