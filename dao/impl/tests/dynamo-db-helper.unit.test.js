@@ -81,8 +81,8 @@ describe('Initialize Table connection', () => {
                 accessKeyId: 'Dummy',
                 secretAccessKey: 'Dummy',
                 httpOptions: {
-                    connectTimeout: 5000,
-                    timeout: 5000
+                    connectTimeout: 2000,
+                    timeout: 2000
                 }
             });
             expect(dynamodb.define).toBeCalledTimes(1);

@@ -34,7 +34,7 @@ let loadAllTables = async () => new Promise((resolve, reject) => {
     let clashTimesDynamicData = templateBuilder.buildMessage(clashTimesData, overrides);
     let clashTeamDynamicData = templateBuilder.buildMessage(clashTeamsData, overrides);
     let clashSubscriptionDynamicData = templateBuilder.buildMessage(clashSubscriptionData, overrides);
-    Promise.all([
+    Promise.allSettled([
         persistSampleData(clashTimeDb, clashTimesDynamicData),
         persistSampleData(clashTeamsDb, clashTeamDynamicData),
         persistSampleData(clashSubscriptionDb, clashSubscriptionDynamicData)])
@@ -78,8 +78,10 @@ function persistSampleData(module, data) {
             cleanUpTable(module.tableName, table).then(() => {
                 console.log(`Creating table ('${module.tableName}')...`);
                 table.createTable((err) => {
-                    if (err) console.error(`Failed to create ${module.tableName}.`, err);
-                    else {
+                    if (err) {
+                        console.error(`Failed to create ${module.tableName}.`, err);
+                        reject(err);
+                    } else {
                         let successful = 0;
                         let failed = 0;
                         let dataPersisted = [];
@@ -113,10 +115,10 @@ function persistSampleData(module, data) {
 function cleanUpTable(tableName, table) {
     return new Promise((resolve) => {
         console.log(`Attempting to delete table ('${tableName}')...`);
-        // table.deleteTable((err) => {
-        //     if (err) console.error('Table was unable to be deleted.', err);
+        table.deleteTable((err) => {
+            if (err) console.error('Table was unable to be deleted.', err);
             resolve(`Successfully deleted ${tableName}.`);
-        // })
+        })
     });
 }
 

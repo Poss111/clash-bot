@@ -10,9 +10,14 @@ test('Should register a resource to timeout after 5 seconds.', () => {
     expect(ThrottleHandling.isThrottled('testing', 'TestServer')).toBeTruthy();
 })
 
-test('Should register a resource to timeout after 1 second.', () => {
+test('Should register a resource to timeout after 1 second.', async () => {
     ThrottleHandling.placeThrottle('test', 'TestServer', 1000);
-    setTimeout(() => expect(ThrottleHandling.isThrottled('test', 'TestServer')).toBeFalsy(), 2000);
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            expect(ThrottleHandling.isThrottled('test', 'TestServer')).toBeFalsy();
+            resolve(true);
+        }, 2000);
+    })
 })
 
 test('Should return if the server has been notified.', () => {

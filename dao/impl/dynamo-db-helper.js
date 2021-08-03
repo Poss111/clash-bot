@@ -14,23 +14,23 @@ class DynamoDbHelper {
                         endpoint: 'http://localhost:8000',
                         accessKeyId: 'Dummy',
                         secretAccessKey: 'Dummy',
+                        maxRetries: 0,
                         httpOptions: {
-                            connectTimeout: 5000,
-                            timeout: 5000
-                        }
+                            connectTimeout: 2000,
+                            timeout: 2000
+                        },
+                        logger: console
                     });
-                    this.setupConfig = true;
                 } else if (process.env.LOCAL) {
                     console.log('Loading credentials for local.');
                     dynamodb.AWS.config.loadFromPath('./credentials.json');
-                    this.setupConfig = true;
                 } else {
                     console.log('Loading credentials for remote.');
                     dynamodb.AWS.config.update({
                         region: `${process.env.REGION}`
                     });
-                    this.setupConfig = true;
                 }
+                this.setupConfig = true;
             }
             console.log(`Loaded table def ('${tableName}').`);
             resolve(dynamodb.define(tableName, tableDef));

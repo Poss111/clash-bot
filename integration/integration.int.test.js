@@ -10,6 +10,7 @@ let clashTableData = new Map();
 
 beforeAll(() => {
     process.env.INTEGRATION_TEST = true;
+    process.env.REGION = 'us-east-1';
 })
 
 beforeEach(async () => {
@@ -49,7 +50,6 @@ describe('!clash help', () => {
         loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
         expect(mockDiscordMessage.channel.send).toBeCalledTimes(1);
         expect(mockDiscordMessage.channel.send).toBeCalledWith({embed: copy});
-        mockDiscordBot.commands.get(0)
     })
 })
 
