@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon index.js",
     "test": "jest unit --coverage --coverageReporters=\"json\" --coverageReporters=\"json-summary\" --coverageReporters=\"lcov\" --coverageReporters=\"text\"",
-    "preintegration": "docker-compose up --no-start --force-recreate dynamodb-local && docker-compose start",
+    "preintegration": "docker-compose up --no-start --force-recreate dynamodb-local && docker-compose start && docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' dynamodb-local",
     "integration": "jest int --detectOpenHandles",
     "postintegration": "docker-compose stop"
   },
