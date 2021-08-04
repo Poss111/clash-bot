@@ -60,7 +60,7 @@ describe('!clash time', () => {
         expect(mockDiscordMessage.channel.send.mock.calls[0][0]).toBeTruthy();
         let returnedMessage = mockDiscordMessage.channel.send.mock.calls[0][0].embed;
         expect(returnedMessage.fields.name).not.toEqual('No times available');
-        expect(returnedMessage.fields.length).toEqual(tableData.dataPersisted.length * 4);
+        expect(returnedMessage.fields).toHaveLength(tableData.dataPersisted.length);
     })
 });
 
