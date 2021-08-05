@@ -10,9 +10,11 @@ module.exports = {
     execute: async function (msg, args) {
         const startTime = process.hrtime.bigint();
         if (!args || args.length === 0) {
-            msg.reply("Tournament Name and Team are missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join ***msi2021*** ***Pikachu***");
+            msg.reply("Tournament Name, Tournament Day, and Team are missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join ***msi2021*** ***1*** ***Pikachu***");
         } else if (!args[1]) {
-            msg.reply("Team is missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join msi2021 ***Pikachu***")
+            msg.reply("Tournament Day and Team is missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join msi2021 ***1*** ***Pikachu***");
+        } else if (!args[2]) {
+            msg.reply("Team is missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join msi2021 1 ***Pikachu***");
         } else {
             try {
                 let times = await leagueApi.findTournament(args[0]);
