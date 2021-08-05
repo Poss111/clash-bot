@@ -11,7 +11,7 @@
 | champions | ```!clash champions Aatrox``` | Will display quick information on a specific or multiple champions. |
 | dance | ```!clash dance``` | It is a secret. |
 | help | ```!clash help``` | Asks the bot to print this menu for you. |
-| join | ```!clash join msi2021 Pikachu``` | Asks the bot to register a player with a given Team based on the Tournament and the Team Name. |
+| join | ```!clash join msi2021 1 Pikachu``` | Asks the bot to register a player with a given Team based on the Tournament Name, Day and the Team Name. |
 | ping | ```!clash pong``` | Asks the bot to pong you. |
 | (deprecated) register | ```!clash register msi2021 1``` | Use newTeam. |
 | newTeam | ```!clash newTeam msi2021 1``` | Asks the bot to create a new Team for you based on the tournament provided. |
@@ -25,9 +25,8 @@
 
 ### Note
 -----------
-- You can use the join, register, unregister command with partial input
-    - For example: `!clash join msi2021 pikachu` -> `!clash join m p`
-    - Or: `!clash register msi2021 1` -> `!clash register m 1`
+- You can use the join, unregister, newTeam command with partial input
+    - For example: `!clash join msi2021 1 pikachu` -> `!clash join m 1 p`
 
 - Subscribe functionality has requirement of you to allow direct messages from people who belong to servers that you have joined. 
     - Tip: You can find this setting in discord under User Settings > Privacy & Safety > Server Privacy Defaults > Allow direct messages from server members.  

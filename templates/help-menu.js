@@ -24,8 +24,8 @@ module.exports = {
             value: "Asks the bot to print this menu for you :smiley:."
         },
         {
-            name: "~~register~~ join - !clash join msi2021 Abra",
-            value: "Asks the bot to assign you to an available Clash team based on the Tournament name and the Team name."
+            name: "~~register~~ join - !clash join msi2021 1 Abra",
+            value: "Asks the bot to assign you to an available Clash team based on the Tournament Name, Day and the Team name."
         },
         {
             name: "~~register~~ newTeam - !clash newTeam > !clash newTeam msi2021 1",

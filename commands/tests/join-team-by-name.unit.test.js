@@ -23,7 +23,7 @@ describe('Join an existing Team', () => {
             reply: (value) => messagePassed = value
         };
         await joinTeamByName.execute(msg);
-        expect(messagePassed).toBe("Tournament Name and Team are missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join ***msi2021*** ***Pikachu***");
+        expect(messagePassed).toBe("Tournament Name, Tournament Day, and Team are missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join ***msi2021*** ***1*** ***Pikachu***");
     })
 
     test('When a user requests to join a team, they are required to pass the tournament and Team Name and it is given and empty.', async () => {
@@ -32,17 +32,17 @@ describe('Join an existing Team', () => {
             reply: (value) => messagePassed = value
         };
         await joinTeamByName.execute(msg, []);
-        expect(messagePassed).toBe("Tournament Name and Team are missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join ***msi2021*** ***Pikachu***");
+        expect(messagePassed).toBe("Tournament Name, Tournament Day, and Team are missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join ***msi2021*** ***1*** ***Pikachu***");
     })
 
-    test('When a user requests to join a team with only the tournament, they are required to pass the tournament and Team Name.', async () => {
+    test('When a user requests to join a team with only the tournament, they are required to pass the tournament name and day and Team Name.', async () => {
         let messagePassed = '';
         let msg = {
             reply: (value) => messagePassed = value
         };
         let args = ['msi2021']
         await joinTeamByName.execute(msg, args);
-        expect(messagePassed).toBe("Team is missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join msi2021 ***Pikachu***");
+        expect(messagePassed).toBe("Tournament Day and Team is missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join msi2021 ***1*** ***Pikachu***");
     })
 
     test('When a user requests to join a team and they pass a Tournament that does not exist, they should be notified.', async () => {
@@ -50,10 +50,10 @@ describe('Join an existing Team', () => {
         let msg = {
             reply: (value) => messagePassed = value
         };
-        let args = ['dne', 'Sample Team'];
+        let args = ['dne', '1', 'Sample Team'];
         leagueApi.findTournament = jest.fn().mockResolvedValue([]);
         await joinTeamByName.execute(msg, args);
-        expect(messagePassed).toBe(`The tournament you are trying to join does not exist ('${args[0]}'). Please use '!clash times' to see valid tournaments.`);
+        expect(messagePassed).toBe(`The tournament you are trying to join does not exist Name ('${args[0]}') Day ('${args[1]}'). Please use '!clash times' to see valid tournaments.`);
     })
 
     test('When a user requests to join a team and they pass a Tournament and a Team they should be notified that they have successfully joined a Team.', async () => {
@@ -67,7 +67,7 @@ describe('Join an existing Team', () => {
                 name: 'TestServer'
             }
         };
-        let args = ['msi2021', 'Sample Team']
+        let args = ['msi2021', '1', 'Sample Team']
         leagueApi.leagueTimes = [
             {
                 tournamentName: "msi2021",
@@ -85,7 +85,7 @@ describe('Join an existing Team', () => {
         leagueApi.findTournament = jest.fn().mockResolvedValue(leagueApi.leagueTimes);
         dynamoDBUtils.registerWithSpecificTeam = jest.fn().mockResolvedValue(sampleRegisterReturn);
         await joinTeamByName.execute(msg, args);
-        expect(dynamoDBUtils.registerWithSpecificTeam).toBeCalledWith(msg.author.username, msg.guild.name, leagueApi.leagueTimes, args[1]);
+        expect(dynamoDBUtils.registerWithSpecificTeam).toBeCalledWith(msg.author.username, msg.guild.name, leagueApi.leagueTimes, args[2]);
         verifyReply(messagePassed, sampleRegisterReturn);
     })
 
@@ -100,7 +100,7 @@ describe('Join an existing Team', () => {
                 name: 'TestServer'
             }
         };
-        let args = ['msi2021', 'Sample Team']
+        let args = ['msi2021', '1', 'Sample Team']
         leagueApi.leagueTimes = [
             {
                 tournamentName: "msi2021",
@@ -112,8 +112,8 @@ describe('Join an existing Team', () => {
         leagueApi.findTournament = jest.fn().mockResolvedValue(leagueApi.leagueTimes);
         dynamoDBUtils.registerWithSpecificTeam = jest.fn().mockResolvedValue(undefined);
         await joinTeamByName.execute(msg, args);
-        expect(dynamoDBUtils.registerWithSpecificTeam).toBeCalledWith(msg.author.username, msg.guild.name, leagueApi.leagueTimes, args[1]);
-        expect(messagePassed.embed.description).toEqual(`Failed to find an available team with the following criteria Tournament ('${args[0]}') Team Name ('${args[1]}')`)
+        expect(dynamoDBUtils.registerWithSpecificTeam).toBeCalledWith(msg.author.username, msg.guild.name, leagueApi.leagueTimes, args[2]);
+        expect(messagePassed.embed.description).toEqual(`Failed to find an available team with the following criteria Tournament Name ('${args[0]}') Tournament Day ('${args[1]}') Team Name ('${args[2]}')`)
     })
 
 })
@@ -130,7 +130,7 @@ describe('Join Team Error', () => {
                 name: 'Server'
             }
         };
-        let args = ['msi2021', 'Sample Team']
+        let args = ['msi2021', '1', 'Sample Team']
         leagueApi.leagueTimes = [
             {
                 tournamentName: "msi2021",
