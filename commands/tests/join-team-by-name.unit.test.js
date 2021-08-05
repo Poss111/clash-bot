@@ -53,7 +53,7 @@ describe('Join an existing Team', () => {
         let args = ['dne', '1', 'Sample Team'];
         leagueApi.findTournament = jest.fn().mockResolvedValue([]);
         await joinTeamByName.execute(msg, args);
-        expect(messagePassed).toBe(`The tournament you are trying to join does not exist ('${args[0]}'). Please use '!clash times' to see valid tournaments.`);
+        expect(messagePassed).toBe(`The tournament you are trying to join does not exist Name ('${args[0]}') Day ('${args[1]}'). Please use '!clash times' to see valid tournaments.`);
     })
 
     test('When a user requests to join a team and they pass a Tournament and a Team they should be notified that they have successfully joined a Team.', async () => {
@@ -85,7 +85,7 @@ describe('Join an existing Team', () => {
         leagueApi.findTournament = jest.fn().mockResolvedValue(leagueApi.leagueTimes);
         dynamoDBUtils.registerWithSpecificTeam = jest.fn().mockResolvedValue(sampleRegisterReturn);
         await joinTeamByName.execute(msg, args);
-        expect(dynamoDBUtils.registerWithSpecificTeam).toBeCalledWith(msg.author.username, msg.guild.name, leagueApi.leagueTimes, args[1]);
+        expect(dynamoDBUtils.registerWithSpecificTeam).toBeCalledWith(msg.author.username, msg.guild.name, leagueApi.leagueTimes, args[2]);
         verifyReply(messagePassed, sampleRegisterReturn);
     })
 
@@ -112,8 +112,8 @@ describe('Join an existing Team', () => {
         leagueApi.findTournament = jest.fn().mockResolvedValue(leagueApi.leagueTimes);
         dynamoDBUtils.registerWithSpecificTeam = jest.fn().mockResolvedValue(undefined);
         await joinTeamByName.execute(msg, args);
-        expect(dynamoDBUtils.registerWithSpecificTeam).toBeCalledWith(msg.author.username, msg.guild.name, leagueApi.leagueTimes, args[1]);
-        expect(messagePassed.embed.description).toEqual(`Failed to find an available team with the following criteria Tournament ('${args[0]}') Team Name ('${args[1]}')`)
+        expect(dynamoDBUtils.registerWithSpecificTeam).toBeCalledWith(msg.author.username, msg.guild.name, leagueApi.leagueTimes, args[2]);
+        expect(messagePassed.embed.description).toEqual(`Failed to find an available team with the following criteria Tournament Name ('${args[0]}') Tournament Day ('${args[1]}') Team Name ('${args[2]}')`)
     })
 
 })
