@@ -17,7 +17,7 @@ module.exports = {
             msg.reply("Team is missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join msi2021 1 ***Pikachu***");
         } else {
             try {
-                let times = await leagueApi.findTournament(args[0]);
+                let times = await leagueApi.findTournament(args[0], args[1]);
                 if (times.length === 0) {
                     msg.reply(`The tournament you are trying to join does not exist Name ('${args[0]}') Day ('${args[1]}'). Please use '!clash times' to see valid tournaments.`)
                 } else {
