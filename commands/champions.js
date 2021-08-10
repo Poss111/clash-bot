@@ -4,7 +4,7 @@ const templateBuilder = require('../utility/template-builder');
 const riotApi = require('@fightmegg/riot-api');
 module.exports = {
     name: 'champions',
-    description: 'Returns a description of the requested League of Legends Champions based on what the user requests.',
+    description: 'Returnss a description of the requested League of Legends Champions based on what the user requests.',
     async execute(msg, args) {
         const startTime = process.hrtime.bigint();
         try {
