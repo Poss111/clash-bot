@@ -9,3 +9,23 @@ services:
     volumes:
       - "./docker/dynamodb:/home/dynamodblocal/data"
     working_dir: /home/dynamodblocal
+    environment:
+      - LANG=en_US.UTF-8
+      - locale-gen=en_US.UTF-8
+      - LANGUAGE=en_US:en
+      - LC_ALL=en_US.UTF-8
+  dynamodb-local-gui:
+    image: 'aaronshaf/dynamodb-admin:latest'
+    container_name: dynamodb-local-gui
+    ports:
+      - "8001:8001"
+    environment:
+      - DYNAMO_ENDPOINT=http://dynamodb-local:8000
+  clash-bot-service-bot:
+    image: "poss11111/clash-bot-service:test"
+    container_name: clash-bot-service-bot
+    ports:
+      - "0.0.0.0:80:80"
+    environment:
+      - INTEGRATION_TEST=true
+      - HOST=dynamodb-local
