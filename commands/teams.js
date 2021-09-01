@@ -1,4 +1,4 @@
-const clashBotTeamsServiceImpl = require('../services/clash-bot-teams-service-impl');
+const clashBotTeamsServiceImpl = require('../services/teams-service-impl');
 const tentativeServiceImpl = require('../services/tentative-service-impl');
 const teamsCard = require('../templates/teams');
 const errorHandler = require('../utility/error-handling');
