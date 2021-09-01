@@ -1,10 +1,10 @@
 const teams = require('../teams');
-const clashBotTeamsServiceImpl = require('../../services/clash-bot-teams-service-impl');
+const clashBotTeamsServiceImpl = require('../../services/teams-service-impl');
 const tentativeServiceImpl = require('../../services/tentative-service-impl');
 const errorHandling = require('../../utility/error-handling');
 
 jest.mock('../../dao/clash-teams-db-impl');
-jest.mock('../../services/clash-bot-teams-service-impl');
+jest.mock('../../services/teams-service-impl');
 jest.mock('../../services/tentative-service-impl');
 jest.mock('../../utility/error-handling');
 
@@ -169,7 +169,7 @@ describe('Retrieve Teams', () => {
         expect(messagePassed.embed.fields[0].name).toEqual('No Existing Teams. Please register!');
         expect(messagePassed.embed.fields[0].value).toEqual('Emptay');
         expect(messagePassed.embed.fields[1].name).toEqual('Tentative Queue');
-        expect(messagePassed.embed.fields[1].value).toEqual(`${sampleTentativeList[0].tournamentDetails.tournamentName} -> ${sampleTentativeList[0].tentativePlayers}`);
+        expect(messagePassed.embed.fields[1].value).toEqual(`${sampleTentativeList[0].tournamentDetails.tournamentName} - ${sampleTentativeList[0].tournamentDetails.tournamentDay} -> ${sampleTentativeList[0].tentativePlayers}`);
     })
 
     test('When multiple tentative players and a team are passed back, it should populate the tentative list with the existing team based on all the tournaments.', async () => {
@@ -229,10 +229,10 @@ describe('Retrieve Teams', () => {
         await teams.execute(msg);
         let expectedMessage = '';
         const reduce = sampleTentativeList.reduce((acc, value) => {
-            if (!acc[value.tournamentDetails.tournamentName]) {
-                acc[value.tournamentDetails.tournamentName] = []
+            if (!acc[`${value.tournamentDetails.tournamentName} - ${value.tournamentDetails.tournamentDay}`]) {
+                acc[`${value.tournamentDetails.tournamentName} - ${value.tournamentDetails.tournamentDay}`] = []
             }
-            acc[value.tournamentDetails.tournamentName].push(value.tentativePlayers);
+            acc[`${value.tournamentDetails.tournamentName} - ${value.tournamentDetails.tournamentDay}`].push(value.tentativePlayers);
             return acc;
         }, {});
         const keys = Object.keys(reduce);
@@ -317,10 +317,11 @@ describe('Retrieve Teams', () => {
         await teams.execute(msg);
         let expectedMessage = '';
         const reduce = sampleTentativeList.reduce((acc, value) => {
-            if (!acc[value.tournamentDetails.tournamentName]) {
-                acc[value.tournamentDetails.tournamentName] = []
+            const key = `${value.tournamentDetails.tournamentName} - ${value.tournamentDetails.tournamentDay}`;
+            if (!acc[key]) {
+                acc[key] = []
             }
-            acc[value.tournamentDetails.tournamentName].push(value.tentativePlayers);
+            acc[key].push(value.tentativePlayers);
             return acc;
         }, {});
         const keys = Object.keys(reduce);

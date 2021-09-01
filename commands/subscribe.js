@@ -1,5 +1,5 @@
 const timeTracker = require('../utility/time-tracker');
-const clashSubscriptionDbImpl = require('../dao/clash-subscription-db-impl');
+const userServiceImpl = require('../services/user-service-impl');
 const errorHandler = require('../utility/error-handling');
 
 module.exports = {
@@ -8,12 +8,19 @@ module.exports = {
     execute: async function (msg) {
         const startTime = process.hrtime.bigint();
 
-        await clashSubscriptionDbImpl.subscribe(msg.author.id, msg.guild.name)
-            .then(() => msg.reply('You have subscribed. You will receive a notification the Monday before ' +
-            'a Clash Tournament weekend. If you want to unsubscribe at any time please use !clash unsubscribe'))
-            .catch(err => errorHandler.handleError(this.name, err, msg, 'Failed to subscribe.'))
-            .finally(() => {
-                timeTracker.endExecution(this.name, startTime);
-            });
+        try {
+            let userDetails = await userServiceImpl.getUserDetails(msg.author.id);
+            userDetails.subscriptions.UpcomingClashTournamentDiscordDM = true;
+            let updatedUserDetails = await userServiceImpl.postUserDetails(userDetails.id, msg.author.username, msg.guild.name, userDetails.preferredChampions, userDetails.subscriptions);
+            if (updatedUserDetails.subscriptions.UpcomingClashTournamentDiscordDM) {
+                msg.reply('You have subscribed. You will receive a notification the Monday before a Clash Tournament weekend. If you want to unsubscribe at any time please use !clash unsubscribe');
+            } else {
+                msg.reply('Subscription failed. Please try again.');
+            }
+        } catch (err) {
+            errorHandler.handleError(this.name, err, msg, 'Failed to subscribe.');
+        } finally {
+            timeTracker.endExecution(this.name, startTime);
+        }
     },
 };
