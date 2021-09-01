@@ -1,8 +1,8 @@
-const clashBotTeamsServiceImpl = require('../clash-bot-teams-service-impl');
+const clashBotTeamsServiceImpl = require('../teams-service-impl');
 const nock = require('nock');
 
 describe('Clash Bot Teams Service', () => {
-    describe('Retrieve active Teams for Server', () => {
+    describe('GET - Retrieve active Teams for Server', () => {
 
         test('When I make a call to the Clash Bot Webapp with a Server Name, I should be returned the active Teams for that server.', () => {
             const expectedServerName = 'Goon Squad';
@@ -96,6 +96,32 @@ describe('Clash Bot Teams Service', () => {
                 expect(true).toBeFalsy();
             }).catch(err => {
                 expect(err).toEqual({ message: 'Failed to make call.', code: 500 });
+            });
+        })
+    })
+
+    describe('POST - Create new Team', () => {
+        test('When a call is made with id, serverName, tournamentName, tournamentDay, and startTime then I should be able to retrieve the newly created team.', () => {
+            const expectedPlayerId = '1';
+            const expectedServerName = 'Goon Squad';
+            const expectedTournamentName = 'awesome_sauce';
+            const expectedTournamentDay = '1';
+            const expectedStartTime = new Date().toISOString();
+            const expectedResponse = {
+                teamName: 'Abra',
+                serverName: expectedServerName,
+                playersDetails: [{name: 'Roidrage'}],
+                tournamentDetails: {
+                    tournamentName: expectedTournamentName,
+                    tournamentDay: expectedTournamentDay
+                },
+                startTime: expectedStartTime
+            };
+            nock('http://localhost')
+                .post(`/api/teams`, { id: expectedPlayerId, serverName: expectedServerName, tournamentName: expectedTournamentName, tournamentDay: expectedTournamentDay, startTime: expectedStartTime})
+                .reply(200, expectedResponse);
+            return clashBotTeamsServiceImpl.postForNewTeam(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedStartTime).then(response => {
+                expect(response).toEqual(expectedResponse);
             });
         })
     })

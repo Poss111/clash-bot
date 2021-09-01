@@ -29,7 +29,7 @@ class TournamentsServiceImpl {
                 reject(error);
             })
 
-            req.end()
+            req.end();
         })
     }
 }
