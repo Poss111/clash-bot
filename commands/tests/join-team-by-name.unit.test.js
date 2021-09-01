@@ -1,17 +1,17 @@
 const joinTeamByName = require('../join-team-by-name');
-const leagueApi = require('../../dao/clash-time-db-impl');
-const dynamoDBUtils = require('../../dao/clash-teams-db-impl');
+const tournamentsServiceImpl = require('../../services/tournaments-service-impl');
+const teamsServiceImpl = require('../../services/teams-service-impl');
 const errorHandling = require('../../utility/error-handling');
 
-jest.mock('../../dao/clash-time-db-impl');
-jest.mock('../../dao/clash-teams-db-impl');
+jest.mock('../../services/tournaments-service-impl');
+jest.mock('../../services/teams-service-impl');
 jest.mock('../../utility/error-handling');
 
 function verifyReply(messagePassed, sampleRegisterReturn) {
     expect(messagePassed.embed.fields[0].name).toEqual(sampleRegisterReturn.teamName);
-    expect(messagePassed.embed.fields[0].value).toEqual(sampleRegisterReturn.players);
+    expect(messagePassed.embed.fields[0].value).toEqual(sampleRegisterReturn.playersDetails.map(player => player.name));
     expect(messagePassed.embed.fields[1].name).toEqual('Tournament Details');
-    expect(messagePassed.embed.fields[1].value).toEqual(`${sampleRegisterReturn.tournamentName} Day ${sampleRegisterReturn.tournamentDay}`);
+    expect(messagePassed.embed.fields[1].value).toEqual(`${sampleRegisterReturn.tournamentDetails.tournamentName} Day ${sampleRegisterReturn.tournamentDetails.tournamentDay}`);
     expect(messagePassed.embed.fields[1].inline).toBeTruthy();
 }
 
@@ -51,7 +51,20 @@ describe('Join an existing Team', () => {
             reply: (value) => messagePassed = value
         };
         let args = ['dne', '1', 'Sample Team'];
-        leagueApi.findTournament = jest.fn().mockResolvedValue([]);
+        tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue([
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "day_3",
+                "startTime": "May 29 2021 07:00 pm PDT",
+                "registrationTime": "May 29 2021 04:15 pm PDT"
+            },
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "day_4",
+                "startTime": "May 30 2021 07:00 pm PDT",
+                "registrationTime": "May 30 2021 04:15 pm PDT"
+            }
+        ]);
         await joinTeamByName.execute(msg, args);
         expect(messagePassed).toBe(`The tournament you are trying to join does not exist Name ('${args[0]}') Day ('${args[1]}'). Please use '!clash times' to see valid tournaments.`);
     })
@@ -67,25 +80,29 @@ describe('Join an existing Team', () => {
                 name: 'TestServer'
             }
         };
-        let args = ['msi2021', '1', 'Sample Team']
-        leagueApi.leagueTimes = [
+        let args = ['msi2021', '1', 'Sample']
+        const leagueTimes = [
             {
                 tournamentName: "msi2021",
-                tournamentDay: "3",
+                tournamentDay: "1",
                 startTime: "May 29 2021 07:00 pm PDT",
                 registrationTime: "May 29 2021 04:15 pm PDT"
             }
         ];
         const sampleRegisterReturn = {
-            teamName: 'SampleTeam',
-            players: [msg.author.username, 'Player2'],
-            tournamentName: 'msi2021',
-            tournamentDay: '3'
-        };
-        leagueApi.findTournament = jest.fn().mockResolvedValue(leagueApi.leagueTimes);
-        dynamoDBUtils.registerWithSpecificTeam = jest.fn().mockResolvedValue(sampleRegisterReturn);
+            teamName: 'Team Sample',
+                serverName: msg.guild.name,
+                playersDetails: [{name: 'Roidrage'}],
+                tournamentDetails: {
+                tournamentName: leagueTimes[0].tournamentName,
+                    tournamentDay: leagueTimes[0].tournamentDay,
+            },
+            startTime: leagueTimes[0].startTime
+        }
+        tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(leagueTimes);
+        teamsServiceImpl.postForTeamRegistration.mockResolvedValue(sampleRegisterReturn);
         await joinTeamByName.execute(msg, args);
-        expect(dynamoDBUtils.registerWithSpecificTeam).toBeCalledWith(msg.author.username, msg.guild.name, leagueApi.leagueTimes, args[2]);
+        expect(teamsServiceImpl.postForTeamRegistration).toBeCalledWith(msg.author.id, args[2], msg.guild.name, leagueTimes[0].tournamentName, leagueTimes[0].tournamentDay);
         verifyReply(messagePassed, sampleRegisterReturn);
     })
 
@@ -100,19 +117,20 @@ describe('Join an existing Team', () => {
                 name: 'TestServer'
             }
         };
-        let args = ['msi2021', '1', 'Sample Team']
-        leagueApi.leagueTimes = [
+        let args = ['msi2021', '1', 'Sample']
+        const leagueTimes = [
             {
                 tournamentName: "msi2021",
-                tournamentDay: "3",
+                tournamentDay: "1",
                 startTime: "May 29 2021 07:00 pm PDT",
                 registrationTime: "May 29 2021 04:15 pm PDT"
             }
         ];
-        leagueApi.findTournament = jest.fn().mockResolvedValue(leagueApi.leagueTimes);
-        dynamoDBUtils.registerWithSpecificTeam = jest.fn().mockResolvedValue(undefined);
+        const sampleRegisterReturn = { error: 'Unable to find the Team requested to be persisted.' }
+        tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(leagueTimes);
+        teamsServiceImpl.postForTeamRegistration.mockResolvedValue(sampleRegisterReturn);
         await joinTeamByName.execute(msg, args);
-        expect(dynamoDBUtils.registerWithSpecificTeam).toBeCalledWith(msg.author.username, msg.guild.name, leagueApi.leagueTimes, args[2]);
+        expect(teamsServiceImpl.postForTeamRegistration).toBeCalledWith(msg.author.id, args[2], msg.guild.name, leagueTimes[0].tournamentName, leagueTimes[0].tournamentDay);
         expect(messagePassed.embed.description).toEqual(`Failed to find an available team with the following criteria Tournament Name ('${args[0]}') Tournament Day ('${args[1]}') Team Name ('${args[2]}')`)
     })
 
@@ -124,24 +142,26 @@ describe('Join Team Error', () => {
         let msg = {
             reply: (value) => messagePassed = value,
             author: {
+                id: '1',
                 username: 'TestPlayer'
             },
             guild: {
                 name: 'Server'
             }
         };
-        let args = ['msi2021', '1', 'Sample Team']
-        leagueApi.leagueTimes = [
+        let args = ['msi2021', '1', 'Sample Team'];
+        const leagueTimes = [
             {
                 tournamentName: "msi2021",
-                tournamentDay: "3",
+                tournamentDay: '1',
                 startTime: "May 29 2021 07:00 pm PDT",
                 registrationTime: "May 29 2021 04:15 pm PDT"
             }
         ];
-        leagueApi.findTournament = jest.fn().mockResolvedValue(leagueApi.leagueTimes);
-        dynamoDBUtils.registerWithSpecificTeam = jest.fn().mockRejectedValue('Failed to find team.');
+        tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(leagueTimes);
+        teamsServiceImpl.postForTeamRegistration.mockRejectedValue('Failed to find team.');
         await joinTeamByName.execute(msg, args);
+        expect(teamsServiceImpl.postForTeamRegistration).toBeCalledWith(msg.author.id, args[2], msg.guild.name, leagueTimes[0].tournamentName, leagueTimes[0].tournamentDay);
         expect(errorHandling.handleError.mock.calls.length).toEqual(1);
     })
 })

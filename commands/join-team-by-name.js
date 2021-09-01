@@ -1,6 +1,7 @@
-const leagueApi = require('../dao/clash-time-db-impl');
-const dynamoDBUtils = require('../dao/clash-teams-db-impl');
+const tournamentsServiceImpl = require('../services/tournaments-service-impl');
+const teamsServiceImpl = require('../services/teams-service-impl');
 const registerReply = require('../templates/register-reply');
+const { findTournament } = require('../utility/tournament-handler');
 const errorHandling = require('../utility/error-handling');
 const timeTracker = require('../utility/time-tracker');
 
@@ -17,24 +18,25 @@ module.exports = {
             msg.reply("Team is missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join msi2021 1 ***Pikachu***");
         } else {
             try {
-                let times = await leagueApi.findTournament(args[0], args[1]);
+                let times = await tournamentsServiceImpl.retrieveAllActiveTournaments();
+                times = times.filter(findTournament(args[0], args[1]));
                 if (times.length === 0) {
                     msg.reply(`The tournament you are trying to join does not exist Name ('${args[0]}') Day ('${args[1]}'). Please use '!clash times' to see valid tournaments.`)
                 } else {
                     function buildTournamentDetails(team) {
                         return {
                             name: 'Tournament Details',
-                            value: `${team.tournamentName} Day ${team.tournamentDay}`,
+                            value: `${team.tournamentDetails.tournamentName} Day ${team.tournamentDetails.tournamentDay}`,
                             inline: true
                         };
                     }
 
                     let copy = JSON.parse(JSON.stringify(registerReply));
                     console.log(`Registering ('${msg.author.username}') with Tournaments ('${JSON.stringify(times)}')...`);
-                    await dynamoDBUtils.registerWithSpecificTeam(msg.author.username, msg.guild.name, times, args[2]).then(team => {
-                        if (team) {
-                            console.log(`Registered ('${msg.author.username}') with Tournament ('${team.tournamentName}') Team ('${team.teamName}').`);
-                            copy.fields.push({name: team.teamName, value: team.players, inline: true});
+                    await teamsServiceImpl.postForTeamRegistration(msg.author.id, args[2], msg.guild.name, times[0].tournamentName, times[0].tournamentDay).then(team => {
+                        if (!team.error) {
+                            console.log(`Registered ('${msg.author.username}') with Tournament ('${team.tournamentDetails.tournamentName}') Team ('${team.teamName}').`);
+                            copy.fields.push({name: team.teamName, value: team.playersDetails.map(player => player.name), inline: true});
                             copy.fields.push(buildTournamentDetails(team));
                         } else {
                             copy.description = `Failed to find an available team with the following criteria Tournament Name ('${args[0]}') Tournament Day ('${args[1]}') Team Name ('${args[2]}')`;

@@ -2,6 +2,7 @@ const tournamentsServiceImpl = require('../services/tournaments-service-impl');
 const teamsServiceImpl = require('../services/teams-service-impl');
 const errorHandling = require('../utility/error-handling');
 const timeTracker = require('../utility/time-tracker');
+const { findTournament } = require('../utility/tournament-handler');
 const registerReply = require('../templates/register-reply');
 const commandArgumentParser = require('./command-argument-parser');
 
@@ -77,17 +78,3 @@ module.exports = {
         }
     }
 }
-
-let findTournament = (tournamentName, dayNumber) => {
-    let filter;
-    if (tournamentName) {
-        tournamentName = tournamentName.toLowerCase()
-        filter = (data) => data.tournamentName.toLowerCase().includes(tournamentName);
-        if (tournamentName && !isNaN(dayNumber)) {
-            filter = (data) => data.tournamentName.toLowerCase().includes(tournamentName)
-                && data.tournamentDay.includes(dayNumber);
-        }
-    }
-    return filter;
-}
-

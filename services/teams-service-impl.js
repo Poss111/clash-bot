@@ -3,35 +3,7 @@ const http = require('http');
 class TeamsServiceImpl {
 
     retrieveActiveTeamsForServer(expectedServerName) {
-        return new Promise((resolve, reject) => {
-            const options = {
-                hostname: 'localhost',
-                port: 80,
-                path: `/api/teams/${encodeURI(expectedServerName)}`,
-                method: 'GET'
-            }
-
-            const req = http.request(options, res => {
-                console.log(`statusCode: ${res.statusCode}`)
-
-                res.on('data', d => {
-                    let response = JSON.parse(d);
-                    if (res.statusCode !== 200) {
-                        response.statusCode = res.statusCode;
-                        reject(response);
-                    } else {
-                        resolve(response);
-                    }
-                })
-            })
-
-            req.on('error', error => {
-                console.error(error)
-                reject(error);
-            })
-
-            req.end()
-        });
+        return httpCall('localhost', `/api/teams/${encodeURI(expectedServerName)}`, 'GET');
     }
 
     async postForNewTeam(id, serverName, tournamentName, tournamentDay, startTime) {
@@ -41,6 +13,16 @@ class TeamsServiceImpl {
             tournamentName: tournamentName,
             tournamentDay: tournamentDay,
             startTime: startTime
+        })
+    }
+
+    async postForTeamRegistration(id, teamName, serverName, tournamentName, tournamentDay) {
+        return httpCall('localhost', `/api/team/register`, 'POST', {
+            id: id,
+            teamName: teamName,
+            serverName: serverName,
+            tournamentName: tournamentName,
+            tournamentDay: tournamentDay
         })
     }
 
@@ -72,10 +54,13 @@ let httpCall = (hostname, path, method, payload) => {
 
             res.on('data', d => {
                 let response = JSON.parse(d);
-                if (res.statusCode !== 200) {
+                if (![200,400].includes(res.statusCode)) {
                     response.statusCode = res.statusCode;
                     reject(response);
                 } else {
+                    if (res.statusCode === 400) {
+                        console.error(JSON.stringify(response));
+                    }
                     resolve(response);
                 }
             })
