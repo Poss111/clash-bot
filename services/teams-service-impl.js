@@ -26,6 +26,16 @@ class TeamsServiceImpl {
         })
     }
 
+    async deleteFromTeam(id, teamName, serverName, tournamentName, tournamentDay) {
+        return httpCall('localhost', `/api/team/register`, 'DELETE', {
+            id: id,
+            teamName: teamName,
+            serverName: serverName,
+            tournamentName: tournamentName,
+            tournamentDay: tournamentDay
+        })
+    }
+
 }
 
 let httpCall = (hostname, path, method, payload) => {
@@ -71,7 +81,7 @@ let httpCall = (hostname, path, method, payload) => {
             reject(error);
         })
 
-        if (options.method === 'POST') {
+        if (['POST','DELETE'].includes(options.method)) {
             req.write(convertedPayload);
         }
         req.end();

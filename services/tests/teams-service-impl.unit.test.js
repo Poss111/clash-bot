@@ -123,7 +123,7 @@ describe('Clash Bot Teams Service', () => {
     })
 
     describe('POST - Register with Team', () => {
-        test('When a call is made with id, serverName, tournamentName, and tournamentDay then I should be able to retrieve the newly created team.', () => {
+        test('When a call is made with id, teamName, serverName, tournamentName, and tournamentDay then I should be able to register to a specified team.', () => {
             const expectedPlayerId = '1';
             const expectedTeamName = 'Abra';
             const expectedServerName = 'Goon Squad';
@@ -144,6 +144,24 @@ describe('Clash Bot Teams Service', () => {
                 .post(`/api/team/register`, { id: expectedPlayerId, teamName: expectedTeamName, serverName: expectedServerName, tournamentName: expectedTournamentName, tournamentDay: expectedTournamentDay})
                 .reply(200, expectedResponse);
             return clashBotTeamsServiceImpl.postForTeamRegistration(expectedPlayerId, expectedTeamName, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedStartTime).then(response => {
+                expect(response).toEqual(expectedResponse);
+            });
+        })
+    })
+
+    describe('DELETE - Unregister from Team', () => {
+        test('When a call is made with id, serverName, tournamentName, and tournamentDay then I should be able to unregister from a team.', () => {
+            const expectedPlayerId = '1';
+            const expectedTeamName = 'Abra';
+            const expectedServerName = 'Goon Squad';
+            const expectedTournamentName = 'awesome_sauce';
+            const expectedTournamentDay = '1';
+            const expectedStartTime = new Date().toISOString();
+            const expectedResponse =  {message: 'Successfully removed from Team.'};
+            nock('http://localhost')
+                .delete(`/api/team/register`, { id: expectedPlayerId, teamName: expectedTeamName, serverName: expectedServerName, tournamentName: expectedTournamentName, tournamentDay: expectedTournamentDay})
+                .reply(200, expectedResponse);
+            return clashBotTeamsServiceImpl.deleteFromTeam(expectedPlayerId, expectedTeamName, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedStartTime).then(response => {
                 expect(response).toEqual(expectedResponse);
             });
         })
