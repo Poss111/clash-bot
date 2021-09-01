@@ -26,10 +26,9 @@ class TeamsServiceImpl {
         })
     }
 
-    async deleteFromTeam(id, teamName, serverName, tournamentName, tournamentDay) {
+    async deleteFromTeam(id, serverName, tournamentName, tournamentDay) {
         return httpCall('localhost', `/api/team/register`, 'DELETE', {
             id: id,
-            teamName: teamName,
             serverName: serverName,
             tournamentName: tournamentName,
             tournamentDay: tournamentDay
