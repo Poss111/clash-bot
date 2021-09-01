@@ -7,7 +7,6 @@ const commandArgumentParser = require('../command-argument-parser');
 jest.mock('../../services/tournaments-service-impl');
 jest.mock('../../services/tentative-service-impl');
 jest.mock('../../utility/error-handling');
-jest.mock('../../dao/clash-time-db-impl');
 jest.mock('../command-argument-parser');
 
 test('Should respond with user has been placed on tentative if the player name does not exist in the tentative list.', async () => {

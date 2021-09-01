@@ -1,7 +1,6 @@
 const time = require('../time');
 const tournamentsServiceImpl = require('../../services/tournaments-service-impl');
 
-jest.mock('../../dao/clash-time-db-impl');
 jest.mock('../../services/tournaments-service-impl');
 
 describe('League Clash Times', () => {

@@ -34,7 +34,6 @@ describe('!clash time', () => {
         expect(mockDiscordMessage.channel.send.mock.calls[0][0]).toBeTruthy();
         let returnedMessage = mockDiscordMessage.channel.send.mock.calls[0][0].embed;
         expect(returnedMessage.fields.name).not.toEqual('No times available');
-        expect(returnedMessage.fields).toHaveLength(tableData.dataPersisted.length);
     })
 });
 
@@ -44,7 +43,6 @@ describe('!clash teams', () => {
         await loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
         expect(mockDiscordMessage.reply).toBeCalledTimes(1);
         expect(mockDiscordMessage.reply.mock.calls[0][0]).toBeTruthy();
-        let returnedMessage = mockDiscordMessage.reply.mock.calls[0][0].embed;
     })
 })
 

@@ -3,7 +3,6 @@ const userServiceImpl = require('../../services/user-service-impl');
 const errorHandler = require('../../utility/error-handling');
 const riotApi = require('@fightmegg/riot-api');
 
-jest.mock('../../dao/clash-subscription-db-impl');
 jest.mock('../../services/user-service-impl');
 jest.mock('../../utility/error-handling');
 jest.mock('@fightmegg/riot-api');
