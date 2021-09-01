@@ -1,13 +1,9 @@
 const unregister = require('../unregister');
-const dynamoDbUtils = require('../../dao/clash-teams-db-impl');
-const leagueApi = require('../../dao/clash-time-db-impl');
 const tournamentsServiceImpl = require('../../services/tournaments-service-impl');
 const teamsServiceImpl = require('../../services/teams-service-impl');
 const errorHandling = require('../../utility/error-handling');
 const commandArgumentParser = require('../command-argument-parser');
 
-jest.mock('../../dao/clash-teams-db-impl');
-jest.mock('../../dao/clash-time-db-impl');
 jest.mock('../../services/tournaments-service-impl');
 jest.mock('../../services/teams-service-impl');
 jest.mock('../../utility/error-handling');
@@ -49,7 +45,7 @@ describe('Unregister', () => {
         tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(leagueTimes);
         teamsServiceImpl.deleteFromTeam.mockResolvedValue( {message: 'Successfully removed from Team.'});
         await unregister.execute(msg, args);
-        expect(teamsServiceImpl.deleteFromTeam).toBeCalledWith(msg.author.id, msg.guild.name, leagueTimes);
+        expect(teamsServiceImpl.deleteFromTeam).toBeCalledWith(msg.author.id, msg.guild.name, leagueTimes[0].tournamentName, leagueTimes[0].tournamentDay);
         expect(sendMessage).toEqual(`Unregistering ${msg.author.username} from Tournament ${leagueTimes[0].tournamentName} on Day ${leagueTimes[0].tournamentDay}...`);
         expect(messagePassed).toEqual(`Removed you from your Team. Please use !clash register if you would like to join again. Thank you!`);
     })
@@ -63,6 +59,7 @@ describe('Unregister', () => {
                 send: (value) => sendMessage = value
             },
             author: {
+                id: '1',
                 username: 'TestPlayer'
             },
             guild: {
@@ -85,8 +82,8 @@ describe('Unregister', () => {
             }
         ];
         commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], tournamentDay: args[1], createNewTeam: false});
-        leagueApi.findTournament.mockResolvedValue(leagueTimes);
-        dynamoDbUtils.deregisterPlayer.mockResolvedValue(false);
+        tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(leagueTimes);
+        teamsServiceImpl.deleteFromTeam.mockResolvedValue( {error: 'User not found on requested Team.'});
         await unregister.execute(msg, args);
         expect(sendMessage).toEqual(`Unregistering ${msg.author.username} from Tournament ${leagueTimes[0].tournamentName} on Day ${leagueTimes[0].tournamentDay}...`);
         expect(messagePassed).toEqual(`We did not find you on an existing Team. Please use !clash register if you would like to join again. Thank you!`);
@@ -101,6 +98,7 @@ describe('Unregister', () => {
                 send: (value) => sendMessage = value
             },
             author: {
+                id: '1',
                 username: 'TestPlayer'
             },
             guild: {
@@ -121,6 +119,7 @@ describe('Unregister', () => {
                 send: (value) => sendMessage = value
             },
             author: {
+                id: '1',
                 username: 'TestPlayer'
             },
             guild: {
@@ -130,7 +129,7 @@ describe('Unregister', () => {
         let args = ['shurima', '3'];
         let leagueTimes = [];
         commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], tournamentDay: args[1], createNewTeam: false});
-        leagueApi.findTournament.mockResolvedValue(leagueTimes);
+        tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(leagueTimes);
         await unregister.execute(msg, args);
         expect(messagePassed).toEqual(`Please provide an existing tournament and day to unregister for. Use '!clash team' to print a teams.`);
     })
@@ -144,6 +143,7 @@ describe('Unregister', () => {
                 send: (value) => sendMessage = value
             },
             author: {
+                id: '1',
                 username: 'TestPlayer'
             },
             guild: {
@@ -152,7 +152,7 @@ describe('Unregister', () => {
         };
         let args = ['shurima', '3'];
         commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], tournamentDay: args[1], createNewTeam: false});
-        leagueApi.findTournament.mockResolvedValue(undefined);
+        tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(leagueTimes);
         await unregister.execute(msg, args);
         expect(messagePassed).toEqual(`Please provide an existing tournament and day to unregister for. Use '!clash team' to print a teams.`);
     })
@@ -168,13 +168,14 @@ test('If an error occurs, the error handler will be invoked.', async () => {
             send: (value) => sendMessage = value
         },
         author: {
+            id: '1',
             username: 'TestPlayer'
         },
         guild: {
             name: 'TestServer'
         }
     };
-    dynamoDbUtils.deregisterPlayer.mockRejectedValue('Some error occurred.');
+    teamsServiceImpl.deleteFromTeam.mockRejectedValue('Some error occurred.');
     let leagueTimes = [
         {
             tournamentName: "msi2021",
@@ -191,7 +192,7 @@ test('If an error occurs, the error handler will be invoked.', async () => {
     ];
     let args = ['shurima', '3'];
     commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], tournamentDay: args[1], createNewTeam: false});
-    leagueApi.findTournament.mockResolvedValue(leagueTimes);
+    tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(leagueTimes);
     await unregister.execute(msg, args);
     expect(sendMessage).toEqual(`Unregistering ${msg.author.username} from Tournament ${leagueTimes[0].tournamentName} on Day ${leagueTimes[0].tournamentDay}...`);
     expect(errorHandling.handleError.mock.calls.length).toEqual(1);
