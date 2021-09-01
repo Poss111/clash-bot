@@ -9,14 +9,21 @@ class UserServiceImpl {
     }
 
     postUserDetails(id, playerName, serverName, preferredChampions, subscriptions) {
-        const payload = {
+        return httpCall('localhost', '/api/user', 'POST', {
             id: id,
             playerName: playerName,
             serverName: serverName,
             preferredChampions: preferredChampions,
             subscriptions: subscriptions
-        };
-        return httpCall('localhost', '/api/user', 'POST', payload);
+        });
+    }
+
+    putVerifyUser(id, playerName, serverName) {
+        return httpCall('localhost', '/api/user', 'PUT', {
+            id: id,
+            username: playerName,
+            serverName: serverName
+        });
     }
 }
 

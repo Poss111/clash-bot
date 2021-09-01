@@ -28,7 +28,7 @@ describe('User Service Impl', () => {
             const expectedPlayerName = 'Roidrage';
             const expectedServerName = 'Goon Squad';
             const expectedPreferredChampions = [];
-            const expectedSubscriptions = { 'UpcomingClashTournamentDiscordDM': true };
+            const expectedSubscriptions = {'UpcomingClashTournamentDiscordDM': true};
             const payload = {
                 id: expectedPlayerId,
                 playerName: expectedPlayerName,
@@ -47,6 +47,34 @@ describe('User Service Impl', () => {
                 .post(`/api/user`, payload)
                 .reply(200, expectedApiResponse);
             return userServiceImpl.postUserDetails(expectedPlayerId, expectedPlayerName, expectedServerName, expectedPreferredChampions, expectedSubscriptions).then(response => {
+                expect(response).toEqual(expectedApiResponse);
+            })
+        })
+    })
+
+    describe('Put Verify User Details', () => {
+        test('Check user existence with server. Should return with a User Object.', () => {
+            const expectedPlayerId = '1';
+            const expectedPlayerName = 'Roidrage';
+            const expectedServerName = 'Goon Squad';
+            const expectedPreferredChampions = [];
+            const expectedSubscriptions = {'UpcomingClashTournamentDiscordDM': false};
+            const payload = {
+                id: expectedPlayerId,
+                username: expectedPlayerName,
+                serverName: expectedServerName
+            };
+            const expectedApiResponse = {
+                id: expectedPlayerId,
+                username: expectedPlayerName,
+                serverName: expectedServerName,
+                preferredChampions: expectedPreferredChampions,
+                subscriptions: expectedSubscriptions
+            };
+            nock('http://localhost')
+                .post(`/api/user/verify`, payload)
+                .reply(200, expectedApiResponse);
+            return userServiceImpl.putVerifyUser(expectedPlayerId, expectedPlayerName, expectedServerName).then(response => {
                 expect(response).toEqual(expectedApiResponse);
             })
         })

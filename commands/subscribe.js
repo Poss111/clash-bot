@@ -9,10 +9,11 @@ module.exports = {
         const startTime = process.hrtime.bigint();
         try {
             let userDetails = await userServiceImpl.getUserDetails(msg.author.id);
-            if (!userDetails.subscriptions.UpcomingClashTournamentDiscordDM) {
-                userDetails.subscriptions.UpcomingClashTournamentDiscordDM = true;
+            if (!userDetails.subscriptions || !userDetails.subscriptions.UpcomingClashTournamentDiscordDM) {
+                userDetails.subscriptions = { UpcomingClashTournamentDiscordDM : true};
+                userDetails.preferredChampions = !Array.isArray(userDetails.preferredChampions) ? [] : userDetails.preferredChampions;
                 let updatedUserDetails = await userServiceImpl.postUserDetails(userDetails.id, msg.author.username, msg.guild.name, userDetails.preferredChampions, userDetails.subscriptions);
-                if (updatedUserDetails.subscriptions.UpcomingClashTournamentDiscordDM) {
+                if (!userDetails.subscriptions || updatedUserDetails.subscriptions.UpcomingClashTournamentDiscordDM) {
                     msg.reply('You have subscribed. You will receive a notification the Monday before a Clash Tournament weekend. If you want to unsubscribe at any time please use !clash unsubscribe');
                 } else {
                     msg.reply('Subscription failed. Please try again.');

@@ -6,6 +6,7 @@ const clashSubscriptionDbImpl = require('../dao/clash-subscription-db-impl');
 const clashTeamsDbImpl = require('../dao/clash-teams-db-impl');
 const helpMenu = require('../templates/help-menu');
 const updateNotification = require('../templates/update-notification');
+const userServiceImpl = require('../services/user-service-impl');
 let channel = 'league';
 const COMMAND_PREFIX = '!clash';
 let bot = undefined;
@@ -54,6 +55,7 @@ let messageHandler = async (msg, restrictedChannel, commandPrefix, discordBot) =
 
         try {
             console.info(`('${msg.author.username}') called command: ('${command}')`);
+            await userServiceImpl.putVerifyUser(msg.author.id, msg.author.username, msg.guild.name);
             await discordBot.commands.get(command).execute(msg, args);
         } catch (error) {
             console.error(`Failed to execute command ('${discordBot.commands.get(command).name}') due to error.`, error);
