@@ -3,7 +3,6 @@ const clashBotTeamsServiceImpl = require('../../services/teams-service-impl');
 const tentativeServiceImpl = require('../../services/tentative-service-impl');
 const errorHandling = require('../../utility/error-handling');
 
-jest.mock('../../dao/clash-teams-db-impl');
 jest.mock('../../services/teams-service-impl');
 jest.mock('../../services/tentative-service-impl');
 jest.mock('../../utility/error-handling');

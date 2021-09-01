@@ -1,9 +1,6 @@
 require('dotenv').config();
 const Discord = require('discord.js');
 const botCommands = require('../commands');
-const clashTimesDbImpl = require('../dao/clash-time-db-impl');
-const clashSubscriptionDbImpl = require('../dao/clash-subscription-db-impl');
-const clashTeamsDbImpl = require('../dao/clash-teams-db-impl');
 const helpMenu = require('../templates/help-menu');
 const updateNotification = require('../templates/update-notification');
 const userServiceImpl = require('../services/user-service-impl');
@@ -12,37 +9,32 @@ const COMMAND_PREFIX = '!clash';
 let bot = undefined;
 
 let initializeBot = () => {
-    return new Promise((resolve, reject) => {
-        Promise.all([clashTimesDbImpl.initialize(),
-            clashSubscriptionDbImpl.initialize(),
-            clashTeamsDbImpl.initialize()])
-            .then(() => {
-                bot = new Discord.Client();
-                bot.commands = new Discord.Collection();
+    return new Promise((resolve) => {
+        bot = new Discord.Client();
+        bot.commands = new Discord.Collection();
 
-                if (process.env.INTEGRATION_TEST) {
-                    channel = 'league-integration';
-                } else if (process.env.LOCAL) {
-                    channel = 'league-test';
-                }
+        if (process.env.INTEGRATION_TEST) {
+            channel = 'league-integration';
+        } else if (process.env.LOCAL) {
+            channel = 'league-test';
+        }
 
-                bot.on('ready', () => {
-                    readyHandler(bot, channel, process.env.INTEGRATION_TEST);
-                });
+        bot.on('ready', () => {
+            readyHandler(bot, channel, process.env.INTEGRATION_TEST);
+        });
 
-                bot.on('guildCreate', (guild) => guildCreateHandler(guild));
+        bot.on('guildCreate', (guild) => guildCreateHandler(guild));
 
-                bot.login(process.env.TOKEN).then(() => {
+        bot.login(process.env.TOKEN).then(() => {
 
-                    Object.keys(botCommands).map(key => {
-                        bot.commands.set(botCommands[key].name, botCommands[key]);
-                    });
+            Object.keys(botCommands).map(key => {
+                bot.commands.set(botCommands[key].name, botCommands[key]);
+            });
 
-                    bot.on('message', (msg) => messageHandler(msg, channel, COMMAND_PREFIX, bot));
-                    resolve(bot);
-                });
-            }).catch(err => reject(`Failed to initialize Clash-Bot DB to Error ('${err}')`));
-    });
+            bot.on('message', (msg) => messageHandler(msg, channel, COMMAND_PREFIX, bot));
+            resolve(bot);
+        });
+    }).catch(err => reject(`Failed to initialize Clash-Bot to Error ('${err}')`));
 }
 
 let messageHandler = async (msg, restrictedChannel, commandPrefix, discordBot) => {
@@ -55,7 +47,7 @@ let messageHandler = async (msg, restrictedChannel, commandPrefix, discordBot) =
 
         try {
             console.info(`('${msg.author.username}') called command: ('${command}')`);
-            await userServiceImpl.putVerifyUser(msg.author.id, msg.author.username, msg.guild.name);
+            await userServiceImpl.putVerifyUser(msg.author.id, msg.author.username, msg.guild.name)
             await discordBot.commands.get(command).execute(msg, args);
         } catch (error) {
             console.error(`Failed to execute command ('${discordBot.commands.get(command).name}') due to error.`, error);

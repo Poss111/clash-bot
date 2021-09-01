@@ -4,7 +4,6 @@ const tentativeServiceImpl = require('../../services/tentative-service-impl');
 const errorHandling = require('../../utility/error-handling');
 const commandArgumentParser = require('../command-argument-parser');
 
-jest.mock('../../dao/clash-teams-db-impl');
 jest.mock('../../services/tournaments-service-impl');
 jest.mock('../../services/tentative-service-impl');
 jest.mock('../../utility/error-handling');
