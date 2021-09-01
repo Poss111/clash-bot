@@ -7,7 +7,6 @@ module.exports = {
     description: 'Subscribes a user to a scheduled DM in Discord to notify them of an upcoming League of Legends Clash Tournament.',
     execute: async function (msg) {
         const startTime = process.hrtime.bigint();
-
         try {
             let userDetails = await userServiceImpl.getUserDetails(msg.author.id);
             userDetails.subscriptions.UpcomingClashTournamentDiscordDM = true;
