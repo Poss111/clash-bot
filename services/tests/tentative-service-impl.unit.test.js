@@ -21,33 +21,27 @@ describe('Tentative Service Impl', () => {
                 expect(response).toEqual(expectedApiResponse);
             });
         })
+    })
 
-        test('Error - Http Error - If an http error occurs, it should be rejected successfully.', () => {
+    describe('POST - Tentative Update', () => {
+        test('When I call tentative update with user id, serverName, tournamentName, and tournamentDay I then should have my tentative status updated.', () => {
+            const expectedPlayerId = '1';
             const expectedServerName = 'Goon Squad';
-            const expectedApiResponse = { error: 'Missing required detail.'};
+            const expectedTournamentName = 'awesome_sauce';
+            const expectedTournamentDay = '1';
+            const expectedApiResponse = {
+                serverName: expectedServerName,
+                tournamentDetails: {
+                    tournamentName: expectedTournamentName,
+                    tournamentDay: expectedTournamentDay
+                },
+                tentativePlayers: ['Roidrage']
+            };
             nock('http://localhost')
-                .get(`/api/tentative`)
-                .query({serverName: expectedServerName})
-                .reply(400, expectedApiResponse);
-            return tentativeServiceImpl.retrieveTentativeListForServer(expectedServerName).then(() => {
-                expect(true).toBeFalsy();
-            }).catch(err => {
-                let expectedResponse = JSON.parse(JSON.stringify(expectedApiResponse));
-                expectedResponse.statusCode = 400;
-                expect(err).toEqual(expectedResponse);
-            });
-        })
-
-        test('Error - Error with Call - If an http error occurs, it should be rejected successfully.', () => {
-            const expectedServerName = 'Goon Squad';
-            nock('http://localhost')
-                .get(`/api/tentative`)
-                .query({serverName: expectedServerName})
-                .replyWithError({ message: 'Failed to make call.', code: 500 });
-            return tentativeServiceImpl.retrieveTentativeListForServer(expectedServerName).then(() => {
-                expect(true).toBeFalsy();
-            }).catch(err => {
-                expect(err).toEqual({ message: 'Failed to make call.', code: 500 });
+                .post(`/api/tentative`, {id: expectedPlayerId, serverName: expectedServerName, tournamentDetails: { tournamentName: expectedTournamentName, tournamentDay: expectedTournamentDay }})
+                .reply(200, expectedApiResponse);
+            return tentativeServiceImpl.postTentativeUpdateForServerAndTournament(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay).then(response => {
+                expect(response).toEqual(expectedApiResponse);
             });
         })
     })
