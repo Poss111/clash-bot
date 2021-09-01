@@ -9,12 +9,16 @@ module.exports = {
         const startTime = process.hrtime.bigint();
         try {
             let userDetails = await userServiceImpl.getUserDetails(msg.author.id);
-            userDetails.subscriptions.UpcomingClashTournamentDiscordDM = true;
-            let updatedUserDetails = await userServiceImpl.postUserDetails(userDetails.id, msg.author.username, msg.guild.name, userDetails.preferredChampions, userDetails.subscriptions);
-            if (updatedUserDetails.subscriptions.UpcomingClashTournamentDiscordDM) {
-                msg.reply('You have subscribed. You will receive a notification the Monday before a Clash Tournament weekend. If you want to unsubscribe at any time please use !clash unsubscribe');
+            if (!userDetails.subscriptions.UpcomingClashTournamentDiscordDM) {
+                userDetails.subscriptions.UpcomingClashTournamentDiscordDM = true;
+                let updatedUserDetails = await userServiceImpl.postUserDetails(userDetails.id, msg.author.username, msg.guild.name, userDetails.preferredChampions, userDetails.subscriptions);
+                if (updatedUserDetails.subscriptions.UpcomingClashTournamentDiscordDM) {
+                    msg.reply('You have subscribed. You will receive a notification the Monday before a Clash Tournament weekend. If you want to unsubscribe at any time please use !clash unsubscribe');
+                } else {
+                    msg.reply('Subscription failed. Please try again.');
+                }
             } else {
-                msg.reply('Subscription failed. Please try again.');
+                msg.reply('You are already subscribed.');
             }
         } catch (err) {
             errorHandler.handleError(this.name, err, msg, 'Failed to subscribe.');

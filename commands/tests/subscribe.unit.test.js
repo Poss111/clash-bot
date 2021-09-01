@@ -51,13 +51,13 @@ describe('Subscribe', () => {
             'a Clash Tournament weekend. If you want to unsubscribe at any time please use !clash unsubscribe');
     })
 
-    test('When a user requests to subscribe and the subscription returns false, they should have their ServerName and Id passed along to be persisted then responded with a message letting them know it was faild.', async () => {
+    test('When a user requests to subscribe and the subscription returns true initially, they should have their ServerName and Id passed along to be persisted then responded with a message letting them know it was faild.', async () => {
         let messagePassed = undefined;
         const expectedPlayerId = '1';
         const expectedPlayerName = 'Roidrage';
         const expectedServerName = 'Goon Squad';
         const expectedPreferredChampions = [];
-        const expectedSubscriptions = { 'UpcomingClashTournamentDiscordDM': false };
+        const expectedSubscriptions = { 'UpcomingClashTournamentDiscordDM': true };
         let msg = {
             reply: (value) => messagePassed = value,
             author: {
@@ -75,19 +75,15 @@ describe('Subscribe', () => {
             preferredChampions: expectedPreferredChampions,
             subscriptions: expectedSubscriptions
         };
-        let updatedUserDetails = JSON.parse(JSON.stringify(mockGetUserResponse));
-        updatedUserDetails.subscriptions.UpcomingClashTournamentDiscordDM = false;
 
         userServiceImpl.getUserDetails.mockResolvedValue(mockGetUserResponse);
-        userServiceImpl.postUserDetails.mockResolvedValue(updatedUserDetails);
 
         await subscribe.execute(msg);
 
         expect(userServiceImpl.getUserDetails).toBeCalledTimes(1);
         expect(userServiceImpl.getUserDetails).toBeCalledWith(expectedPlayerId);
-        expect(userServiceImpl.postUserDetails).toBeCalledTimes(1);
-        expect(userServiceImpl.postUserDetails).toBeCalledWith(msg.author.id, msg.author.username, expectedServerName, expectedPreferredChampions, { UpcomingClashTournamentDiscordDM: true });
-        expect(messagePassed).toEqual('Subscription failed. Please try again.');
+        expect(userServiceImpl.postUserDetails).not.toHaveBeenCalled();
+        expect(messagePassed).toEqual('You are already subscribed.');
     })
 })
 
