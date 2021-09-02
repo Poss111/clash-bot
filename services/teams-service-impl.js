@@ -1,13 +1,14 @@
 const {httpCall} = require('./httpHelper');
+const { getUrl } = require('./service-helper');
 
 class TeamsServiceImpl {
 
     retrieveActiveTeamsForServer(expectedServerName) {
-        return httpCall('localhost', `/api/teams/${encodeURI(expectedServerName)}`, 'GET');
+        return httpCall(getUrl(), `/api/teams/${encodeURI(expectedServerName)}`, 'GET');
     }
 
     async postForNewTeam(id, serverName, tournamentName, tournamentDay, startTime) {
-        return httpCall('localhost', `/api/team`, 'POST', {
+        return httpCall(getUrl(), `/api/team`, 'POST', {
             id: id,
             serverName: serverName,
             tournamentName: tournamentName,
@@ -17,7 +18,7 @@ class TeamsServiceImpl {
     }
 
     async postForTeamRegistration(id, teamName, serverName, tournamentName, tournamentDay) {
-        return httpCall('localhost', `/api/team/register`, 'POST', {
+        return httpCall(getUrl(), `/api/team/register`, 'POST', {
             id: id,
             teamName: teamName,
             serverName: serverName,
@@ -27,7 +28,7 @@ class TeamsServiceImpl {
     }
 
     async deleteFromTeam(id, serverName, tournamentName, tournamentDay) {
-        return httpCall('localhost', `/api/team/register`, 'DELETE', {
+        return httpCall(getUrl(), `/api/team/register`, 'DELETE', {
             id: id,
             serverName: serverName,
             tournamentName: tournamentName,

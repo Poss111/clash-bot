@@ -1,15 +1,16 @@
 const {httpCall} = require('./httpHelper');
+const { getUrl } = require('./service-helper');
 const queryString = require('query-string');
 
 class UserServiceImpl {
 
     getUserDetails(id) {
         const queryParams = { id: id };
-        return httpCall('localhost', `/api/user?${queryString.stringify(queryParams)}`, 'GET');
+        return httpCall(getUrl(), `/api/user?${queryString.stringify(queryParams)}`, 'GET');
     }
 
     postUserDetails(id, playerName, serverName, preferredChampions, subscriptions) {
-        return httpCall('localhost', '/api/user', 'POST', {
+        return httpCall(getUrl(), '/api/user', 'POST', {
             id: id,
             playerName: playerName,
             serverName: serverName,
@@ -19,7 +20,7 @@ class UserServiceImpl {
     }
 
     async postVerifyUser(id, playerName, serverName) {
-        return httpCall('localhost', '/api/user/verify', 'POST', {
+        return httpCall(getUrl(), '/api/user/verify', 'POST', {
             id: id,
             username: playerName,
             serverName: serverName

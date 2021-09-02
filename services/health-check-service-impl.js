@@ -1,8 +1,9 @@
 const { httpCall } = require('./httpHelper');
+const { getUrl } = require('./service-helper');
 
 class HealthCheckServiceImpl {
     checkServiceHealth() {
-        return httpCall('localhost', '/api/health', 'GET');
+        return httpCall(getUrl(), '/api/health', 'GET');
     }
 }
 

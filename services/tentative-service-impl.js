@@ -1,11 +1,12 @@
 const {httpCall} = require('./httpHelper');
+const { getUrl } = require('./service-helper');
 const queryString = require('query-string');
 
 class TentativeServiceImpl {
 
     retrieveTentativeListForServer(serverName) {
         const queryParams = {serverName: serverName};
-        return httpCall('localhost', `/api/tentative?${queryString.stringify(queryParams)}`, 'GET');
+        return httpCall(getUrl(), `/api/tentative?${queryString.stringify(queryParams)}`, 'GET');
     }
 
     postTentativeUpdateForServerAndTournament(id, serverName, tournamentName, tournamentDay) {
@@ -17,7 +18,7 @@ class TentativeServiceImpl {
                 tournamentDay: tournamentDay
             }
         };
-        return httpCall('localhost', `/api/tentative`, 'POST', payload);
+        return httpCall(getUrl(), `/api/tentative`, 'POST', payload);
     }
 
 }

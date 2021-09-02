@@ -1,9 +1,9 @@
 const {httpCall} = require('./httpHelper');
-
+const { getUrl } = require('./service-helper');
 
 class TournamentsServiceImpl {
     retrieveAllActiveTournaments() {
-        return httpCall('localhost', '/api/tournaments', 'GET');
+        return httpCall(getUrl(), '/api/tournaments', 'GET');
     }
 }
 
