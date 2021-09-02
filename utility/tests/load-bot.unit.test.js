@@ -1,22 +1,15 @@
 const discordModulePath = 'discord.js';
 const commandsModulePath = '../../commands';
-const clashTimeDbImplModulePath = '../../dao/clash-time-db-impl';
-const clashSubscriptionDbImplModulePath = '../../dao/clash-subscription-db-impl';
-const clashTeamsDbImplModulePath = '../../dao/clash-teams-db-impl';
 const Discord = require('discord.js');
 const botCommands = require(commandsModulePath);
-const clashTimesDbImpl = require(clashTimeDbImplModulePath);
-const clashSubscriptionDbImpl = require(clashSubscriptionDbImplModulePath);
-const clashTeamsDbImpl = require(clashTeamsDbImplModulePath);
 const helpMenu = require('../../templates/help-menu');
+const userServiceImpl = require('../../services/user-service-impl');
 const updateNotification = require('../../templates/update-notification');
 const loadBot = require('../load-bot');
 
 jest.mock(discordModulePath);
 jest.mock(commandsModulePath);
-jest.mock(clashTimeDbImplModulePath);
-jest.mock(clashSubscriptionDbImplModulePath);
-jest.mock(clashTeamsDbImplModulePath);
+jest.mock('../../services/user-service-impl')
 
 beforeEach(() => {
     jest.resetAllMocks();
@@ -28,9 +21,6 @@ beforeEach(() => {
 describe('Load Bot', () => {
     test('Loading the bot should call all expected event listeners if not integration role.', () => {
         process.env.TOKEN = 'SampleToken';
-        clashTimesDbImpl.initialize = jest.fn().mockResolvedValue({status: 'succesful'});
-        clashSubscriptionDbImpl.initialize = jest.fn().mockResolvedValue({status: 'succesful'});
-        clashTeamsDbImpl.initialize = jest.fn().mockResolvedValue({status: 'succesful'});
         let loginMockObject = jest.fn().mockResolvedValue(jest.fn());
         let commandSetMockObject = jest.fn();
         let actualEvents = new Map();
@@ -45,9 +35,6 @@ describe('Load Bot', () => {
             Object.keys(botCommands).forEach((value, index) => {
                 expect(commandSetMockObject).toHaveBeenNthCalledWith(index + 1, botCommands[value].name, botCommands[value]);
             });
-            expect(clashTimesDbImpl.initialize).toBeCalledTimes(1);
-            expect(clashSubscriptionDbImpl.initialize).toBeCalledTimes(1);
-            expect(clashTeamsDbImpl.initialize).toBeCalledTimes(1);
             expect(loginMockObject).toBeCalledWith(process.env.TOKEN);
             expect(actualEvents.size).toEqual(3);
             expect(actualEvents.get('ready')).toBeTruthy();
@@ -57,59 +44,11 @@ describe('Load Bot', () => {
         })
     })
 
-    test('If the clashTimesDbImpl database fail to load, it should be successfully rejected.', () => {
-        process.env.TOKEN = 'SampleToken';
-        process.env.LOCAL = true;
-        clashTimesDbImpl.initialize = jest.fn().mockRejectedValue('Failed to load.');
-        clashSubscriptionDbImpl.initialize = jest.fn().mockResolvedValue({status: 'succesful'});
-        clashTeamsDbImpl.initialize = jest.fn().mockResolvedValue({status: 'succesful'});
-        let loginMockObject = jest.fn().mockRejectedValue('Invalid token given.')
-        Discord.Client = jest.fn().mockReturnValue({
-            login: loginMockObject
-        });
-        return loadBot.initializeBot().then((botSetup) => {
-            expect(botSetup).toBeFalsy();
-        }).catch(err => expect(err).toEqual(`Failed to initialize Clash-Bot DB to Error ('Failed to load.')`))
-    })
-
-    test('If the clashSubscriptionDbImpl database fail to load, it should be successfully rejected.', () => {
-        process.env.TOKEN = 'SampleToken';
-        process.env.LOCAL = true;
-        clashTimesDbImpl.initialize = jest.fn().mockResolvedValue({status: 'succesful'});
-        clashSubscriptionDbImpl.initialize = jest.fn().mockRejectedValue('Failed to load.');
-        clashTeamsDbImpl.initialize = jest.fn().mockResolvedValue({status: 'succesful'});
-        let loginMockObject = jest.fn().mockRejectedValue('Invalid token given.')
-        Discord.Client = jest.fn().mockReturnValue({
-            login: loginMockObject
-        });
-        return loadBot.initializeBot().then((botSetup) => {
-            expect(botSetup).toBeFalsy();
-        }).catch(err => expect(err).toEqual(`Failed to initialize Clash-Bot DB to Error ('Failed to load.')`))
-    })
-
-    test('If the clashTeamsDbImpl database fail to load, it should be successfully rejected.', () => {
-        process.env.TOKEN = 'SampleToken';
-        process.env.LOCAL = true;
-        clashTimesDbImpl.initialize = jest.fn().mockResolvedValue({status: 'succesful'});
-        clashSubscriptionDbImpl.initialize = jest.fn().mockResolvedValue({status: 'succesful'});
-        clashTeamsDbImpl.initialize = jest.fn().mockRejectedValue('Failed to load.');
-        let loginMockObject = jest.fn().mockRejectedValue('Invalid token given.')
-        Discord.Client = jest.fn().mockReturnValue({
-            login: loginMockObject
-        });
-        return loadBot.initializeBot().then((botSetup) => {
-            expect(botSetup).toBeFalsy();
-        }).catch(err => expect(err).toEqual(`Failed to initialize Clash-Bot DB to Error ('Failed to load.')`))
-    })
-
 })
 describe('Load Bot - INTEGRATION_TEST', () => {
     test('Loading the bot should call all expected event listeners if it is integration role.', () => {
         process.env.TOKEN = 'SampleToken';
         process.env.INTEGRATION_TEST = true;
-        clashTimesDbImpl.initialize = jest.fn().mockResolvedValue({status: 'succesful'});
-        clashSubscriptionDbImpl.initialize = jest.fn().mockResolvedValue({status: 'succesful'});
-        clashTeamsDbImpl.initialize = jest.fn().mockResolvedValue({status: 'succesful'});
         let loginMockObject = jest.fn().mockResolvedValue(jest.fn());
         let commandSetMockObject = jest.fn();
         let actualEvents = new Map();
@@ -124,9 +63,6 @@ describe('Load Bot - INTEGRATION_TEST', () => {
             Object.keys(botCommands).forEach((value, index) => {
                 expect(commandSetMockObject).toHaveBeenNthCalledWith(index + 1, botCommands[value].name, botCommands[value]);
             });
-            expect(clashTimesDbImpl.initialize).toBeCalledTimes(1);
-            expect(clashSubscriptionDbImpl.initialize).toBeCalledTimes(1);
-            expect(clashTeamsDbImpl.initialize).toBeCalledTimes(1);
             expect(loginMockObject).toBeCalledWith(process.env.TOKEN);
             expect(actualEvents.size).toEqual(3);
             expect(actualEvents.get('guildCreate')).toBeTruthy();
@@ -143,9 +79,6 @@ describe('Login Bot - LOCAL', () => {
         process.env.TOKEN = 'SampleToken';
         process.env.LOCAL = true;
         delete process.env.INTEGRATION_TEST;
-        clashTimesDbImpl.initialize = jest.fn().mockResolvedValue({status: 'succesful'});
-        clashSubscriptionDbImpl.initialize = jest.fn().mockResolvedValue({status: 'succesful'});
-        clashTeamsDbImpl.initialize = jest.fn().mockResolvedValue({status: 'succesful'});
         let loginMockObject = jest.fn().mockResolvedValue(jest.fn());
         let commandSetMockObject = jest.fn();
         let actualEvents = new Map();
@@ -160,9 +93,6 @@ describe('Login Bot - LOCAL', () => {
             Object.keys(botCommands).forEach((value, index) => {
                 expect(commandSetMockObject).toHaveBeenNthCalledWith(index + 1, botCommands[value].name, botCommands[value]);
             });
-            expect(clashTimesDbImpl.initialize).toBeCalledTimes(1);
-            expect(clashSubscriptionDbImpl.initialize).toBeCalledTimes(1);
-            expect(clashTeamsDbImpl.initialize).toBeCalledTimes(1);
             expect(loginMockObject).toBeCalledWith(process.env.TOKEN);
             expect(actualEvents.size).toEqual(3);
             expect(actualEvents.get('guildCreate')).toBeTruthy();
@@ -257,7 +187,7 @@ describe('Events', () => {
             expect(mockDiscordBot.commands.get('help').execute).toBeCalledTimes(0);
         })
 
-        test('When a message event is received, the message should execute the expected command from channel league and the command following the prefix !clash', () => {
+        test('When a message event is received, the message should execute the expected command from channel league and the command following the prefix !clash', async () => {
             let restrictedChannel = 'league';
             let commandPrefix = '!clash';
             let mockDiscordMessage = {
@@ -267,7 +197,11 @@ describe('Events', () => {
                 },
                 content: `${commandPrefix} help`,
                 author: {
-                    username: 'Test User'
+                    username: 'Test User',
+                    id: '1'
+                },
+                guild: {
+                    name: 'Server'
                 }
             };
             let mockCommands = new Map();
@@ -275,12 +209,15 @@ describe('Events', () => {
             let mockDiscordBot = {
                 commands: mockCommands
             };
-            loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
+            userServiceImpl.postVerifyUser.mockResolvedValue({});
+            await loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
             expect(mockDiscordMessage.channel.send).toBeCalledTimes(0);
             expect(mockDiscordBot.commands.get('help').execute).toBeCalledTimes(1);
+            expect(userServiceImpl.postVerifyUser).toHaveBeenCalledTimes(1);
+            expect(userServiceImpl.postVerifyUser).toHaveBeenCalledWith(mockDiscordMessage.author.id, mockDiscordMessage.author.username, mockDiscordMessage.guild.name);
         })
 
-        test('When a message event is received, and the command is executed but fails to execute. A message replying to the Bot owner should be sent.', () => {
+        test('When a message event is received, and the command is executed but fails to execute. A message replying to the Bot owner should be sent.', async () => {
             let restrictedChannel = 'league';
             let commandPrefix = '!clash';
             let mockDiscordMessage = {
@@ -290,7 +227,11 @@ describe('Events', () => {
                 },
                 content: `${commandPrefix} help`,
                 author: {
-                    username: 'Test User'
+                    username: 'Test User',
+                    id: '1'
+                },
+                guild: {
+                    name: 'Server'
                 }
             };
             let mockCommands = new Map();
@@ -306,10 +247,13 @@ describe('Events', () => {
             let mockDiscordBot = {
                 commands: mockCommands
             };
-            loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
+            userServiceImpl.postVerifyUser.mockResolvedValue({});
+            await loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
             expect(mockDiscordMessage.channel.send).toBeCalledTimes(1);
             expect(mockDiscordMessage.channel.send).toBeCalledWith('there was an error trying to execute that command! Please reach out to <@299370234228506627>.');
             expect(mockDiscordBot.commands.get('help').execute).toBeCalledTimes(1);
+            expect(userServiceImpl.postVerifyUser).toHaveBeenCalledTimes(1);
+            expect(userServiceImpl.postVerifyUser).toHaveBeenCalledWith(mockDiscordMessage.author.id, mockDiscordMessage.author.username, mockDiscordMessage.guild.name);
         })
     })
 

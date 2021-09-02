@@ -1,11 +1,11 @@
 version: '3.8'
 services:
   dynamodb-local:
-    command: "-jar DynamoDBLocal.jar -sharedDb"
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
     image: "amazon/dynamodb-local:latest"
     container_name: dynamodb-local
     ports:
-      - "0.0.0.0:8000:8000"
+      - "8000:8000"
     volumes:
       - "./docker/dynamodb:/home/dynamodblocal/data"
     working_dir: /home/dynamodblocal
@@ -14,10 +14,17 @@ services:
       - locale-gen=en_US.UTF-8
       - LANGUAGE=en_US:en
       - LC_ALL=en_US.UTF-8
-  clash-bot-discord-bot-service-data-setup:
-    image: "poss11111/clash-bot-service:latest"
+  dynamodb-local-gui:
+    image: 'aaronshaf/dynamodb-admin:latest'
+    container_name: dynamodb-local-gui
+    ports:
+      - "8001:8001"
+    environment:
+      - DYNAMO_ENDPOINT=http://dynamodb-local:8000
+  clash-bot-service-data-setup:
+    image: "poss11111/clash-bot-service:test"
     command: "node integration/integration-setup.js"
-    container_name: clash-bot-discord-bot-service-data-setup
+    container_name: clash-bot-service-data-setup
     environment:
       - INTEGRATION_TEST=true
       - HOST=dynamodb-local

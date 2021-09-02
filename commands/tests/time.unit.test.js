@@ -1,7 +1,12 @@
 const time = require('../time');
-const leagueApi = require('../../dao/clash-time-db-impl');
+const tournamentsServiceImpl = require('../../services/tournaments-service-impl');
 
-jest.mock('../../dao/clash-time-db-impl');
+jest.mock('../../services/tournaments-service-impl');
+
+beforeEach(() => {
+    jest.resetAllMocks();
+    jest.resetModules();
+})
 
 describe('League Clash Times', () => {
 
@@ -12,19 +17,20 @@ describe('League Clash Times', () => {
                 send: (value) => messagePassed = value
             }
         };
-        let sampleTime = [{
-            tournamentName: 'Sample Tournament',
-            nameSecondary: 'sampleTournament',
-            startTime: 'June 26 2021 07:00 pm PDT',
-            registrationTime: 'June 26 2021 04:15 pm PDT',
-            tournamentDay: '3'
-        }]
-        leagueApi.findTournament.mockResolvedValue(sampleTime);
+        let sampleTime =  [
+            {
+                tournamentName: 'awesome_sauce',
+                tournamentDay: '1',
+                startTime: 'June 26 2021 07:00 pm PDT',
+                registrationTime: 'June 26 2021 04:15 pm PDT'
+            }];
+        tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(sampleTime);
         let expectedFormat = {
             name: `${sampleTime[0].tournamentName} Day ${sampleTime[0].tournamentDay} - June 26 2021`,
             value: "Tier IV - 4:15 pm PDT\nTier III - 5:00 pm PDT\nTier II - 5:45 pm PDT\nTier I - 6:30 pm PDT"
         }
         await time.execute(msg);
+        expect(tournamentsServiceImpl.retrieveAllActiveTournaments).toHaveBeenCalledTimes(1);
         expect(messagePassed.embed.fields.length).toEqual(1);
         expect(messagePassed.embed.fields[0]).toEqual(expectedFormat);
     })
@@ -36,8 +42,9 @@ describe('League Clash Times', () => {
                 send: (value) => messagePassed = value
             }
         };
-        leagueApi.findTournament.mockResolvedValue(undefined);
+        tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(undefined);
         await time.execute(msg);
+        expect(tournamentsServiceImpl.retrieveAllActiveTournaments).toHaveBeenCalledTimes(1);
         expect(messagePassed.embed.fields.length).toEqual(1);
         expect(messagePassed.embed.fields[0].name).toEqual('No times available');
         expect(messagePassed.embed.fields[0].value).toEqual('N/A');
@@ -51,7 +58,7 @@ describe('League Clash Times', () => {
                 send: (value) => messagePassed = value
             }
         };
-        leagueApi.findTournament.mockResolvedValue([]);
+        tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue([]);
         await time.execute(msg);
         expect(messagePassed.embed.fields.length).toEqual(1);
         expect(messagePassed.embed.fields[0].name).toEqual('No times available');

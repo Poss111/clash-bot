@@ -15,12 +15,12 @@ jobs:
     steps:
       - uses: FranzDiebold/github-env-vars-action@v2.1.0
 
-      - name: Build Start Discord Webhook
+      - name: Deployment Start Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
         with:
           discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
           title: 'Clash Bot Deployment Notification'
-          message: 'Starting Github build...'
+          message: 'Starting Github deployment...'
           message-color: '15258703'
 
       - name: Check
@@ -35,34 +35,12 @@ jobs:
           replace: "${{ secrets.DISCORD_KEY }}"
           include: "task-definition.json"
 
-      - name: Cache node modules
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-node-modules
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-
-      - name: Install Dependencies
-        run: npm i
-
-      - uses: actions/upload-artifact@v2
-        with:
-          name: coverage-artifact
-          path: coverage
-
-      - name: Build Failed Discord Webhook
-        uses: Poss111/discord-hook-action@v1.6.8
-        if: ${{ failure() }}
-        with:
-          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          title: 'Clash Bot Deployment Notification'
-          message: 'Github build failed!'
-          message-color: '16711680'
+      - name: Find and Replace
+       uses: jacobtomlinson/gha-find-replace@master
+       with:
+         find: "--SERVICE_URL--"
+         replace: "${{ secrets.SERVICE_URL }}"
+         include: "task-definition.json"
 
       - name: Deployment In Progress Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8

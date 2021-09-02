@@ -18,6 +18,10 @@
                     "value": "--DISCORD_KEY--"
                 },
                 {
+                    "name": "SERVICE_URL",
+                    "value": "--SERVICE_URL--"
+                },
+                {
                     "name": "REGION",
                     "value": "us-east-1"
                 }

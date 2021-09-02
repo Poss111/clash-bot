@@ -5,7 +5,8 @@ module.exports = {
         "Here are a few quick commands to get you started.\n" +
         "***Note***: Use !clash at the beginning of each of your commands to make use of this bot. " +
         "Any improvements to be suggested, please create an issue at the following location " +
-        "[Clash Bot Issues](https://github.com/Poss111/clash-bot/issues)",
+        "[Clash Bot Issues](https://github.com/Poss111/clash-bot/issues). Please check the new site as well. This will " +
+        "given you much more details on the Teams. https://clash-bot.ninja",
     fields: [
         {
             name: "Need a more verbose description of these commands.",
@@ -51,10 +52,10 @@ module.exports = {
             value: "Asks the bot to print a list of Teams for the upcoming clash tournaments."
         },
         {
-            name: "tentative - !clash tentative msi2021",
+            name: "tentative - !clash tentative msi2021 1",
             value: "Asks the bot to place your name on the tentative queue for a tournament, if you are already belong " +
                 "in the queue, you will be removed from it. You will be removed from a team if you have been assigned " +
-                "one. ***Note***: This queue is not maintained so you will be removed from the queue upon update of " +
+                "one. ***Note***: This queue is NOW maintained so you will NOT be removed from the queue upon update of " +
                 "the bot."
         },
         {
