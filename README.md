@@ -18,7 +18,7 @@
 | subscribe | ```!clash subscribe``` | Subscribes the user notification of an upcoming League of Legends Clash Tournament. This notification will be sent on the Monday before a Tournament weekend. | 
 | suggestChampion | ```!clash suggestChampion``` | Adds a LoL Champion to user preferred champions list. This will display so you can better coordinate with your Clash teams. | 
 | teams | ```!clash teams``` | Asks the bot to print a list of Teams for the upcoming clash. |
-| tentative | ```!clash tentative``` | Asks the bot to place your name on the tentative queue for a tournament, if you are already belong in the queue, you will be removed from it. You will be removed from a team if you have been assigned one. ***Note***: This queue is not maintain so you will be removed from the queue upon update of the bot. |
+| tentative | ```!clash tentative msi2021 1``` | Asks the bot to place your name on the tentative queue for a tournament, if you are already belong in the queue, you will be removed from it. You will be removed from a team if you have been assigned one. ***Note***: This queue is not maintain so you will be removed from the queue upon update of the bot. |
 | time | ```!clash time``` | Asks the bot to print out the times for the clash from the Riot API and the list of tournaments to be used. |
 | unregister | ```!clash unregister msi2021 1``` | Asks the bot to remove you from the assigned Clash team therefore freeing a spot for others on a tournament and a tournament day. |
 | unsubscribe | ```!clash unsubscribe``` | Subscribes the user notification of an upcoming League of Legends Clash Tournament. This notification will be sent on the Monday before a Tournament weekend. | 
