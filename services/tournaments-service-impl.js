@@ -1,4 +1,3 @@
-const http = require('http');
 const {httpCall} = require('./httpHelper');
 
 
