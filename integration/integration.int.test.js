@@ -2,13 +2,52 @@ const discordModulePath = 'discord.js';
 const botCommands = require('../commands');
 const helpMenu = require('../templates/help-menu');
 const loadBot = require('../utility/load-bot');
+const healthCheckServiceImpl = require('../services/health-check-service-impl');
+const teamsServiceImpl = require('../services/teams-service-impl');
 
 jest.mock(discordModulePath);
 
-beforeAll(() => {
+const timeoutPromise = (timeout) => new Promise((resolve) => setTimeout(() => resolve(true), timeout));
+const testServerName = 'LoL-ClashBotSupport';
+
+beforeAll(async () => {
     process.env.INTEGRATION_TEST = true;
     process.env.REGION = 'us-east-1';
-})
+    let counter = 0;
+    const serviceDataHealthcheckPromise = () => new Promise((resolve, reject) => {
+        try {
+            console.log('Checking if service is available...');
+            teamsServiceImpl.retrieveActiveTeamsForServer(testServerName)
+                .then((data) => {
+                    if (Array.isArray(data) && data.length > 0) {
+                        console.log('It is available!');
+                        resolve(true);
+                    } else {
+                        reject('Service is not available. Data not loaded yet.')
+                    }
+                })
+                .catch((error) => reject('Service is not available! => ' + error.message));
+        } catch (error) {
+            console.error('Clash Bot Service is not available.');
+            reject('Service is not available! => ' + error.message);
+        }
+    });
+    let serviceLoaded = false;
+    while (!serviceLoaded && counter < 10) {
+        try {
+            await serviceDataHealthcheckPromise();
+            serviceLoaded = true;
+        } catch (err) {
+            counter++;
+            console.log(counter);
+            await timeoutPromise(3000);
+        }
+    }
+    if (!serviceLoaded) {
+        console.error('Clash Bot Service is not available.');
+        process.exit(1);
+    }
+}, 60000)
 
 beforeEach(async () => {
     jest.resetAllMocks();

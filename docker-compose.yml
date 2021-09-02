@@ -14,10 +14,10 @@ services:
       - locale-gen=en_US.UTF-8
       - LANGUAGE=en_US:en
       - LC_ALL=en_US.UTF-8
-  clash-bot-service-data-setup:
+  clash-bot-discord-bot-service-data-setup:
     image: "poss11111/clash-bot-service:latest"
     command: "node integration/integration-setup.js"
-    container_name: clash-bot-service-data-setup
+    container_name: clash-bot-discord-bot-service-data-setup
     environment:
       - INTEGRATION_TEST=true
       - HOST=dynamodb-local
