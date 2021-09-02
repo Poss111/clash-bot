@@ -2,7 +2,6 @@ const discordModulePath = 'discord.js';
 const botCommands = require('../commands');
 const helpMenu = require('../templates/help-menu');
 const loadBot = require('../utility/load-bot');
-const healthCheckServiceImpl = require('../services/health-check-service-impl');
 const teamsServiceImpl = require('../services/teams-service-impl');
 
 jest.mock(discordModulePath);
@@ -47,7 +46,7 @@ beforeAll(async () => {
         console.error('Clash Bot Service is not available.');
         process.exit(1);
     }
-}, 60000)
+}, 120000)
 
 beforeEach(async () => {
     jest.resetAllMocks();
