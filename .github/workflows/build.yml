@@ -48,7 +48,7 @@ jobs:
       run: npm test
 
     - name: Start App container
-      run: docker-compose up
+      run: docker-compose up -d
 
     - name: Run integration tests on Local DynamoDb
       run: npm run integration
