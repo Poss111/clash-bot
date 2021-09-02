@@ -9,9 +9,10 @@ describe('Service Helper', () => {
         test('When I call get url and the service url is not set, it should default to localhost.', () => {
             expect(getUrl()).toEqual('localhost');
         })
-
+    })
+    describe('Get Url - Set', () => {
         test('When I call get url and the service url is set, it should return the set value.', () => {
-            process.env.CLASH_BOT_SERVICE = 'iam.anawesomeurl.com';
+            process.env.SERVICE_URL = 'iam.anawesomeurl.com';
             expect(getUrl()).toEqual('iam.anawesomeurl.com');
         })
     })
