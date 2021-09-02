@@ -52,7 +52,7 @@ describe('User Service Impl', () => {
         })
     })
 
-    describe('Put Verify User Details', () => {
+    describe('Post Verify User Details', () => {
         test('Check user existence with server. Should return with a User Object.', () => {
             const expectedPlayerId = '1';
             const expectedPlayerName = 'Roidrage';

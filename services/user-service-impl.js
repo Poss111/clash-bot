@@ -18,8 +18,8 @@ class UserServiceImpl {
         });
     }
 
-    async putVerifyUser(id, playerName, serverName) {
-        return httpCall('localhost', '/api/user', 'PUT', {
+    async postVerifyUser(id, playerName, serverName) {
+        return httpCall('localhost', '/api/user/verify', 'POST', {
             id: id,
             username: playerName,
             serverName: serverName

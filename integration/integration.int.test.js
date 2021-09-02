@@ -17,10 +17,10 @@ beforeEach(async () => {
 })
 
 describe('!clash help', () => {
-    test('When a message event is received, the message should execute the expected command from channel league and the command following the prefix !clash', () => {
+    test('When a message event is received, the message should execute the expected command from channel league and the command following the prefix !clash', async () => {
         let {restrictedChannel, commandPrefix, mockDiscordMessage, mockDiscordBot} = setupBotCommand('help');
         let copy = JSON.parse(JSON.stringify(helpMenu));
-        loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
+        await loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
         expect(mockDiscordMessage.channel.send).toBeCalledTimes(1);
         expect(mockDiscordMessage.channel.send).toBeCalledWith({embed: copy});
     })
@@ -46,7 +46,14 @@ describe('!clash teams', () => {
     })
 })
 
-describe('!clash subscribe', () => {
+describe('!clash un/subscribe', () => {
+    test('When the User wants to unsubscribe, their data should be reflected that they no longer want a subscription.', async () => {
+        let testUserId = '321654987';
+        let {restrictedChannel, commandPrefix, mockDiscordMessage, mockDiscordBot} = setupBotCommand('unsubscribe', testUserId);
+        await loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
+        expect(mockDiscordMessage.reply).toBeCalledTimes(1);
+    })
+
     test('When the User wants to subscribe, their data should be stored successfully to be picked up by the Notification Lambda.', async () => {
         let {restrictedChannel, commandPrefix, mockDiscordMessage, mockDiscordBot} = setupBotCommand('subscribe');
         await loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
@@ -56,20 +63,11 @@ describe('!clash subscribe', () => {
     })
 })
 
-describe('!clash unsubscribe', () => {
-    test('When the User wants to unsubscribe, their data should be reflected that they no longer want a subscription.', async () => {
-        let testUserId = '321654987';
-        let {restrictedChannel, commandPrefix, mockDiscordMessage, mockDiscordBot} = setupBotCommand('unsubscribe', testUserId);
-        await loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
-        expect(mockDiscordMessage.reply).toBeCalledTimes(1);
-    })
-})
-
 describe('!clash join', () => {
     test('When the User wants to join a specific Team, they should be able to pass the team name and be successfully assigned to them.', async () => {
         let {restrictedChannel, commandPrefix, mockDiscordMessage, mockDiscordBot} = setupBotCommand('join');
-        const expectedTeamName = "Absol";
-        mockDiscordMessage.content = mockDiscordMessage.content.concat(" awesome_sauce 1 " + expectedTeamName);
+        const expectedTeamName = "Charizard";
+        mockDiscordMessage.content = mockDiscordMessage.content.concat(" awesome_sauce 4 " + expectedTeamName);
         await loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
         expect(mockDiscordMessage.reply.mock.calls[0][0].embed.description).not.toContain('Failed to find');
         expect(mockDiscordMessage.reply.mock.calls[0][0].embed.fields[0].name).toContain(`Team ${expectedTeamName}`);
@@ -85,7 +83,7 @@ describe('!clash newTeam', () => {
         expect(mockDiscordMessage.reply.mock.calls[0][0]).not.toContain('We were unable to find a Tournament with');
         expect(mockDiscordMessage.reply.mock.calls[0][0].embed.fields[0].value).toContain(mockDiscordMessage.author.username);
         expect(mockDiscordMessage.reply.mock.calls[0][0].embed.fields[1].name).toContain('Tournament Details');
-        expect(mockDiscordMessage.reply.mock.calls[0][0].embed.fields[1].value).toEqual('awesome_sauce Day 1');
+        expect(mockDiscordMessage.reply.mock.calls[0][0].embed.fields[1].value).toEqual('awesome_sauce Day 2');
     })
 })
 
@@ -99,11 +97,11 @@ function setupBotCommand(command, userId) {
         },
         content: `${commandPrefix} ${command}`,
         author: {
-            username: 'Test User',
-            id: userId ? userId : '123432112321'
+            username: 'Roïdräge',
+            id: userId ? userId : '299370234228506627'
         },
         guild: {
-            name: 'Integration Server'
+            name: 'LoL-ClashBotSupport'
         },
         reply: jest.fn()
     };

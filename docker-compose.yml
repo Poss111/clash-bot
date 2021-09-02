@@ -22,7 +22,7 @@ services:
     environment:
       - DYNAMO_ENDPOINT=http://dynamodb-local:8000
   clash-bot-service-bot:
-    image: "poss11111/clash-bot-service:test"
+    image: "poss11111/clash-bot-service:latest"
     container_name: clash-bot-service-bot
     ports:
       - "0.0.0.0:80:80"

@@ -47,12 +47,8 @@ jobs:
     - name: Run unit tests
       run: npm test
 
-    - name: Setup DynamoDB Local
-      uses: rrainn/dynamodb-action@v2.0.0
-      with:
-        sharedDb: true
-        port: 8000
-        cors: '*'
+    - name: Start App container
+      run: docker-compose up -d
 
     - name: Run integration tests on Local DynamoDb
       run: npm run integration

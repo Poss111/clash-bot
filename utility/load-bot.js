@@ -47,7 +47,7 @@ let messageHandler = async (msg, restrictedChannel, commandPrefix, discordBot) =
 
         try {
             console.info(`('${msg.author.username}') called command: ('${command}')`);
-            await userServiceImpl.putVerifyUser(msg.author.id, msg.author.username, msg.guild.name)
+            await userServiceImpl.postVerifyUser(msg.author.id, msg.author.username, msg.guild.name)
             await discordBot.commands.get(command).execute(msg, args);
         } catch (error) {
             console.error(`Failed to execute command ('${discordBot.commands.get(command).name}') due to error.`, error);
