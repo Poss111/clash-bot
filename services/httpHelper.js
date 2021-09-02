@@ -10,10 +10,11 @@ let httpCall = (hostname, path, method, payload) => {
             console.log(`path: ('${path}') method: ('${method}') statusCode: ('${response.status}')`);
             resolve(response.data);
         }).catch(err => {
-            console.log(`path: ('${path}') method: ('${method}') statusCode: ('${err.response.status}') message: ('${JSON.stringify(err.response.data)})')`);
-            if (err.response.status === 400) {
+            if (err.response && err.response.status === 400) {
+                console.log(`path: ('${path}') method: ('${method}') statusCode: ('${err.code}') message: ('${JSON.stringify(err.response.data)})')`);
                 resolve(err.response.data);
             } else {
+                console.log(`path: ('${path}') method: ('${method}') statusCode: ('${err.code}')`);
                 reject(err.message);
             }
         })

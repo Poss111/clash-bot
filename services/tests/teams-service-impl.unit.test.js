@@ -70,30 +70,6 @@ describe('Clash Bot Teams Service', () => {
                 expect(response).toEqual(expectedResponse);
             });
         })
-
-        test('Reconcilable Error - Http Error - If an http error occurs, it should be rejected successfully.', () => {
-            const expectedServerName = 'Goon Squad';
-            const expectedApiResponse = { error: 'Missing required detail.'};
-            nock('http://localhost')
-                .get(`/api/teams/${encodeURI(expectedServerName)}`)
-                .reply(400, expectedApiResponse);
-            return clashBotTeamsServiceImpl.retrieveActiveTeamsForServer(expectedServerName).then((response) => {
-                let expectedResponse = JSON.parse(JSON.stringify(expectedApiResponse));
-                expect(response).toEqual(expectedResponse);
-            });
-        })
-
-        test('Error - Error with Call - If an http error occurs, it should be rejected successfully.', () => {
-            const expectedServerName = 'Goon Squad';
-            nock('http://localhost')
-                .get(`/api/teams/${encodeURI(expectedServerName)}`)
-                .replyWithError({ message: 'Failed to make call.', code: 500 });
-            return clashBotTeamsServiceImpl.retrieveActiveTeamsForServer(expectedServerName).then(() => {
-                expect(true).toBeFalsy();
-            }).catch(err => {
-                expect(err).toEqual({ message: 'Failed to make call.', code: 500 });
-            });
-        })
     })
 
     describe('POST - Create new Team', () => {

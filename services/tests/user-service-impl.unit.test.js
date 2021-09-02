@@ -74,7 +74,7 @@ describe('User Service Impl', () => {
             nock('http://localhost')
                 .post(`/api/user/verify`, payload)
                 .reply(200, expectedApiResponse);
-            return userServiceImpl.putVerifyUser(expectedPlayerId, expectedPlayerName, expectedServerName).then(response => {
+            return userServiceImpl.postVerifyUser(expectedPlayerId, expectedPlayerName, expectedServerName).then(response => {
                 expect(response).toEqual(expectedApiResponse);
             })
         })

@@ -133,29 +133,6 @@ describe('Unregister', () => {
         await unregister.execute(msg, args);
         expect(messagePassed).toEqual(`Please provide an existing tournament and day to unregister for. Use '!clash team' to print a teams.`);
     })
-
-    test('When find tournament returns undefined, the player will be sent back an invalid input message.', async () => {
-        let messagePassed = '';
-        let sendMessage = '';
-        let msg = {
-            reply: (value) => messagePassed = value,
-            channel: {
-                send: (value) => sendMessage = value
-            },
-            author: {
-                id: '1',
-                username: 'TestPlayer'
-            },
-            guild: {
-                name: 'TestServer'
-            }
-        };
-        let args = ['shurima', '3'];
-        commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], tournamentDay: args[1], createNewTeam: false});
-        tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(leagueTimes);
-        await unregister.execute(msg, args);
-        expect(messagePassed).toEqual(`Please provide an existing tournament and day to unregister for. Use '!clash team' to print a teams.`);
-    })
 })
 
 test('If an error occurs, the error handler will be invoked.', async () => {

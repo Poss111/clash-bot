@@ -209,12 +209,12 @@ describe('Events', () => {
             let mockDiscordBot = {
                 commands: mockCommands
             };
-            userServiceImpl.putVerifyUser.mockResolvedValue({});
+            userServiceImpl.postVerifyUser.mockResolvedValue({});
             await loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
             expect(mockDiscordMessage.channel.send).toBeCalledTimes(0);
             expect(mockDiscordBot.commands.get('help').execute).toBeCalledTimes(1);
-            expect(userServiceImpl.putVerifyUser).toHaveBeenCalledTimes(1);
-            expect(userServiceImpl.putVerifyUser).toHaveBeenCalledWith(mockDiscordMessage.author.id, mockDiscordMessage.author.username, mockDiscordMessage.guild.name);
+            expect(userServiceImpl.postVerifyUser).toHaveBeenCalledTimes(1);
+            expect(userServiceImpl.postVerifyUser).toHaveBeenCalledWith(mockDiscordMessage.author.id, mockDiscordMessage.author.username, mockDiscordMessage.guild.name);
         })
 
         test('When a message event is received, and the command is executed but fails to execute. A message replying to the Bot owner should be sent.', async () => {
@@ -247,13 +247,13 @@ describe('Events', () => {
             let mockDiscordBot = {
                 commands: mockCommands
             };
-            userServiceImpl.putVerifyUser.mockResolvedValue({});
+            userServiceImpl.postVerifyUser.mockResolvedValue({});
             await loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
             expect(mockDiscordMessage.channel.send).toBeCalledTimes(1);
             expect(mockDiscordMessage.channel.send).toBeCalledWith('there was an error trying to execute that command! Please reach out to <@299370234228506627>.');
             expect(mockDiscordBot.commands.get('help').execute).toBeCalledTimes(1);
-            expect(userServiceImpl.putVerifyUser).toHaveBeenCalledTimes(1);
-            expect(userServiceImpl.putVerifyUser).toHaveBeenCalledWith(mockDiscordMessage.author.id, mockDiscordMessage.author.username, mockDiscordMessage.guild.name);
+            expect(userServiceImpl.postVerifyUser).toHaveBeenCalledTimes(1);
+            expect(userServiceImpl.postVerifyUser).toHaveBeenCalledWith(mockDiscordMessage.author.id, mockDiscordMessage.author.username, mockDiscordMessage.guild.name);
         })
     })
 

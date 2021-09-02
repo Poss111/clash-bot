@@ -21,6 +21,13 @@ services:
       - "8001:8001"
     environment:
       - DYNAMO_ENDPOINT=http://dynamodb-local:8000
+  clash-bot-service-data-setup:
+    image: "poss11111/clash-bot-service:test"
+    command: "node integration/integration-setup.js"
+    container_name: clash-bot-service-data-setup
+    environment:
+      - INTEGRATION_TEST=true
+      - HOST=dynamodb-local
   clash-bot-service-bot:
     image: "poss11111/clash-bot-service:latest"
     container_name: clash-bot-service-bot

@@ -3,6 +3,11 @@ const tournamentsServiceImpl = require('../../services/tournaments-service-impl'
 
 jest.mock('../../services/tournaments-service-impl');
 
+beforeEach(() => {
+    jest.resetAllMocks();
+    jest.resetModules();
+})
+
 describe('League Clash Times', () => {
 
     test('When league times returns successfully, there should be a formatted time for each available clash and tier returned.', async () => {

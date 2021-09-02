@@ -9,7 +9,7 @@ module.exports = {
         const startTime = process.hrtime.bigint();
         try {
             let userDetails = await userServiceImpl.getUserDetails(msg.author.id);
-            if (userDetails.subscriptions || userDetails.subscriptions.UpcomingClashTournamentDiscordDM) {
+            if (userDetails.subscriptions && userDetails.subscriptions.UpcomingClashTournamentDiscordDM) {
                 userDetails.subscriptions.UpcomingClashTournamentDiscordDM = false;
                 userDetails.preferredChampions = !Array.isArray(userDetails.preferredChampions) ? [] : userDetails.preferredChampions;
                 let updatedUserDetails = await userServiceImpl.postUserDetails(msg.author.id, msg.author.username, userDetails.serverName, userDetails.preferredChampions, userDetails.subscriptions);
