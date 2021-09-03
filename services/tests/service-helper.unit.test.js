@@ -7,7 +7,7 @@ beforeEach(() => {
 describe('Service Helper', () => {
     describe('Get Url', () => {
         test('When I call get url and the service url is not set, it should default to localhost.', () => {
-            expect(getUrl()).toEqual('localhost');
+            expect(getUrl()).toEqual('http://localhost');
         })
     })
     describe('Get Url - Set', () => {

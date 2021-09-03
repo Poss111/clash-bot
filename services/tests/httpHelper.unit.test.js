@@ -8,7 +8,7 @@ describe('Http Helpter', () => {
             nock('http://localhost')
                 .get('/api/sample')
                 .reply(200, {message: 'success'});
-            return httpCall('localhost', '/api/sample', 'GET').then((response) => {
+            return httpCall('http://localhost', '/api/sample', 'GET').then((response) => {
                 expect(response).toEqual(expectedResponse);
             })
         })
@@ -19,7 +19,7 @@ describe('Http Helpter', () => {
             nock('http://localhost')
                 .post('/api/sample', payload)
                 .reply(200, {message: 'success'});
-            return httpCall('localhost', '/api/sample', 'POST', payload).then((response) => {
+            return httpCall('http://localhost', '/api/sample', 'POST', payload).then((response) => {
                 expect(response).toEqual(expectedResponse);
             })
         })
@@ -30,7 +30,7 @@ describe('Http Helpter', () => {
             nock('http://localhost')
                 .put('/api/sample', payload)
                 .reply(200, {message: 'success'});
-            return httpCall('localhost', '/api/sample', 'PUT', payload).then((response) => {
+            return httpCall('http://localhost', '/api/sample', 'PUT', payload).then((response) => {
                 expect(response).toEqual(expectedResponse);
             })
         })
@@ -41,7 +41,7 @@ describe('Http Helpter', () => {
             nock('http://localhost')
                 .delete('/api/sample', payload)
                 .reply(200, {message: 'success'});
-            return httpCall('localhost', '/api/sample', 'DELETE', payload).then((response) => {
+            return httpCall('http://localhost', '/api/sample', 'DELETE', payload).then((response) => {
                 expect(response).toEqual(expectedResponse);
             })
         })
@@ -54,7 +54,7 @@ describe('Http Helpter', () => {
             nock('http://localhost')
                 .post('/api/sample', payload)
                 .reply(400, expectedResponse);
-            return httpCall('localhost', '/api/sample', 'POST', payload).then((response) => {
+            return httpCall('http://localhost', '/api/sample', 'POST', payload).then((response) => {
                 expect(response).toEqual(expectedResponse);
             })
         })
@@ -65,7 +65,7 @@ describe('Http Helpter', () => {
             nock('http://localhost')
                 .post('/api/sample', payload)
                 .reply(500, expectedResponse);
-            return httpCall('localhost', '/api/sample', 'POST', payload).then((response) => {
+            return httpCall('http://localhost', '/api/sample', 'POST', payload).then((response) => {
                 expect(true).toBeFalsy();
             }).catch((err) => expect(err).toEqual("Request failed with status code 500"));
         })
