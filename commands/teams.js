@@ -31,13 +31,14 @@ module.exports = {
                     }
                 }
             } if (tentative && tentative.length > 0) {
-                tentative = tentative.filter(record => record.tentativePlayers.length > 0);
                 const reduce = tentative.reduce((acc, value) => {
                     const key = `${value.tournamentDetails.tournamentName} - ${value.tournamentDetails.tournamentDay}`;
                     if (!acc[key]) {
                         acc[key] = []
                     }
-                    acc[key].push(value.tentativePlayers);
+                    if (Array.isArray(value.tentativePlayers) && value.tentativePlayers.length > 0) {
+                        acc[key].push(value.tentativePlayers);
+                    }
                     return acc;
                 }, {});
                 let message = '';

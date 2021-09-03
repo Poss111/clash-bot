@@ -1,6 +1,6 @@
 let getUrl = () => {
     if (!process.env.SERVICE_URL) {
-        return 'localhost';
+        return 'http://localhost';
     } else {
         return process.env.SERVICE_URL;
     }
