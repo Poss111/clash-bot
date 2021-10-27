@@ -6,7 +6,9 @@ module.exports = {
         "***Note***: Use !clash at the beginning of each of your commands to make use of this bot. " +
         "Any improvements to be suggested, please create an issue at the following location " +
         "[Clash Bot Issues](https://github.com/Poss111/clash-bot/issues). Please check the new site as well!! This will " +
-        "given you much more details on the Teams. https://clash-bot.ninja",
+        "given you much more details on the Teams. https://clash-bot.ninja **NOTE** : League's Season is coming to a close and unfortunately, so are the " +
+        "Clash Tournaments for now so Clash Bot will have minimal usage for now. You can still use the champion" +
+        "feature to learn more about the LoL Champions. See you all next year!",
     fields: [
         {
             name: "Need a more verbose description of these commands.",
