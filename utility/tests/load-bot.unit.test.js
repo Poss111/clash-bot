@@ -202,7 +202,8 @@ describe('Events', () => {
                 },
                 guild: {
                     name: 'Server'
-                }
+                },
+                reply: jest.fn()
             };
             let mockCommands = new Map();
             mockCommands.set('help', {execute: jest.fn()})
@@ -232,7 +233,8 @@ describe('Events', () => {
                 },
                 guild: {
                     name: 'Server'
-                }
+                },
+                reply: jest.fn()
             };
             let mockCommands = new Map();
             mockCommands.set('help', {
