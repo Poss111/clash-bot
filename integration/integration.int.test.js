@@ -121,7 +121,7 @@ describe('!clash newTeam', () => {
         expect(mockDiscordMessage.reply.mock.calls[0][0]).not.toContain('We were unable to find a Tournament with');
         expect(mockDiscordMessage.reply.mock.calls[0][0].embed.fields[0].value).toContain(mockDiscordMessage.author.username);
         expect(mockDiscordMessage.reply.mock.calls[0][0].embed.fields[1].name).toContain('Tournament Details');
-        expect(mockDiscordMessage.reply.mock.calls[0][0].embed.fields[1].value).toEqual('awesome_sauce Day 2');
+        expect(mockDiscordMessage.reply.mock.calls[0][0].embed.fields[1].value).toEqual('awesome_sauce Day 1');
     })
 })
 
