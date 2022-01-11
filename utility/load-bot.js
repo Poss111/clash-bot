@@ -47,7 +47,6 @@ let messageHandler = async (msg, restrictedChannel, commandPrefix, discordBot) =
 
         try {
             console.info(`('${msg.author.username}') called command: ('${command}')`);
-            msg.reply('Season 11 is quickly coming to a close. Clash Bot will have limited usage. There will be no Tournaments available. Please check back next year!');
             await userServiceImpl.postVerifyUser(msg.author.id, msg.author.username, msg.guild.name)
             await discordBot.commands.get(command).execute(msg, args);
         } catch (error) {

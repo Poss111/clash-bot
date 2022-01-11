@@ -79,8 +79,8 @@ describe('!clash teams', () => {
     test('When the data store has available Teams for the specific Tournaments, it should return the given Teams.', async () => {
         let {restrictedChannel, commandPrefix, mockDiscordMessage, mockDiscordBot} = setupBotCommand('teams');
         await loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
-        expect(mockDiscordMessage.reply).toBeCalledTimes(2);
-        expect(mockDiscordMessage.reply.mock.calls[1][0]).toBeTruthy();
+        expect(mockDiscordMessage.reply).toBeCalledTimes(1);
+        expect(mockDiscordMessage.reply.mock.calls[0][0]).toBeTruthy();
     })
 })
 
@@ -89,14 +89,14 @@ describe('!clash un/subscribe', () => {
         let testUserId = '321654987';
         let {restrictedChannel, commandPrefix, mockDiscordMessage, mockDiscordBot} = setupBotCommand('unsubscribe', testUserId);
         await loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
-        expect(mockDiscordMessage.reply).toBeCalledTimes(2);
+        expect(mockDiscordMessage.reply).toBeCalledTimes(1);
     })
 
     test('When the User wants to subscribe, their data should be stored successfully to be picked up by the Notification Lambda.', async () => {
         let {restrictedChannel, commandPrefix, mockDiscordMessage, mockDiscordBot} = setupBotCommand('subscribe');
         await loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
-        expect(mockDiscordMessage.reply).toBeCalledTimes(2);
-        expect(mockDiscordMessage.reply.mock.calls[1][0]).toEqual('You have subscribed. You will receive a notification the Monday before ' +
+        expect(mockDiscordMessage.reply).toBeCalledTimes(1);
+        expect(mockDiscordMessage.reply.mock.calls[0][0]).toEqual('You have subscribed. You will receive a notification the Monday before ' +
             'a Clash Tournament weekend. If you want to unsubscribe at any time please use !clash unsubscribe');
     })
 })
@@ -107,9 +107,9 @@ describe('!clash join', () => {
         const expectedTeamName = "Charizard";
         mockDiscordMessage.content = mockDiscordMessage.content.concat(" awesome_sauce 4 " + expectedTeamName);
         await loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
-        expect(mockDiscordMessage.reply.mock.calls[1][0].embed.description).not.toContain('Failed to find');
-        expect(mockDiscordMessage.reply.mock.calls[1][0].embed.fields[0].name).toContain(`Team ${expectedTeamName}`);
-        expect(mockDiscordMessage.reply.mock.calls[1][0].embed.fields[0].value).toContain(mockDiscordMessage.author.username);
+        expect(mockDiscordMessage.reply.mock.calls[0][0].embed.description).not.toContain('Failed to find');
+        expect(mockDiscordMessage.reply.mock.calls[0][0].embed.fields[0].name).toContain(`Team ${expectedTeamName}`);
+        expect(mockDiscordMessage.reply.mock.calls[0][0].embed.fields[0].value).toContain(mockDiscordMessage.author.username);
     })
 })
 
@@ -118,10 +118,10 @@ describe('!clash newTeam', () => {
         let {restrictedChannel, commandPrefix, mockDiscordMessage, mockDiscordBot} = setupBotCommand('newTeam');
         mockDiscordMessage.content = mockDiscordMessage.content.concat(" awesome_sauce");
         await loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
-        expect(mockDiscordMessage.reply.mock.calls[1][0]).not.toContain('We were unable to find a Tournament with');
-        expect(mockDiscordMessage.reply.mock.calls[1][0].embed.fields[0].value).toContain(mockDiscordMessage.author.username);
-        expect(mockDiscordMessage.reply.mock.calls[1][0].embed.fields[1].name).toContain('Tournament Details');
-        expect(mockDiscordMessage.reply.mock.calls[1][0].embed.fields[1].value).toEqual('awesome_sauce Day 1');
+        expect(mockDiscordMessage.reply.mock.calls[0][0]).not.toContain('We were unable to find a Tournament with');
+        expect(mockDiscordMessage.reply.mock.calls[0][0].embed.fields[0].value).toContain(mockDiscordMessage.author.username);
+        expect(mockDiscordMessage.reply.mock.calls[0][0].embed.fields[1].name).toContain('Tournament Details');
+        expect(mockDiscordMessage.reply.mock.calls[0][0].embed.fields[1].value).toEqual('awesome_sauce Day 2');
     })
 })
 
