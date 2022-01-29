@@ -83,7 +83,7 @@ module.exports = {
                         data = await teamsServiceImpl.postForNewTeam(msg.author.id, role, msg.guild.name,
                             filteredClashTimes[0].tournamentName, filteredClashTimes[0].tournamentDay,
                             filteredClashTimes[0].startTime);
-                        if (data.error !== 'Player is not eligible to create a new Team.') {
+                        if (data.error !== 'Player is not eligible to create a new TeaAm.') {
                             notRegistered = false;
                         } else {
                             filteredClashTimes.splice(0, 1);
@@ -95,7 +95,7 @@ module.exports = {
                     } else {
                         copy.fields.push({
                             name: data.teamName,
-                            value: data.playersDetails.map(player => `${player.role} - ${player.name}`),
+                            value: Object.entries(data.playersRoleDetails).map(keyValue => `${keyValue[0]} - ${keyValue[1]}`),
                             inline: true
                         });
                         copy.fields.push(buildTournamentDetails(data));

@@ -40,8 +40,8 @@ module.exports = {
                         times[0].tournamentName, times[0].tournamentDay).then(team => {
                         if (!team.error) {
                             console.log(`Registered ('${msg.author.username}') with Role ('${args[0]}') Tournament ('${team.tournamentDetails.tournamentName}') Team ('${team.teamName}').`);
-                            copy.fields.push({name: team.teamName, value: team.playersDetails
-                                    .map(player => `${player.role} - ${player.name}`), inline: true});
+                            copy.fields.push({name: team.teamName, value: Object.entries(team.playersRoleDetails)
+                                    .map(key => `${key[0]} - ${key[1]}`), inline: true});
                             copy.fields.push(buildTournamentDetails(team));
                         } else {
                             copy.description = `Failed to find an available team with the following criteria Role '${args[0]}' Tournament Name '${args[1]}' Tournament Day '${args[2]}' Team Name '${args[3]} or role is not available for that team`;

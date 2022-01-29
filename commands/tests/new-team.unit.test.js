@@ -16,9 +16,11 @@ beforeEach(() => {
 
 function verifyReply(messagePassed, sampleRegisterReturn) {
     expect(messagePassed.embed.fields[0].name).toEqual(sampleRegisterReturn.teamName);
-    expect(messagePassed.embed.fields[0].value).toEqual(sampleRegisterReturn.playersDetails.map(player => `${player.role} - ${player.name}`));
+    expect(messagePassed.embed.fields[0].value).toEqual(Object.entries(sampleRegisterReturn.playersRoleDetails)
+        .map((key) => `${key[0]} - ${key[1]}`));
     expect(messagePassed.embed.fields[1].name).toEqual('Tournament Details');
-    expect(messagePassed.embed.fields[1].value).toEqual(`${sampleRegisterReturn.tournamentDetails.tournamentName} Day ${sampleRegisterReturn.tournamentDetails.tournamentDay}`);
+    expect(messagePassed.embed.fields[1].value)
+        .toEqual(`${sampleRegisterReturn.tournamentDetails.tournamentName} Day ${sampleRegisterReturn.tournamentDetails.tournamentDay}`);
 }
 
 function verifyRedundantRegistration(messagePassed) {
@@ -65,9 +67,11 @@ describe('New Team', () => {
                 {
                     id: 1,
                     name: 'Roidrage',
-                    role: 'Top'
                 }
             ],
+            playersRoleDetails: {
+                Top: 'Roidrage'
+            },
             tournamentDetails: {
                 tournamentName: leagueTimes[0].tournamentName,
                 tournamentDay: leagueTimes[0].tournamentDay,
@@ -268,6 +272,9 @@ describe('New Team', () => {
             teamName: 'Team Abra',
             serverName: msg.guild.name,
             playersDetails: [{name: 'Roidrage'}],
+            playersRoleDetails: {
+                Top: 'Roidrage'
+            },
             tournamentDetails: {
                 tournamentName: leagueTimes[0].tournamentName,
                 tournamentDay: leagueTimes[0].tournamentDay,
@@ -318,6 +325,9 @@ describe('New Team', () => {
             teamName: 'Team Abra',
             serverName: msg.guild.name,
             playersDetails: [{name: 'Roidrage'}],
+            playersRoleDetails: {
+                Top: 'Roidrage'
+            },
             tournamentDetails: {
                 tournamentName: leagueTimes[1].tournamentName,
                 tournamentDay: leagueTimes[1].tournamentDay,
@@ -414,6 +424,9 @@ describe('New Team', () => {
                     role: 'Top'
                 }
             ],
+            playersRoleDetails: {
+                Top: 'Roidrage'
+            },
             tournamentDetails: {
                 tournamentName: leagueTimes[1].tournamentName,
                 tournamentDay: leagueTimes[1].tournamentDay,

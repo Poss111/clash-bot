@@ -9,7 +9,8 @@ jest.mock('../../utility/error-handling');
 
 function verifyReply(messagePassed, sampleRegisterReturn) {
     expect(messagePassed.embed.fields[0].name).toEqual(sampleRegisterReturn.teamName);
-    expect(messagePassed.embed.fields[0].value).toEqual(sampleRegisterReturn.playersDetails.map(player => `${player.role} - ${player.name}`));
+    expect(messagePassed.embed.fields[0].value).toEqual(Object.entries(sampleRegisterReturn.playersRoleDetails)
+        .map((key) => `${key[0]} - ${key[1]}`));
     expect(messagePassed.embed.fields[1].name).toEqual('Tournament Details');
     expect(messagePassed.embed.fields[1].value).toEqual(`${sampleRegisterReturn.tournamentDetails.tournamentName} Day ${sampleRegisterReturn.tournamentDetails.tournamentDay}`);
     expect(messagePassed.embed.fields[1].inline).toBeTruthy();
@@ -115,10 +116,12 @@ describe('Join an existing Team', () => {
             playersDetails: [
                 {
                     id: 1,
-                    name: 'Roidrage',
-                    role: 'Top'
+                    name: 'Roidrage'
                 }
             ],
+            playersRoleDetails: {
+              Top: 'Roidrage'
+            },
             tournamentDetails: {
                 tournamentName: leagueTimes[0].tournamentName,
                 tournamentDay: leagueTimes[0].tournamentDay,
@@ -176,7 +179,7 @@ describe('Join Team Error', () => {
                 name: 'Server'
             }
         };
-        let args = ['msi2021', '1', 'Sample Team'];
+        let args = ['Top', 'msi2021', '1', 'Sample Team'];
         const leagueTimes = [
             {
                 tournamentName: "msi2021",
@@ -188,7 +191,7 @@ describe('Join Team Error', () => {
         tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(leagueTimes);
         teamsServiceImpl.postForTeamRegistration.mockRejectedValue('Failed to find team.');
         await joinTeamByName.execute(msg, args);
-        expect(teamsServiceImpl.postForTeamRegistration).toBeCalledWith(msg.author.id, args[2], msg.guild.name, leagueTimes[0].tournamentName, leagueTimes[0].tournamentDay);
+        expect(teamsServiceImpl.postForTeamRegistration).toBeCalledWith(msg.author.id, args[0], args[3], msg.guild.name, leagueTimes[0].tournamentName, leagueTimes[0].tournamentDay);
         expect(errorHandling.handleError.mock.calls.length).toEqual(1);
     })
 })

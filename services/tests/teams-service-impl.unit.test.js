@@ -12,25 +12,27 @@ describe('Clash Bot Teams Service', () => {
                         {
                             id: 1,
                             name: 'Roïdräge',
-                            champions: ['Volibear', 'Ornn', 'Sett'],
-                            role: 'Top'
+                            champions: ['Volibear', 'Ornn', 'Sett']
                         },
                         {
                             id: 2,
                             name: 'TheIncentive',
-                            champions: ['Lucian'],
-                            role: 'ADC'
+                            champions: ['Lucian']
                         },
                         {
                             id: 3,
                             name: 'Pepe Conrad',
-                            champions: ['Lucian'],
-                            role: 'Jg'
+                            champions: ['Lucian']
                         }
                     ],
                     tournamentDetails: {
                         tournamentName: 'awesome_sauce',
                         tournamentDay: '1'
+                    },
+                    playersRoleDetails: {
+                        Top: 'Roïdräge',
+                        Bot: 'TheIncentive',
+                        Jg: 'Pepe Conrad'
                     }
                 }
             ];
@@ -51,22 +53,24 @@ describe('Clash Bot Teams Service', () => {
                         {
                             id: 1,
                             name: 'Roïdräge',
-                            champions: ['Volibear', 'Ornn', 'Sett'],
-                            role: 'Top'
+                            champions: ['Volibear', 'Ornn', 'Sett']
                         },
                         {
                             id: 2,
                             name: 'TheIncentive',
-                            champions: ['Lucian'],
-                            role: 'ADC'
+                            champions: ['Lucian']
                         },
                         {
                             id: 3,
                             name: 'Pepe Conrad',
-                            champions: ['Lucian'],
-                            role: 'Jg'
+                            champions: ['Lucian']
                         }
-                    ]
+                    ],
+                    playersRoleDetails: {
+                        Top: 'Roïdräge',
+                        Bot: 'TheIncentive',
+                        Supp: 'Pepe Conrad'
+                    }
                 }
             ];
             nock('http://localhost')
