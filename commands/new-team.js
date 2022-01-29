@@ -83,7 +83,7 @@ module.exports = {
                         data = await teamsServiceImpl.postForNewTeam(msg.author.id, role, msg.guild.name,
                             filteredClashTimes[0].tournamentName, filteredClashTimes[0].tournamentDay,
                             filteredClashTimes[0].startTime);
-                        if (data.error !== 'Player is not eligible to create a new TeaAm.') {
+                        if (data.error !== 'Player is not eligible to create a new Team.') {
                             notRegistered = false;
                         } else {
                             filteredClashTimes.splice(0, 1);
