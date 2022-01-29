@@ -47,7 +47,7 @@ describe('Unregister', () => {
         await unregister.execute(msg, args);
         expect(teamsServiceImpl.deleteFromTeam).toBeCalledWith(msg.author.id, msg.guild.name, leagueTimes[0].tournamentName, leagueTimes[0].tournamentDay);
         expect(sendMessage).toEqual(`Unregistering ${msg.author.username} from Tournament ${leagueTimes[0].tournamentName} on Day ${leagueTimes[0].tournamentDay}...`);
-        expect(messagePassed).toEqual(`Removed you from your Team. Please use !clash register if you would like to join again. Thank you!`);
+        expect(messagePassed).toEqual(`Removed you from your Team. Please use !clash join or !clash newTeam if you would like to join again. Thank you!`);
     })
 
     test('When a player does not exist on a team is unregistered, the player should be notified that we have not successfully removed them.', async () => {
@@ -86,7 +86,7 @@ describe('Unregister', () => {
         teamsServiceImpl.deleteFromTeam.mockResolvedValue( {error: 'User not found on requested Team.'});
         await unregister.execute(msg, args);
         expect(sendMessage).toEqual(`Unregistering ${msg.author.username} from Tournament ${leagueTimes[0].tournamentName} on Day ${leagueTimes[0].tournamentDay}...`);
-        expect(messagePassed).toEqual(`We did not find you on an existing Team. Please use !clash register if you would like to join again. Thank you!`);
+        expect(messagePassed).toEqual(`We did not find you on an existing Team. Please use !clash join or !clash newTeam if you would like to join again. Thank you!`);
     })
 
     test('When a player does not give which tournament and day to unregister for, the player will be sent back an invalid input message.', async () => {
@@ -107,7 +107,7 @@ describe('Unregister', () => {
         };
         commandArgumentParser.parse.mockReturnValue({createNewTeam: false});
         await unregister.execute(msg);
-        expect(messagePassed).toEqual('Please pass the tournament and day to unregister for i.e. !clash unregister msi2021 2');
+        expect(messagePassed).toEqual('Please pass the tournament and day to unregister for i.e. !clash unregister ***msi2021*** ***2***');
     })
 
     test('When a player does not give which tournament and day that is available to unregister for, the player will be sent back an invalid input message.', async () => {
@@ -131,7 +131,7 @@ describe('Unregister', () => {
         commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], tournamentDay: args[1], createNewTeam: false});
         tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(leagueTimes);
         await unregister.execute(msg, args);
-        expect(messagePassed).toEqual(`Please provide an existing tournament and day to unregister for. Use '!clash team' to print a teams.`);
+        expect(messagePassed).toEqual(`Please provide an existing tournament and day to unregister for. Use '!clash team' to print a team.`);
     })
 })
 
