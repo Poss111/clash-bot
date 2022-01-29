@@ -105,23 +105,33 @@ describe('!clash join', () => {
     test('When the User wants to join a specific Team, they should be able to pass the team name and be successfully assigned to them.', async () => {
         let {restrictedChannel, commandPrefix, mockDiscordMessage, mockDiscordBot} = setupBotCommand('join');
         const expectedTeamName = "Charizard";
-        mockDiscordMessage.content = mockDiscordMessage.content.concat(" awesome_sauce 4 " + expectedTeamName);
+        const expectedRole = 'Top';
+        mockDiscordMessage.content = mockDiscordMessage.content.concat(" " + expectedRole + " awesome_sauce 4 " + expectedTeamName);
         await loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
-        expect(mockDiscordMessage.reply.mock.calls[0][0].embed.description).not.toContain('Failed to find');
-        expect(mockDiscordMessage.reply.mock.calls[0][0].embed.fields[0].name).toContain(`Team ${expectedTeamName}`);
-        expect(mockDiscordMessage.reply.mock.calls[0][0].embed.fields[0].value).toContain(mockDiscordMessage.author.username);
+        expect(mockDiscordMessage.reply.mock.calls[0][0].embed.description).not
+            .toContain('Failed to find');
+        expect(mockDiscordMessage.reply.mock.calls[0][0].embed.fields[0].name)
+            .toContain(`Team ${expectedTeamName}`);
+        expect(mockDiscordMessage.reply.mock.calls[0][0].embed.fields[0].value)
+            .toEqual([expectedRole + " - " + mockDiscordMessage.author.username, "Supp - TheIncentive"]);
     })
 })
 
 describe('!clash newTeam', () => {
     test('When the User wants to create a new Team, they should be able to create for the specified Tournament and Day.', async () => {
-        let {restrictedChannel, commandPrefix, mockDiscordMessage, mockDiscordBot} = setupBotCommand('newTeam');
-        mockDiscordMessage.content = mockDiscordMessage.content.concat(" awesome_sauce");
+        let {restrictedChannel, commandPrefix, mockDiscordMessage, mockDiscordBot} =
+            setupBotCommand('newTeam');
+        const expectedRole = 'Top';
+        mockDiscordMessage.content = mockDiscordMessage.content.concat(" " + expectedRole + " awesome_sauce");
         await loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
-        expect(mockDiscordMessage.reply.mock.calls[0][0]).not.toContain('We were unable to find a Tournament with');
-        expect(mockDiscordMessage.reply.mock.calls[0][0].embed.fields[0].value).toContain(mockDiscordMessage.author.username);
-        expect(mockDiscordMessage.reply.mock.calls[0][0].embed.fields[1].name).toContain('Tournament Details');
-        expect(mockDiscordMessage.reply.mock.calls[0][0].embed.fields[1].value).toEqual('awesome_sauce Day 1');
+        expect(mockDiscordMessage.reply.mock.calls[0][0])
+            .not.toContain('We were unable to find a Tournament with');
+        expect(mockDiscordMessage.reply.mock.calls[0][0]
+            .embed.fields[0].value).toEqual([expectedRole + " - " + mockDiscordMessage.author.username]);
+        expect(mockDiscordMessage.reply.mock.calls[0][0]
+            .embed.fields[1].name).toContain('Tournament Details');
+        expect(mockDiscordMessage.reply.mock.calls[0][0]
+            .embed.fields[1].value).toEqual('awesome_sauce Day 1');
     })
 })
 

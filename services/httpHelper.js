@@ -9,6 +9,7 @@ let httpCall = (hostname, path, method, payload) => {
             timeout: 10000
         }).then(response => {
             console.log(`hostname: ('${hostname}') path: ('${path}') method: ('${method}') statusCode: ('${response.status}')`);
+            console.debug(`Path: ${path} Response: ${JSON.stringify(response.data)}`)
             resolve(response.data);
         }).catch(err => {
             if (err.response && err.response.status === 400) {

@@ -16,9 +16,11 @@ beforeEach(() => {
 
 function verifyReply(messagePassed, sampleRegisterReturn) {
     expect(messagePassed.embed.fields[0].name).toEqual(sampleRegisterReturn.teamName);
-    expect(messagePassed.embed.fields[0].value).toEqual(sampleRegisterReturn.playersDetails.map(player => player.name));
+    expect(messagePassed.embed.fields[0].value).toEqual(Object.entries(sampleRegisterReturn.playersRoleDetails)
+        .map((key) => `${key[0]} - ${key[1]}`));
     expect(messagePassed.embed.fields[1].name).toEqual('Tournament Details');
-    expect(messagePassed.embed.fields[1].value).toEqual(`${sampleRegisterReturn.tournamentDetails.tournamentName} Day ${sampleRegisterReturn.tournamentDetails.tournamentDay}`);
+    expect(messagePassed.embed.fields[1].value)
+        .toEqual(`${sampleRegisterReturn.tournamentDetails.tournamentName} Day ${sampleRegisterReturn.tournamentDetails.tournamentDay}`);
 }
 
 function verifyRedundantRegistration(messagePassed) {
@@ -61,7 +63,15 @@ describe('New Team', () => {
         const sampleRegisterReturn = {
             teamName: 'Team Abra',
             serverName: msg.guild.name,
-            playersDetails: [{name: 'Roidrage'}],
+            playersDetails: [
+                {
+                    id: 1,
+                    name: 'Roidrage',
+                }
+            ],
+            playersRoleDetails: {
+                Top: 'Roidrage'
+            },
             tournamentDetails: {
                 tournamentName: leagueTimes[0].tournamentName,
                 tournamentDay: leagueTimes[0].tournamentDay,
@@ -69,14 +79,17 @@ describe('New Team', () => {
             startTime: leagueTimes[0].startTime
         };
         teamsServiceImpl.postForNewTeam.mockResolvedValue(sampleRegisterReturn);
-        await newTeam.execute(msg);
+        const args = ['Top'];
+        await newTeam.execute(msg, args);
 
-        expect(teamsServiceImpl.postForNewTeam).toBeCalledWith(msg.author.id, msg.guild.name, leagueTimes[0].tournamentName, leagueTimes[0].tournamentDay, leagueTimes[0].startTime);
-        expect(sendMessage).toEqual(`Registering ${msg.author.username} for the first available tournament you are not already registered to...`);
+        expect(teamsServiceImpl.postForNewTeam).toBeCalledWith(msg.author.id, args[0], msg.guild.name,
+            leagueTimes[0].tournamentName, leagueTimes[0].tournamentDay, leagueTimes[0].startTime);
+        expect(sendMessage).toEqual(`Registering ${msg.author.username} for the first available tournament as '${args[0]}' that you are not already registered to...`);
         verifyReply(messagePassed, sampleRegisterReturn);
     })
 
-    test('If a user is successfully registered with an empty array for args, then a reply stating the Team that the User has been registered to should be returned.', async () => {
+    test('If a user is registering with an undefined array for args, then a reply stating that the user needs ' +
+        'to pass the role he wants to register with.', async () => {
         let messagePassed = '';
         let sendMessage = '';
         let msg = {
@@ -92,41 +105,64 @@ describe('New Team', () => {
                 name: 'TestServer'
             }
         };
-        let leagueTimes = [
-            {
-                tournamentName: "msi2021",
-                tournamentDay: "3",
-                "startTime": "May 29 2021 07:00 pm PDT",
-                "registrationTime": "May 29 2021 04:15 pm PDT"
-            },
-            {
-                tournamentName: "msi2021",
-                tournamentDay: "4",
-                "startTime": "May 30 2021 07:00 pm PDT",
-                "registrationTime": "May 30 2021 04:15 pm PDT"
-            }
-        ];
         commandArgumentParser.parse.mockReturnValue({});
-        tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(leagueTimes);
-        const sampleRegisterReturn = {
-            teamName: 'Team Abra',
-            serverName: msg.guild.name,
-            playersDetails: [{name: 'Roidrage'}],
-            tournamentDetails: {
-                tournamentName: leagueTimes[0].tournamentName,
-                tournamentDay: leagueTimes[0].tournamentDay,
-            },
-            startTime: leagueTimes[0].startTime
-        };
-        teamsServiceImpl.postForNewTeam.mockResolvedValue(sampleRegisterReturn);
-        await newTeam.execute(msg, []);
+        await newTeam.execute(msg);
 
-        expect(teamsServiceImpl.postForNewTeam).toBeCalledWith(msg.author.id, msg.guild.name, leagueTimes[0].tournamentName, leagueTimes[0].tournamentDay, leagueTimes[0].startTime);
-        expect(sendMessage).toEqual(`Registering ${msg.author.username} for the first available tournament you are not already registered to...`);
-        verifyReply(messagePassed, sampleRegisterReturn);
+        expect(teamsServiceImpl.postForNewTeam).not.toHaveBeenCalled();
+        expect(messagePassed).toEqual(`The role to join a new Team with are missing. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: !clash newTeam ***Top***`);
     })
 
-    test('If a user requests a specific tournament that does not exist, they should receive a response letting them know we were unable to find a tournament.', async () => {
+    test('If a user is registering with an invalid role type (not Top, Mid, Jg, Bot, or Supp for args, then a reply stating that the user needs ' +
+        'to pass the role he wants to register with.', async () => {
+        let messagePassed = '';
+        let sendMessage = '';
+        let msg = {
+            reply: (value) => messagePassed = value,
+            channel: {
+                send: (value) => sendMessage = value
+            },
+            author: {
+                id: '1',
+                username: 'TestPlayer'
+            },
+            guild: {
+                name: 'TestServer'
+            }
+        };
+        commandArgumentParser.parse.mockReturnValue({});
+        let rolePassed = 'Jung';
+        await newTeam.execute(msg, [rolePassed]);
+
+        expect(teamsServiceImpl.postForNewTeam).not.toHaveBeenCalled();
+        expect(messagePassed).toEqual(`The role passed is not correct - '${rolePassed}'. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: !clash newTeam ***Top***`);
+    })
+
+    test('If a user is registering with an array for args, then a reply stating that the user needs ' +
+        'to pass the role he wants to register with.', async () => {
+        let messagePassed = '';
+        let sendMessage = '';
+        let msg = {
+            reply: (value) => messagePassed = value,
+            channel: {
+                send: (value) => sendMessage = value
+            },
+            author: {
+                id: '1',
+                username: 'TestPlayer'
+            },
+            guild: {
+                name: 'TestServer'
+            }
+        };
+        commandArgumentParser.parse.mockReturnValue({});
+        await newTeam.execute(msg, []);
+
+        expect(teamsServiceImpl.postForNewTeam).not.toHaveBeenCalled();
+        expect(messagePassed).toEqual(`The role to join a new Team with are missing. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: !clash newTeam ***Top***`);
+    })
+
+    test('If a user requests a specific tournament that does not exist, they should receive a response ' +
+        'letting them know we were unable to find a tournament.', async () => {
         let messagePassed = '';
         let sendMessage = '';
         let msg = {
@@ -141,16 +177,17 @@ describe('New Team', () => {
                 name: 'TestServer'
             }
         };
-        const args = ['dne'];
-        commandArgumentParser.parse.mockReturnValue({tournamentName: args[0]});
+        const args = ['Top', 'dne'];
+        commandArgumentParser.parse.mockReturnValue({tournamentName: args[1]});
         tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(undefined);
         await newTeam.execute(msg, args);
         expect(teamsServiceImpl.postForNewTeam).not.toBeCalled();
-        expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[0]}...`);
-        expect(messagePassed).toEqual(`We were unable to find a Tournament with '${args[0]}'. Please try again.`)
+        expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[1]} as '${args[0]}'...`);
+        expect(messagePassed).toEqual(`We were unable to find a Tournament with '${args[1]}'. Please try again.`)
     })
 
-    test('If a user requests a specific tournament that does not exist and the list is empty, they should receive a response letting them know we were unable to find a tournament.', async () => {
+    test('If a user requests a specific tournament that does not exist and the list is empty, they should receive ' +
+        'a response letting them know we were unable to find a tournament.', async () => {
         let messagePassed = '';
         let sendMessage = '';
         let msg = {
@@ -165,16 +202,17 @@ describe('New Team', () => {
                 name: 'TestServer'
             }
         };
-        const args = ['dne'];
-        commandArgumentParser.parse.mockReturnValue({tournamentName: args[0]});
+        const args = ['Top', 'dne'];
+        commandArgumentParser.parse.mockReturnValue({tournamentName: args[1]});
         tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue([]);
         await newTeam.execute(msg, args);
         expect(teamsServiceImpl.postForNewTeam).not.toBeCalled();
-        expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[0]}...`);
-        expect(messagePassed).toEqual(`We were unable to find a Tournament with '${args[0]}'. Please try again.`)
+        expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[1]} as '${args[0]}'...`);
+        expect(messagePassed).toEqual(`We were unable to find a Tournament with '${args[1]}'. Please try again.`)
     })
 
-    test('If a user requests a specific tournament name and day that does not exist and the list is empty, they should receive a response letting them know we were unable to find a tournament.', async () => {
+    test('If a user requests a specific tournament name and day that does not exist and the list is empty, ' +
+        'they should receive a response letting them know we were unable to find a tournament.', async () => {
         let messagePassed = '';
         let sendMessage = '';
         let msg = {
@@ -189,13 +227,13 @@ describe('New Team', () => {
                 name: 'TestServer'
             }
         };
-        const args = ['dne', '1'];
-        commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], tournamentDay: args[1]});
+        const args = ['Top', 'dne', '1'];
+        commandArgumentParser.parse.mockReturnValue({tournamentName: args[1], tournamentDay: args[2]});
         tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue([]);
         await newTeam.execute(msg, args);
         expect(teamsServiceImpl.postForNewTeam).not.toBeCalled();
-        expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[0]} on day ${args[1]}...`);
-        expect(messagePassed).toEqual(`We were unable to find a Tournament with '${args[0]}' and '${args[1]}'. Please try again.`)
+        expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[1]} on day ${args[2]} as '${args[0]}'...`);
+        expect(messagePassed).toEqual(`We were unable to find a Tournament with '${args[1]}' and '${args[2]}'. Please try again.`)
     })
 
     test('If a user requests a specific tournament that exists, they should be signed up for that specific tournament.', async () => {
@@ -203,9 +241,9 @@ describe('New Team', () => {
         let sendMessage = '';
         let msg = {
             reply: (value) => messagePassed = value,
-                channel: {
-            send: (value) => sendMessage = value
-        },
+            channel: {
+                send: (value) => sendMessage = value
+            },
             author: {
                 username: 'TestPlayer'
             },
@@ -227,13 +265,16 @@ describe('New Team', () => {
                 "registrationTime": "May 29 2021 04:15 pm PDT"
             }
         ];
-        const args = ['msi2021'];
-        commandArgumentParser.parse.mockReturnValue({tournamentName: args[0]});
+        const args = ['Top', 'msi2021'];
+        commandArgumentParser.parse.mockReturnValue({tournamentName: args[1]});
         tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(leagueTimes);
         const sampleRegisterReturn = {
             teamName: 'Team Abra',
             serverName: msg.guild.name,
             playersDetails: [{name: 'Roidrage'}],
+            playersRoleDetails: {
+                Top: 'Roidrage'
+            },
             tournamentDetails: {
                 tournamentName: leagueTimes[0].tournamentName,
                 tournamentDay: leagueTimes[0].tournamentDay,
@@ -242,8 +283,9 @@ describe('New Team', () => {
         };
         teamsServiceImpl.postForNewTeam.mockResolvedValue(sampleRegisterReturn);
         await newTeam.execute(msg, args);
-        expect(teamsServiceImpl.postForNewTeam).toBeCalledWith(msg.author.id, msg.guild.name, leagueTimes[0].tournamentName, leagueTimes[0].tournamentDay, leagueTimes[0].startTime);
-        expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[0]}...`);
+        expect(teamsServiceImpl.postForNewTeam).toBeCalledWith(msg.author.id, args[0], msg.guild.name,
+            leagueTimes[0].tournamentName, leagueTimes[0].tournamentDay, leagueTimes[0].startTime);
+        expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[1]} as '${args[0]}'...`);
         verifyReply(messagePassed, sampleRegisterReturn);
     })
 
@@ -262,7 +304,7 @@ describe('New Team', () => {
                 name: 'TestServer'
             }
         };
-        const args = ['shurima2021', '2'];
+        const args = ['Top', 'shurima2021', '2'];
         let leagueTimes = [
             {
                 tournamentName: "shurima2021",
@@ -277,12 +319,15 @@ describe('New Team', () => {
                 "registrationTime": "May 29 2021 04:15 pm PDT"
             }
         ];
-        commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], tournamentDay: args[1]});
+        commandArgumentParser.parse.mockReturnValue({tournamentName: args[1], tournamentDay: args[2]});
         tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(leagueTimes);
         const sampleRegisterReturn = {
             teamName: 'Team Abra',
             serverName: msg.guild.name,
             playersDetails: [{name: 'Roidrage'}],
+            playersRoleDetails: {
+                Top: 'Roidrage'
+            },
             tournamentDetails: {
                 tournamentName: leagueTimes[1].tournamentName,
                 tournamentDay: leagueTimes[1].tournamentDay,
@@ -292,8 +337,9 @@ describe('New Team', () => {
         teamsServiceImpl.postForNewTeam.mockResolvedValue(sampleRegisterReturn);
         await newTeam.execute(msg, args);
 
-        expect(teamsServiceImpl.postForNewTeam).toBeCalledWith(msg.author.id, msg.guild.name, leagueTimes[1].tournamentName, leagueTimes[1].tournamentDay, leagueTimes[1].startTime);
-        expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[0]} on day ${args[1]}...`);
+        expect(teamsServiceImpl.postForNewTeam).toBeCalledWith(msg.author.id, args[0], msg.guild.name,
+            leagueTimes[1].tournamentName, leagueTimes[1].tournamentDay, leagueTimes[1].startTime);
+        expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[1]} on day ${args[2]} as '${args[0]}'...`);
         verifyReply(messagePassed, sampleRegisterReturn);
     })
 
@@ -321,20 +367,22 @@ describe('New Team', () => {
                 "registrationTime": "May 29 2021 04:15 pm PDT"
             }
         ];
-        const args = ['shurima2021', '1'];
+        const args = ['Top', 'shurima2021', '1'];
         const sampleRegisterReturn = {error: 'Player is not eligible to create a new Team.', statusCode: 400};
-        commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], tournamentDay: args[1]});
+        commandArgumentParser.parse.mockReturnValue({tournamentName: args[1], tournamentDay: args[2]});
 
         teamsServiceImpl.postForNewTeam.mockResolvedValue(sampleRegisterReturn);
         tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(leagueTimes)
         await newTeam.execute(msg, args);
 
-        expect(teamsServiceImpl.postForNewTeam).toBeCalledWith(msg.author.id, msg.guild.name, leagueTimes[0].tournamentName, leagueTimes[0].tournamentDay, leagueTimes[0].startTime);
-        expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[0]} on day ${args[1]}...`);
+        expect(teamsServiceImpl.postForNewTeam).toBeCalledWith(msg.author.id, args[0], msg.guild.name,
+            leagueTimes[0].tournamentName, leagueTimes[0].tournamentDay, leagueTimes[0].startTime);
+        expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[1]} on day ${args[2]} as '${args[0]}'...`);
         verifyRedundantRegistration(messagePassed);
     })
 
-    test('If a user is already on a team but there is an available Tournament, they should keep trying until they register for the successful tournament.', async () => {
+    test('If a user is already on a team but there is an available Tournament, they should keep ' +
+        'trying until they register for the successful tournament.', async () => {
         let messagePassed = '';
         let sendMessage = '';
         let msg = {
@@ -364,19 +412,28 @@ describe('New Team', () => {
                 "registrationTime": "May 29 2021 04:15 pm PDT"
             }
         ];
-        const args = ['s'];
+        const args = ['Top', 's'];
         const sampleRegisterReturn = {error: 'Player is not eligible to create a new Team.', statusCode: 400};
         const sampleRegisterReturnTwo = {
             teamName: 'Team Abra',
             serverName: msg.guild.name,
-            playersDetails: [{name: 'Roidrage'}],
+            playersDetails: [
+                {
+                    id: 1,
+                    name: 'Roidrage',
+                    role: 'Top'
+                }
+            ],
+            playersRoleDetails: {
+                Top: 'Roidrage'
+            },
             tournamentDetails: {
                 tournamentName: leagueTimes[1].tournamentName,
                 tournamentDay: leagueTimes[1].tournamentDay,
             },
             startTime: leagueTimes[1].startTime
         };
-        commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], tournamentDay: args[1]});
+        commandArgumentParser.parse.mockReturnValue({tournamentName: args[1], tournamentDay: args[2]});
 
         teamsServiceImpl.postForNewTeam.mockResolvedValueOnce(sampleRegisterReturn);
         teamsServiceImpl.postForNewTeam.mockResolvedValueOnce(sampleRegisterReturnTwo);
@@ -384,9 +441,11 @@ describe('New Team', () => {
         await newTeam.execute(msg, args);
 
         expect(teamsServiceImpl.postForNewTeam).toBeCalledTimes(2);
-        expect(teamsServiceImpl.postForNewTeam).toBeCalledWith(msg.author.id, msg.guild.name, leagueTimes[0].tournamentName, leagueTimes[0].tournamentDay, leagueTimes[0].startTime);
-        expect(teamsServiceImpl.postForNewTeam).toBeCalledWith(msg.author.id, msg.guild.name, leagueTimes[1].tournamentName, leagueTimes[1].tournamentDay, leagueTimes[1].startTime);
-        expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[0]}...`);
+        expect(teamsServiceImpl.postForNewTeam).toBeCalledWith(msg.author.id, args[0], msg.guild.name,
+            leagueTimes[0].tournamentName, leagueTimes[0].tournamentDay, leagueTimes[0].startTime);
+        expect(teamsServiceImpl.postForNewTeam).toBeCalledWith(msg.author.id, args[0], msg.guild.name,
+            leagueTimes[1].tournamentName, leagueTimes[1].tournamentDay, leagueTimes[1].startTime);
+        expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[1]} as '${args[0]}'...`);
         verifyReply(messagePassed, sampleRegisterReturnTwo);
     })
 
@@ -417,13 +476,13 @@ describe('Register Error', () => {
                 "registrationTime": "May 29 2021 04:15 pm PDT"
             }
         ];
-        const args = ['msi2021', '3'];
-        commandArgumentParser.parse.mockReturnValue({tournamentName: args[0], tournamentDay: args[1]});
+        const args = ['Top', 'msi2021', '3'];
+        commandArgumentParser.parse.mockReturnValue({tournamentName: args[1], tournamentDay: args[2]});
         teamsServiceImpl.postForNewTeam.mockRejectedValue('Some error occurred.');
         tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(leagueTime);
         await newTeam.execute(msg, args);
 
-        expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[0]} on day ${args[1]}...`);
+        expect(sendMessage).toEqual(`Registering ${msg.author.username} for Tournament ${args[1]} on day ${args[2]} as '${args[0]}'...`);
         expect(errorHandling.handleError.mock.calls.length).toEqual(1);
     })
 
@@ -443,12 +502,12 @@ describe('Register Error', () => {
             }
         };
         errorHandling.handleError = jest.fn();
-        const args = [];
+        const args = ['Top'];
         commandArgumentParser.parse.mockReturnValue({});
         tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue([]);
         await newTeam.execute(msg, args);
         expect(teamsServiceImpl.postForNewTeam).not.toHaveBeenCalled();
-        expect(sendMessage).toEqual(`Registering ${msg.author.username} for the first available tournament you are not already registered to...`);
+        expect(sendMessage).toEqual(`Registering ${msg.author.username} for the first available tournament as '${args[0]}' that you are not already registered to...`);
         expect(errorHandling.handleError.mock.calls.length).toEqual(1);
     })
 })

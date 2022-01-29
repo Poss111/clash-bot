@@ -10,29 +10,34 @@ describe('Clash Bot Teams Service', () => {
                     teamName: 'Team Abra',
                     playersDetails: [
                         {
+                            id: 1,
                             name: 'Roïdräge',
-                            champions: ['Volibear', 'Ornn', 'Sett'],
-                            role: 'Top'
+                            champions: ['Volibear', 'Ornn', 'Sett']
                         },
                         {
+                            id: 2,
                             name: 'TheIncentive',
-                            champions: ['Lucian'],
-                            role: 'ADC'
+                            champions: ['Lucian']
                         },
                         {
+                            id: 3,
                             name: 'Pepe Conrad',
-                            champions: ['Lucian'],
-                            role: 'Jg'
+                            champions: ['Lucian']
                         }
                     ],
                     tournamentDetails: {
                         tournamentName: 'awesome_sauce',
                         tournamentDay: '1'
+                    },
+                    playersRoleDetails: {
+                        Top: 'Roïdräge',
+                        Bot: 'TheIncentive',
+                        Jg: 'Pepe Conrad'
                     }
                 }
             ];
             nock('http://localhost')
-                .get(`/api/teams/${encodeURI(expectedServerName)}`)
+                .get(`/api/v2/teams/${encodeURI(expectedServerName)}`)
                 .reply(200, expectedResponse);
             return clashBotTeamsServiceImpl.retrieveActiveTeamsForServer(expectedServerName).then(response => {
                 expect(response).toEqual(expectedResponse);
@@ -46,25 +51,30 @@ describe('Clash Bot Teams Service', () => {
                     teamName: 'Team Abra',
                     playersDetails: [
                         {
+                            id: 1,
                             name: 'Roïdräge',
-                            champions: ['Volibear', 'Ornn', 'Sett'],
-                            role: 'Top'
+                            champions: ['Volibear', 'Ornn', 'Sett']
                         },
                         {
+                            id: 2,
                             name: 'TheIncentive',
-                            champions: ['Lucian'],
-                            role: 'ADC'
+                            champions: ['Lucian']
                         },
                         {
+                            id: 3,
                             name: 'Pepe Conrad',
-                            champions: ['Lucian'],
-                            role: 'Jg'
+                            champions: ['Lucian']
                         }
-                    ]
+                    ],
+                    playersRoleDetails: {
+                        Top: 'Roïdräge',
+                        Bot: 'TheIncentive',
+                        Supp: 'Pepe Conrad'
+                    }
                 }
             ];
             nock('http://localhost')
-                .get(`/api/teams/${encodeURI(expectedServerName)}`)
+                .get(`/api/v2/teams/${encodeURI(expectedServerName)}`)
                 .reply(200, expectedResponse);
             return clashBotTeamsServiceImpl.retrieveActiveTeamsForServer(expectedServerName).then(response => {
                 expect(response).toEqual(expectedResponse);
@@ -75,6 +85,7 @@ describe('Clash Bot Teams Service', () => {
     describe('POST - Create new Team', () => {
         test('When a call is made with id, serverName, tournamentName, tournamentDay, and startTime then I should be able to retrieve the newly created team.', () => {
             const expectedPlayerId = '1';
+            const expectedRole = 'Top';
             const expectedServerName = 'Goon Squad';
             const expectedTournamentName = 'awesome_sauce';
             const expectedTournamentDay = '1';
@@ -82,7 +93,13 @@ describe('Clash Bot Teams Service', () => {
             const expectedResponse = {
                 teamName: 'Abra',
                 serverName: expectedServerName,
-                playersDetails: [{name: 'Roidrage'}],
+                playersDetails: [
+                    {
+                        id: 1,
+                        name: 'Roidrage',
+                        role: 'Top'
+                    }
+                ],
                 tournamentDetails: {
                     tournamentName: expectedTournamentName,
                     tournamentDay: expectedTournamentDay
@@ -90,9 +107,9 @@ describe('Clash Bot Teams Service', () => {
                 startTime: expectedStartTime
             };
             nock('http://localhost')
-                .post(`/api/team`, { id: expectedPlayerId, serverName: expectedServerName, tournamentName: expectedTournamentName, tournamentDay: expectedTournamentDay, startTime: expectedStartTime})
+                .post(`/api/v2/team`, { id: expectedPlayerId, role: expectedRole, serverName: expectedServerName, tournamentName: expectedTournamentName, tournamentDay: expectedTournamentDay, startTime: expectedStartTime})
                 .reply(200, expectedResponse);
-            return clashBotTeamsServiceImpl.postForNewTeam(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedStartTime).then(response => {
+            return clashBotTeamsServiceImpl.postForNewTeam(expectedPlayerId, expectedRole, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedStartTime).then(response => {
                 expect(response).toEqual(expectedResponse);
             });
         })
@@ -101,6 +118,7 @@ describe('Clash Bot Teams Service', () => {
     describe('POST - Register with Team', () => {
         test('When a call is made with id, teamName, serverName, tournamentName, and tournamentDay then I should be able to register to a specified team.', () => {
             const expectedPlayerId = '1';
+            const expectedRole = 'Top';
             const expectedTeamName = 'Abra';
             const expectedServerName = 'Goon Squad';
             const expectedTournamentName = 'awesome_sauce';
@@ -109,7 +127,13 @@ describe('Clash Bot Teams Service', () => {
             const expectedResponse = {
                 teamName: 'Abra',
                 serverName: expectedServerName,
-                playersDetails: [{name: 'Roidrage'}],
+                playersDetails: [
+                    {
+                        id: 1,
+                        name: 'Roidrage',
+                        role: 'Top'
+                    }
+                    ],
                 tournamentDetails: {
                     tournamentName: expectedTournamentName,
                     tournamentDay: expectedTournamentDay
@@ -117,9 +141,13 @@ describe('Clash Bot Teams Service', () => {
                 startTime: expectedStartTime
             };
             nock('http://localhost')
-                .post(`/api/team/register`, { id: expectedPlayerId, teamName: expectedTeamName, serverName: expectedServerName, tournamentName: expectedTournamentName, tournamentDay: expectedTournamentDay})
+                .post(`/api/v2/team/register`, { id: expectedPlayerId, role: expectedRole,
+                    teamName: expectedTeamName, serverName: expectedServerName,
+                    tournamentName: expectedTournamentName, tournamentDay: expectedTournamentDay})
                 .reply(200, expectedResponse);
-            return clashBotTeamsServiceImpl.postForTeamRegistration(expectedPlayerId, expectedTeamName, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedStartTime).then(response => {
+            return clashBotTeamsServiceImpl.postForTeamRegistration(expectedPlayerId,
+                expectedRole, expectedTeamName, expectedServerName, expectedTournamentName,
+                expectedTournamentDay, expectedStartTime).then(response => {
                 expect(response).toEqual(expectedResponse);
             });
         })
@@ -134,7 +162,7 @@ describe('Clash Bot Teams Service', () => {
             const expectedStartTime = new Date().toISOString();
             const expectedResponse =  {message: 'Successfully removed from Team.'};
             nock('http://localhost')
-                .delete(`/api/team/register`, { id: expectedPlayerId, serverName: expectedServerName, tournamentName: expectedTournamentName, tournamentDay: expectedTournamentDay})
+                .delete(`/api/v2/team/register`, { id: expectedPlayerId, serverName: expectedServerName, tournamentName: expectedTournamentName, tournamentDay: expectedTournamentDay})
                 .reply(200, expectedResponse);
             return clashBotTeamsServiceImpl.deleteFromTeam(expectedPlayerId, expectedServerName, expectedTournamentName, expectedTournamentDay, expectedStartTime).then(response => {
                 expect(response).toEqual(expectedResponse);
