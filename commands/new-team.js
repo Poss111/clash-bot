@@ -4,7 +4,6 @@ const errorHandling = require('../utility/error-handling');
 const timeTracker = require('../utility/time-tracker');
 const {findTournament} = require('../utility/tournament-handler');
 const registerReply = require('../templates/register-reply');
-const commandArgumentParser = require('./command-argument-parser');
 
 module.exports = {
     name: 'newTeam',
