@@ -19,7 +19,8 @@ module.exports = {
                 let counter;
                 for (counter = 0; counter < data[1].length; counter++) {
                     if (data[1][counter].playersDetails && data[1][counter].playersDetails.length > 0) {
-                        copy.fields.push({name: data[1][counter].teamName, value: data[1][counter].playersDetails.map(record => record.name), inline: true});
+                        copy.fields.push({name: data[1][counter].teamName,
+                            value: data[1][counter].playersDetails.map(record => record.role + " - " + record.name), inline: true});
                         copy.fields.push({
                             name: 'Tournament Details',
                             value: `${data[1][counter].tournamentDetails.tournamentName} Day ${data[1][counter].tournamentDetails.tournamentDay}`,

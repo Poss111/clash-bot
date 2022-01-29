@@ -49,7 +49,7 @@ describe('Retrieve Teams', () => {
         await teams.execute(msg);
         expect(messagePassed.embed.fields.length).toEqual(2);
         expect(messagePassed.embed.fields[0].name).toEqual(sampleTeamTwoPlayers[0].teamName);
-        expect(messagePassed.embed.fields[0].value).toEqual(sampleTeamTwoPlayers[0].playersDetails.map(record => record.name));
+        expect(messagePassed.embed.fields[0].value).toEqual(sampleTeamTwoPlayers[0].playersDetails.map(record => record.role + " - " + record.name));
         expect(messagePassed.embed.fields[1].name).toEqual('Tournament Details');
         expect(messagePassed.embed.fields[1].value).toEqual(`${sampleTeamTwoPlayers[0].tournamentDetails.tournamentName} Day ${sampleTeamTwoPlayers[0].tournamentDetails.tournamentDay}`);
     })
@@ -109,13 +109,13 @@ describe('Retrieve Teams', () => {
         await teams.execute(msg);
         expect(messagePassed.embed.fields.length).toEqual(5);
         expect(messagePassed.embed.fields[0].name).toEqual(sampleTeamTwoPlayers[0].teamName);
-        expect(messagePassed.embed.fields[0].value).toEqual(sampleTeamTwoPlayers[0].playersDetails.map(record => record.name));
+        expect(messagePassed.embed.fields[0].value).toEqual(sampleTeamTwoPlayers[0].playersDetails.map(record => record.role + " - " + record.name));
         expect(messagePassed.embed.fields[1].name).toEqual('Tournament Details');
         expect(messagePassed.embed.fields[1].value).toEqual(`${sampleTeamTwoPlayers[0].tournamentDetails.tournamentName} Day ${sampleTeamTwoPlayers[0].tournamentDetails.tournamentDay}`);
         expect(messagePassed.embed.fields[2].name).toEqual('\u200B');
         expect(messagePassed.embed.fields[2].value).toEqual('\u200B');
         expect(messagePassed.embed.fields[3].name).toEqual(sampleTeamTwoPlayers[1].teamName);
-        expect(messagePassed.embed.fields[3].value).toEqual(sampleTeamTwoPlayers[1].playersDetails.map(record => record.name));
+        expect(messagePassed.embed.fields[3].value).toEqual(sampleTeamTwoPlayers[1].playersDetails.map(record => record.role + " - " + record.name));
         expect(messagePassed.embed.fields[4].name).toEqual('Tournament Details');
         expect(messagePassed.embed.fields[4].value).toEqual(`${sampleTeamTwoPlayers[1].tournamentDetails.tournamentName} Day ${sampleTeamTwoPlayers[1].tournamentDetails.tournamentDay}`);
         expect(messagePassed.embed.fields[5]).toBeFalsy();
@@ -244,7 +244,7 @@ describe('Retrieve Teams', () => {
         expect(tentativeServiceImpl.retrieveTentativeListForServer).toBeCalledWith(msg.guild.name);
         expect(messagePassed.embed.fields.length).toEqual(3);
         expect(messagePassed.embed.fields[0].name).toEqual(sampleTeamTwoPlayers[0].teamName);
-        expect(messagePassed.embed.fields[0].value).toEqual(sampleTeamTwoPlayers[0].playersDetails.map(record => record.name));
+        expect(messagePassed.embed.fields[0].value).toEqual(sampleTeamTwoPlayers[0].playersDetails.map(record => record.role + " - " + record.name));
         expect(messagePassed.embed.fields[1].name).toEqual('Tournament Details');
         expect(messagePassed.embed.fields[1].value).toEqual(`${sampleTeamTwoPlayers[0].tournamentDetails.tournamentName} Day ${sampleTeamTwoPlayers[0].tournamentDetails.tournamentDay}`);
         expect(messagePassed.embed.fields[2].name).toEqual('Tentative Queue');
@@ -333,7 +333,7 @@ describe('Retrieve Teams', () => {
         expect(tentativeServiceImpl.retrieveTentativeListForServer).toBeCalledWith(msg.guild.name);
         expect(messagePassed.embed.fields.length).toEqual(3);
         expect(messagePassed.embed.fields[0].name).toEqual(sampleTeamTwoPlayers[0].teamName);
-        expect(messagePassed.embed.fields[0].value).toEqual(sampleTeamTwoPlayers[0].playersDetails.map(record => record.name));
+        expect(messagePassed.embed.fields[0].value).toEqual(sampleTeamTwoPlayers[0].playersDetails.map(record => record.role + " - " + record.name));
         expect(messagePassed.embed.fields[1].name).toEqual('Tournament Details');
         expect(messagePassed.embed.fields[1].value).toEqual(`${sampleTeamTwoPlayers[0].tournamentDetails.tournamentName} Day ${sampleTeamTwoPlayers[0].tournamentDetails.tournamentDay}`);
         expect(messagePassed.embed.fields[2].name).toEqual('Tentative Queue');
