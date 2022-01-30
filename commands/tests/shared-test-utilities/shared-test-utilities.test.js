@@ -3,6 +3,7 @@ const buildMockInteraction = () => {
         deferReply: jest.fn(),
         reply: jest.fn(),
         editReply: jest.fn(),
+        createDM: jest.fn(),
         user: {
             id: '1',
             username: 'TestPlayer'

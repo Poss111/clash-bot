@@ -1,7 +1,9 @@
 const champions = require('../champions');
+const championTemplate = require('../../templates/champion-description');
 const templateBuilder = require('../../utility/template-builder');
 const template = require('../../templates/champion-description');
 const riotApi = require('@fightmegg/riot-api');
+const {buildMockInteraction} = require('./shared-test-utilities/shared-test-utilities.test');
 
 const aatroxData = require('./test-data/aatrox-data');
 const ahriData = require('./test-data/ahri-data');
@@ -14,73 +16,98 @@ jest.mock('@fightmegg/riot-api/');
 describe('Champions Command', () => {
 
     test('The champions command should return an embedded message with at most 5 champions specified to the specific user.', async () => {
-        let msg = {
-            member: {
-                send: jest.fn()
-            }
+        const msg = buildMockInteraction();
+        let createDmResponse = {
+          send: jest.fn()
         };
 
         let expectedArguments = buildExpectedChampionList();
+        msg.createDM.mockResolvedValue(createDmResponse);
 
         await champions.execute(msg);
-        expect(msg.member.send.mock.calls).toEqual(expectedArguments);
+        expect(msg.deferReply).toHaveBeenCalledTimes(1);
+        expect(msg.createDM).toHaveBeenCalledTimes(1);
+        expect(msg.createDM).toHaveBeenCalledWith(false);
+        expect(createDmResponse.send).toHaveBeenCalledTimes(1);
+        expect(createDmResponse.send).toHaveBeenCalledWith(expectedArguments);
+        expect(msg.reply).toHaveBeenCalledTimes(1);
+        expect(msg.reply).toHaveBeenCalledWith({ content: 'Check your DMs.', ephemeral: true});
     })
 
     test('The champions command should return a specific champion if one is passed.', async () => {
-        let msg = {
-            member: {
-                send: jest.fn()
-            }
+        const msg = buildMockInteraction();
+        let createDmResponse = {
+            send: jest.fn()
         };
 
         let expectedArguments = buildExpectedChampionList();
-        let expectedMessage = expectedArguments.filter(record => record[0].embed.title.includes('Aatrox'));
+        msg.createDM.mockResolvedValue(createDmResponse);
+
+        expectedArguments.embeds = expectedArguments.embeds
+            .filter(record => record.title.includes('Aatrox'));
 
         await champions.execute(msg, ['Aatrox']);
-        expect(msg.member.send.mock.calls).toEqual(expectedMessage);
+        expect(msg.deferReply).toHaveBeenCalledTimes(1);
+        expect(msg.createDM).toHaveBeenCalledTimes(1);
+        expect(msg.createDM).toHaveBeenCalledWith(false);
+        expect(createDmResponse.send).toHaveBeenCalledTimes(1);
+        expect(createDmResponse.send).toHaveBeenCalledWith(expectedArguments);
+        expect(msg.reply).toHaveBeenCalledTimes(1);
+        expect(msg.reply).toHaveBeenCalledWith({ content: 'Check your DMs.', ephemeral: true});
     })
 
     test('The champions command should return a specific champion if one is partially passed.', async () => {
-        let msg = {
-            member: {
-                send: jest.fn()
-            },
-            reply: jest.fn()
+        const msg = buildMockInteraction();
+        let createDmResponse = {
+            send: jest.fn()
         };
 
         let expectedArguments = buildExpectedChampionList();
-        let expectedMessage = expectedArguments.filter(record => record[0].embed.title.includes('Aatrox'));
+        msg.createDM.mockResolvedValue(createDmResponse);
+
+        expectedArguments.embeds = expectedArguments.embeds
+            .filter(record => record.title.includes('Aa'));
 
         await champions.execute(msg, ['Aa']);
-        expect(msg.member.send.mock.calls).toEqual(expectedMessage);
+        expect(msg.deferReply).toHaveBeenCalledTimes(1);
+        expect(msg.createDM).toHaveBeenCalledTimes(1);
+        expect(msg.createDM).toHaveBeenCalledWith(false);
+        expect(createDmResponse.send).toHaveBeenCalledTimes(1);
+        expect(createDmResponse.send).toHaveBeenCalledWith(expectedArguments);
+        expect(msg.reply).toHaveBeenCalledTimes(1);
+        expect(msg.reply).toHaveBeenCalledWith({ content: 'Check your DMs.', ephemeral: true});
     })
 
     test('The champions command should return a specific champion if one is in a different case is passed.', async () => {
-        let msg = {
-            member: {
-                send: jest.fn()
-            },
-            reply: jest.fn()
+        const msg = buildMockInteraction();
+        let createDmResponse = {
+            send: jest.fn()
         };
 
         let expectedArguments = buildExpectedChampionList();
-        let expectedMessage = expectedArguments.filter(record => record[0].embed.title.includes('Aatrox'));
+        msg.createDM.mockResolvedValue(createDmResponse);
+
+        expectedArguments.embeds = expectedArguments.embeds
+            .filter(record => record.title.includes('Aa'));
 
         await champions.execute(msg, ['aa']);
-        expect(msg.member.send.mock.calls).toEqual(expectedMessage);
+        expect(msg.deferReply).toHaveBeenCalledTimes(1);
+        expect(msg.createDM).toHaveBeenCalledTimes(1);
+        expect(msg.createDM).toHaveBeenCalledWith(false);
+        expect(createDmResponse.send).toHaveBeenCalledTimes(1);
+        expect(createDmResponse.send).toHaveBeenCalledWith(expectedArguments);
+        expect(msg.reply).toHaveBeenCalledTimes(1);
+        expect(msg.reply).toHaveBeenCalledWith({ content: 'Check your DMs.', ephemeral: true});
     })
 
     test('If the champion they specified is not found, then send a response to let them know.', async () => {
-        let msg = {
-            member: {
-                send: jest.fn()
-            },
-            reply: jest.fn()
-        };
+        const msg = buildMockInteraction();
         buildExpectedChampionList();
 
         await champions.execute(msg, ['DNE']);
-        expect(msg.reply.mock.calls).toEqual([['Could not find the champion specified.']]);
+        expect(msg.deferReply).toHaveBeenCalledTimes(1);
+        expect(msg.reply).toHaveBeenCalledTimes(1);
+        expect(msg.reply).toHaveBeenCalledWith('Could not find the champion specified.');
     })
 })
 
@@ -129,15 +156,16 @@ function buildListOfChampionData(championName) {
 }
 
 function buildEmbeddedMessage(dataAnivia) {
-    return {embed: templateBuilder.buildMessage(template, dataAnivia)};
+    return templateBuilder.buildMessage(template, dataAnivia);
 }
 
 function buildExpectedChampionReturn(expectedChampionNameArray) {
     let expectedArguments = [];
     let expectedChampionsData = {data: {}};
     for (const championNameIndex in expectedChampionNameArray) {
-        expectedChampionsData.data[expectedChampionNameArray[championNameIndex]] = buildListOfChampionData(expectedChampionNameArray[championNameIndex]);
-        expectedArguments.push([buildEmbeddedMessage(getChampionData(expectedChampionNameArray[championNameIndex]))]);
+        expectedChampionsData.data[expectedChampionNameArray[championNameIndex]]
+            = buildListOfChampionData(expectedChampionNameArray[championNameIndex]);
+        expectedArguments.push(buildEmbeddedMessage(getChampionData(expectedChampionNameArray[championNameIndex])));
     }
     riotApi.DDragon = jest.fn().mockImplementation(() => {
         return {
@@ -149,5 +177,5 @@ function buildExpectedChampionReturn(expectedChampionNameArray) {
             }
         };
     });
-    return expectedArguments;
+    return { embeds: expectedArguments};
 }
