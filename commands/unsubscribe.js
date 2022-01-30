@@ -8,18 +8,20 @@ module.exports = {
     execute: async function (msg) {
         const startTime = process.hrtime.bigint();
         try {
-            let userDetails = await userServiceImpl.getUserDetails(msg.author.id);
+            await msg.deferReply();
+            let userDetails = await userServiceImpl.getUserDetails(msg.user.id);
             if (userDetails.subscriptions && userDetails.subscriptions.UpcomingClashTournamentDiscordDM) {
                 userDetails.subscriptions.UpcomingClashTournamentDiscordDM = false;
                 userDetails.preferredChampions = !Array.isArray(userDetails.preferredChampions) ? [] : userDetails.preferredChampions;
-                let updatedUserDetails = await userServiceImpl.postUserDetails(msg.author.id, msg.author.username, userDetails.serverName, userDetails.preferredChampions, userDetails.subscriptions);
+                let updatedUserDetails = await userServiceImpl.postUserDetails(msg.user.id, msg.user.username,
+                    userDetails.serverName, userDetails.preferredChampions, userDetails.subscriptions);
                 if(!updatedUserDetails.subscriptions.UpcomingClashTournamentDiscordDM) {
-                    msg.reply('You have successfully unsubscribed.')
+                    await msg.reply('You have successfully unsubscribed.')
                 } else {
-                    msg.reply('No subscription was found.');
+                    await msg.reply('No subscription was found.');
                 }
             } else {
-                msg.reply('No subscription was found.');
+                await msg.reply('No subscription was found.');
             }
         } catch (err) {
             errorHandler.handleError(this.name, err, msg, 'Failed to unsubscribe.')
