@@ -46,7 +46,7 @@ module.exports = {
                         inline: false,
                     })
                 }
-                msg.channel.send({embed: copy});
+                msg.reply({embeds: [copy]});
             } finally {
                 timeTracker.endExecution(this.name, startTime);
             }

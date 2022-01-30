@@ -4,7 +4,7 @@ const errorHandler = require('../utility/error-handling');
 
 module.exports = {
     name: 'unsubscribe',
-    description: 'Unsubscribes a user to a scheduled DM in Discord to notify them of an upcoming League of Legends Clash Tournament.',
+    description: 'Unsubscribes a user to a DM in Discord of an upcoming League of Legends Clash Tournament.',
     execute: async function (msg) {
         const startTime = process.hrtime.bigint();
         try {

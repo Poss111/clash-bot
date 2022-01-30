@@ -1,5 +1,7 @@
 require('dotenv').config();
 const Discord = require('discord.js');
+const {REST} = require('@discordjs/rest');
+const {Routes} = require('discord-api-types/v9');
 const botCommands = require('../commands');
 const helpMenu = require('../templates/help-menu');
 const updateNotification = require('../templates/update-notification');
@@ -10,7 +12,8 @@ let bot = undefined;
 
 let initializeBot = () => {
     return new Promise((resolve) => {
-        bot = new Discord.Client();
+        setupCommands();
+        bot = new Discord.Client({ intents: [Discord.Intents.FLAGS.GUILDS] });
         bot.commands = new Discord.Collection();
 
         if (process.env.INTEGRATION_TEST) {
@@ -32,9 +35,12 @@ let initializeBot = () => {
             });
 
             bot.on('message', (msg) => messageHandler(msg, channel, COMMAND_PREFIX, bot));
+
+            bot.on('interactionCreate', (interaction) => interactionHandler(interaction, bot));
+
             resolve(bot);
         });
-    }).catch(err => reject(`Failed to initialize Clash-Bot to Error ('${err}')`));
+    }).catch(err => new Error(`Failed to initialize Clash-Bot to Error ('${err}')`));
 }
 
 let messageHandler = async (msg, restrictedChannel, commandPrefix, discordBot) => {
@@ -56,6 +62,28 @@ let messageHandler = async (msg, restrictedChannel, commandPrefix, discordBot) =
     }
 }
 
+let interactionHandler = async (interaction, bot) => {
+    if (interaction.isCommand()) {
+        let args = [];
+        if (interaction.options.data) {
+         args = interaction.options.data.map(data => data.value);
+        }
+
+        if (!bot.commands.has(interaction.commandName)) return;
+
+        try {
+            console.info(`('${interaction.user.username}') called command: ('${interaction.commandName}')`);
+            await userServiceImpl.postVerifyUser(interaction.user.id,
+                interaction.user.username, interaction.member.guild.name);
+            await bot.commands.get(interaction.commandName).execute(interaction, args);
+        } catch (error) {
+            console.error(`Failed to execute command ('${bot.commands.get(interaction.commandName).name}') due to error.`, error);
+            interaction.reply('there was an error trying to execute ' +
+                'that command! Please reach out to <@299370234228506627>.');
+        }
+    }
+}
+
 let guildCreateHandler = (guild) => {
     let channel = guild.channels.cache.find((key) => key.name === 'general');
     channel.send({embed: JSON.parse(JSON.stringify(helpMenu))});
@@ -69,7 +97,9 @@ let readyHandler = (discordBot, restrictedChannel, isIntegrationTesting) => {
             if (filter) {
                 console.log(`Sending Bot update message to ('${guildKey}')...`);
                 try {
-                    filter.send({embed: JSON.parse(JSON.stringify(updateNotification))});
+                    filter.send({
+                        embeds: [JSON.parse(JSON.stringify(updateNotification))]
+                    });
                 } catch (err) {
                     console.error('Failed to send update notification due to error.', err);
                 }
@@ -78,6 +108,36 @@ let readyHandler = (discordBot, restrictedChannel, isIntegrationTesting) => {
 
         });
     }
+}
+
+let setupCommands = async () => {
+    let commands = Object.keys(botCommands).map(key => {
+        let payload = {name: botCommands[key].name, description: botCommands[key].description};
+        if (botCommands[key].options) {
+            payload.options = botCommands[key].options;
+        }
+        return payload;
+    });
+
+    commands.forEach(obj => {
+       if(obj.description.length > 100) {
+           console.log(obj.name);
+       }
+    });
+
+    console.log('Updating bot commands...');
+    let rest = new REST({version: '9'}).setToken(process.env.TOKEN);
+
+    try {
+        await rest.put(
+            Routes.applicationCommands('839586949748228156'),
+            {body: commands}
+        );
+    } catch (err) {
+        console.error(err);
+        throw new Error(err);
+    }
+    console.log('Successfully updated bot commands.');
 }
 
 module.exports.client = bot;

@@ -1,13 +1,57 @@
 const tournamentsServiceImpl = require('../services/tournaments-service-impl');
 const teamsServiceImpl = require('../services/teams-service-impl');
 const registerReply = require('../templates/register-reply');
-const { findTournament } = require('../utility/tournament-handler');
+const {findTournament} = require('../utility/tournament-handler');
 const errorHandling = require('../utility/error-handling');
 const timeTracker = require('../utility/time-tracker');
 
 module.exports = {
     name: 'join',
-    description: 'Used to join a specific Team. The user must specify which Tournament and Team they would like to join.',
+    description: 'Used to join a specific Team.',
+    options: [
+        {
+            type: 3,
+            name: "role",
+            description: "Top, Mid, Jg, Bot, or Supp",
+            required: true
+        },
+        {
+            type: 3,
+            name: "tournament",
+            description: "A future tournament to register for. Check time command if you do not know the name.",
+            required: true
+        },
+        {
+            type: 4,
+            name: "day",
+            description: "A day of the tournament to register for.",
+            choices: [
+                {
+                    "name": "Day 1",
+                    "value": 1
+                },
+                {
+                    "name": "Day 2",
+                    "value": 2
+                },
+                {
+                    "name": "Day 3",
+                    "value": 3
+                },
+                {
+                    "name": "Day 4",
+                    "value": 4
+                }
+            ],
+            required: true
+        },
+        {
+            type: 3,
+            name: "team-name",
+            description: "The name of the Team you would like to join (do not include the word Team).",
+            required: true
+        }
+    ],
     execute: async function (msg, args) {
         const startTime = process.hrtime.bigint();
         if (!args || args.length === 0) {
@@ -40,8 +84,10 @@ module.exports = {
                         times[0].tournamentName, times[0].tournamentDay).then(team => {
                         if (!team.error) {
                             console.log(`Registered ('${msg.author.username}') with Role ('${args[0]}') Tournament ('${team.tournamentDetails.tournamentName}') Team ('${team.teamName}').`);
-                            copy.fields.push({name: team.teamName, value: Object.entries(team.playersRoleDetails)
-                                    .map(key => `${key[0]} - ${key[1]}`), inline: true});
+                            copy.fields.push({
+                                name: team.teamName, value: Object.entries(team.playersRoleDetails)
+                                    .map(key => `${key[0]} - ${key[1]}`), inline: true
+                            });
                             copy.fields.push(buildTournamentDetails(team));
                         } else {
                             copy.description = `Failed to find an available team with the following criteria Role '${args[0]}' Tournament Name '${args[1]}' Tournament Day '${args[2]}' Team Name '${args[3]} or role is not available for that team`;

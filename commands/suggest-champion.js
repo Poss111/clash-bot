@@ -3,7 +3,7 @@ const userServiceImpl = require('../services/user-service-impl');
 const errorHandler = require('../utility/error-handling');
 const riotApi = require('@fightmegg/riot-api');
 module.exports = {
-    name: 'suggestChampion',
+    name: 'suggest-champion',
     description: 'Adds or removes a champion to the players preferred Champions list.',
     async execute(msg, args) {
         const startTime = process.hrtime.bigint();

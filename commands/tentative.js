@@ -8,6 +8,38 @@ const commandArgumentParser = require('./command-argument-parser');
 module.exports = {
     name: 'tentative',
     description: 'Places a player on tentative. Will deregister them if they belong to a team.',
+    options: [
+        {
+            type: 3,
+            name: "tournament",
+            description: "A future tournament to register for. Check time command if you do not know the name.",
+            required: true
+        },
+        {
+            type: 4,
+            name: "day",
+            description: "A day of the tournament to register for.",
+            "choices": [
+                {
+                    "name": "Day 1",
+                    "value": 1
+                },
+                {
+                    "name": "Day 2",
+                    "value": 2
+                },
+                {
+                    "name": "Day 3",
+                    "value": 3
+                },
+                {
+                    "name": "Day 4",
+                    "value": 4
+                }
+            ],
+            required: true
+        }
+    ],
     execute: async function (msg, args) {
         const startTime = process.hrtime.bigint();
         let parsedArguments = commandArgumentParser.parse(args);
