@@ -42,34 +42,38 @@ module.exports = {
     ],
     execute: async function (msg, args) {
         const startTime = process.hrtime.bigint();
-        let parsedArguments = commandArgumentParser.parse(args);
-        if (!parsedArguments || !parsedArguments.tournamentName) {
-            msg.reply(`A Tournament Name to be tentative for is missing. Please use !clash tentative 'tournament name' 'tournament day' to use tentative. i.e. !clash tentative msi2021 1`);
-            timeTracker.endExecution(this.name, startTime);
-        } else if (!parsedArguments.tournamentDay) {
-            msg.reply(`A Tournament Day to be tentative for is missing. Please use !clash tentative 'tournament name' 'tournament day' to use tentative. i.e. !clash tentative msi2021 1`);
-            timeTracker.endExecution(this.name, startTime);
-        } else {
-            try {
+        try {
+            let parsedArguments = commandArgumentParser.parse(args);
+            if (!parsedArguments || !parsedArguments.tournamentName) {
+                await msg.reply("A Tournament Name to be tentative for is missing. " +
+                    "Please use !clash tentative 'tournament name' 'tournament day' " +
+                    "to use tentative. i.e. !clash tentative msi2021 1");
+            } else if (!parsedArguments.tournamentDay) {
+                await msg.reply("A Tournament Day to be tentative for is missing. Please " +
+                    "use !clash tentative 'tournament name' 'tournament day' to " +
+                    "use tentative. i.e. !clash tentative msi2021 1");
+            } else {
+                await msg.deferReply();
                 let times = await tournamentsServiceImpl.retrieveAllActiveTournaments();
                 times = times.filter(findTournament(args[0], args[1]));
                 if (Array.isArray(times) && times.length > 0) {
-                    const tentativeResponse = await tentativeServiceImpl.postTentativeUpdateForServerAndTournament(msg.author.id, msg.guild.name, times[0].tournamentName, times[0].tournamentDay);
+                    const tentativeResponse = await tentativeServiceImpl
+                        .postTentativeUpdateForServerAndTournament(msg.user.id,
+                            msg.member.guild.name, times[0].tournamentName, times[0].tournamentDay);
                     if (!tentativeResponse.tentativePlayers
-                        || !tentativeResponse.tentativePlayers.includes(msg.author.username)) {
-                        msg.reply(`We have taken you off of tentative queue. tip: Use '!clash teams' to view current team status`);
+                        || !tentativeResponse.tentativePlayers.includes(msg.user.username)) {
+                        await msg.reply(`We have taken you off of tentative queue. tip: Use '!clash teams' to view current team status`);
                     } else {
-                        msg.reply(`We placed you into the tentative queue. If you were on a team, you have been removed. tip: Use '!clash teams' to view current team status`);
+                        await msg.reply(`We placed you into the tentative queue. If you were on a team, you have been removed. tip: Use '!clash teams' to view current team status`);
                     }
                 } else {
-                    msg.reply('Cannot find the tournament passed. Please check !clash time for an appropriate list.');
+                    await msg.reply('Cannot find the tournament passed. Please check !clash time for an appropriate list.');
                 }
-            } catch (err) {
-                errorHandler.handleError(this.name, err, msg, 'Failed to place you on tentative.')
-            } finally {
-                timeTracker.endExecution(this.name, startTime);
-
             }
+        } catch (err) {
+            await errorHandler.handleError(this.name, err, msg, 'Failed to place you on tentative.')
+        } finally {
+            timeTracker.endExecution(this.name, startTime);
         }
     },
 };
