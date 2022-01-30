@@ -10,11 +10,11 @@ module.exports = {
     description: 'Places a player on tentative. Will deregister them if they belong to a team.',
     async execute(msg) {
         const startTime = process.hrtime.bigint();
-
-        await tournamentsServiceImpl.retrieveAllActiveTournaments().then(clashTimes => {
-            console.log('Time retrieved.');
-            const copy = JSON.parse(JSON.stringify(clashTimeMenu));
-            try {
+        msg.deferReply();
+        try {
+            await tournamentsServiceImpl.retrieveAllActiveTournaments().then(clashTimes => {
+                console.log('Time retrieved.');
+                const copy = JSON.parse(JSON.stringify(clashTimeMenu));
                 if (clashTimes && clashTimes.length > 0) {
                     const dateFormat = 'MMMM DD yyyy hh:mm a z';
                     const tournamentDateFormat = 'MMMM DD yyyy';
@@ -47,9 +47,9 @@ module.exports = {
                     })
                 }
                 msg.reply({embeds: [copy]});
-            } finally {
-                timeTracker.endExecution(this.name, startTime);
-            }
-        })
+            });
+        } finally {
+            timeTracker.endExecution(this.name, startTime);
+        }
     },
 };
