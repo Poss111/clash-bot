@@ -5,31 +5,45 @@ const riotApi = require('@fightmegg/riot-api');
 module.exports = {
     name: 'suggest-champion',
     description: 'Adds or removes a champion to the players preferred Champions list.',
+    options: [
+        {
+            type: 3,
+            name: "Champion Name",
+            description: "i.e. Anivia, Aatrox, Volibear, etc...",
+            required: true
+        }
+    ],
     async execute(msg, args) {
         const startTime = process.hrtime.bigint();
+        try {
             if (Array.isArray(args) && args.length < 1) {
                 msg.reply('no champion name was passed. Please pass one.');
             } else {
-                try {
-                    let ddragon = new riotApi.DDragon();
-                    let championData = await ddragon.champion.all();
-                    if (Object.keys(championData.data).find(record => record === args[0])) {
-                        let userDetails = await userServiceImpl.getUserDetails(msg.author.id);
-                        if (!Array.isArray(userDetails.preferredChampions)) {
-                            userDetails.preferredChampions = [args[0]];
-                        } else {
-                            userDetails.preferredChampions.push(args[0]);
-                        }
-                        let updatedUserDetails = await userServiceImpl.postUserDetails(msg.author.id, msg.author.username, userDetails.serverName, userDetails.preferredChampions, userDetails.subscriptions);
-                        msg.reply(`Successfully updated your preferred champions list, here are your current Champions: '${updatedUserDetails.preferredChampions}'`);
+                msg.deferReply();
+                let ddragon = new riotApi.DDragon();
+                let championData = await ddragon.champion.all();
+                if (Object.keys(championData.data).find(record => record === args[0])) {
+                    let userDetails = await userServiceImpl.getUserDetails(msg.user.id);
+                    if (!Array.isArray(userDetails.preferredChampions)
+                        || userDetails.preferredChampions.length <= 4) {
+                        !userDetails.preferredChampions ?
+                            userDetails.preferredChampions = [args[0]]
+                            : userDetails.preferredChampions.push(args[0]) ;
+                        let updatedUserDetails = await userServiceImpl.postUserDetails(msg.user.id, msg.user.username,
+                            userDetails.serverName, userDetails.preferredChampions, userDetails.subscriptions);
+                        await msg.reply(`Successfully updated your preferred champions list, here are your current Champions: '${updatedUserDetails.preferredChampions}'`);
                     } else {
-                        msg.reply(`Champion name passed does not exist. Please validate with !clash champions ${args[0]}`);
+                        await msg.reply('Sorry! You cannot have more than 5 champions in your list. ' +
+                            'Please remove by passing a champion in your list and then try adding again. Thank you!')
                     }
-                } catch (err) {
-                    errorHandler.handleError(this.name, err, msg, 'Failed to update the Users preferred Champions list.');
-                } finally {
-                    timeTracker.endExecution(this.name, startTime);
+                } else {
+                    await msg.reply(`Champion name passed does not exist. Please validate with !clash champions ${args[0]}`);
                 }
             }
+        } catch (err) {
+            await errorHandler.handleError(this.name, err, msg, 'Failed to update the Users preferred Champions list.');
+        } finally {
+            timeTracker.endExecution(this.name, startTime);
+        }
     },
 };
