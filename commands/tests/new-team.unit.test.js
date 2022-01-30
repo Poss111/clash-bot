@@ -4,6 +4,7 @@ const teamsServiceImpl = require('../../services/teams-service-impl');
 const errorHandling = require('../../utility/error-handling');
 const registerReply = require('../../templates/register-reply');
 const commandArgumentParser = require('../command-argument-parser');
+const { buildMockInteraction } = require('./shared-test-utilities/shared-test-utilities.test');
 
 jest.mock('../../services/teams-service-impl');
 jest.mock('../../services/tournaments-service-impl');
@@ -42,23 +43,6 @@ function buildRegisterResponse(sampleRegisterReturn) {
         inline: true
     });
     return copy;
-}
-
-function buildMockInteraction() {
-    return {
-        deferReply: jest.fn(),
-        reply: jest.fn(),
-        editReply: jest.fn(),
-        user: {
-            id: '1',
-            username: 'TestPlayer'
-        },
-        member: {
-            guild: {
-                name: 'TestServer'
-            }
-        }
-    };
 }
 
 function buildIneligibleResponse() {
