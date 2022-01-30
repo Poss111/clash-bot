@@ -54,7 +54,7 @@ module.exports = {
             let filter;
             await msg.deferReply();
             if (!args || args.length === 0) {
-                await msg.reply("The role to join a new Team with are missing. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: !clash newTeam ***Top***");
+                await msg.reply("The role to join a new Team with is missing. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: !clash newTeam ***Top***");
             } else {
                 let role = args[0];
                 let roleNotMatching = false;
@@ -81,16 +81,16 @@ module.exports = {
                     await msg.reply(`The role passed is not correct - '${role}'. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: !clash newTeam ***Top***`)
                 } else {
                     if (args[1]) {
-                        let registeringMessage = `Registering ${userInfo.username} for Tournament ${args[1]}`;
+                        let registeringMessage = `Registering '${userInfo.username}' for Tournament '${args[1]}'`;
                         if (args[2]) {
-                            registeringMessage = registeringMessage + ` on day ${args[2]}`;
+                            registeringMessage = registeringMessage + ` on day '${args[2]}'`;
                             filter = findTournament(args[1], args[2]);
                         } else {
                             filter = findTournament(args[1]);
                         }
-                        await msg.editReply(registeringMessage + ` as '${role}'...`);
+                        await msg.reply(registeringMessage + ` as '${role}'...`);
                     } else {
-                        await msg.editReply(`Registering ${userInfo.username} for the first available tournament as '${role}' that you are not already registered to...`);
+                        await msg.reply(`Registering '${userInfo.username}' for the first available tournament as '${role}' that you are not already registered to...`);
                     }
                     let filteredClashTimes = await tournamentsServiceImpl.retrieveAllActiveTournaments();
                     if (filter && filteredClashTimes) {
@@ -136,7 +136,8 @@ module.exports = {
                         } else {
                             copy.fields.push({
                                 name: data.teamName,
-                                value: Object.entries(data.playersRoleDetails).map(keyValue => `${keyValue[0]} - ${keyValue[1]}`).toString(),
+                                value: Object.entries(data.playersRoleDetails)
+                                    .map(keyValue => `${keyValue[0]} - ${keyValue[1]}`).toString(),
                                 inline: true
                             });
                             copy.fields.push(buildTournamentDetails(data));
@@ -146,7 +147,7 @@ module.exports = {
                 }
             }
         } catch (err) {
-            errorHandling.handleError(this.name, err, msg, 'Failed to register you to team.')
+            errorHandling.handleError(this.name, err, msg, 'Failed to register you to team.');
         } finally {
             timeTracker.endExecution(this.name, startTime);
         }
