@@ -1,6 +1,7 @@
 const subscribe = require('../subscribe');
 const userServiceImpl = require('../../services/user-service-impl');
 const errorHandling = require('../../utility/error-handling');
+const {buildMockInteraction} = require('./shared-test-utilities/shared-test-utilities.test');
 
 jest.mock('../../services/user-service-impl');
 jest.mock('../../utility/error-handling');
@@ -12,26 +13,13 @@ beforeEach(() => {
 
 describe('Subscribe', () => {
     test('When a user requests to subscribe, they should have their ServerName and Id passed along to be persisted then responded with a message letting them know it was succesful.', async () => {
-        let messagePassed = undefined;
-        const expectedPlayerId = '1';
-        const expectedPlayerName = 'Roidrage';
-        const expectedServerName = 'Goon Squad';
         const expectedPreferredChampions = [];
         const expectedSubscriptions = { 'UpcomingClashTournamentDiscordDM': false };
-        let msg = {
-            reply: (value) => messagePassed = value,
-            author: {
-                username: expectedPlayerName,
-                id: expectedPlayerId
-            },
-            guild: {
-                name: expectedServerName
-            }
-        };
+        const msg = buildMockInteraction();
         const mockGetUserResponse = {
-            id: expectedPlayerId,
-            playerName: expectedPlayerName,
-            serverName: expectedServerName,
+            id: msg.user.id,
+            playerName: msg.user.username,
+            serverName: msg.member.guild.name,
             preferredChampions: expectedPreferredChampions,
             subscriptions: expectedSubscriptions
         };
@@ -44,34 +32,26 @@ describe('Subscribe', () => {
         await subscribe.execute(msg);
 
         expect(userServiceImpl.getUserDetails).toBeCalledTimes(1);
-        expect(userServiceImpl.getUserDetails).toBeCalledWith(expectedPlayerId);
+        expect(userServiceImpl.getUserDetails).toBeCalledWith(msg.user.id);
         expect(userServiceImpl.postUserDetails).toBeCalledTimes(1);
-        expect(userServiceImpl.postUserDetails).toBeCalledWith(msg.author.id, msg.author.username, expectedServerName, expectedPreferredChampions, { UpcomingClashTournamentDiscordDM: true });
-        expect(messagePassed).toEqual('You have subscribed. You will receive a notification the Monday before ' +
+        expect(userServiceImpl.postUserDetails).toBeCalledWith(msg.user.id, msg.user.username,
+            msg.member.guild.name, expectedPreferredChampions, { UpcomingClashTournamentDiscordDM: true });
+        expect(msg.deferReply).toHaveBeenCalledTimes(1);
+        expect(msg.reply).toHaveBeenCalledTimes(1);
+        expect(msg.reply).toHaveBeenCalledWith('You have subscribed. You will receive a notification the Monday before ' +
             'a Clash Tournament weekend. If you want to unsubscribe at any time please use !clash unsubscribe');
     })
 
-    test('When a user requests to subscribe and the subscription returns true initially, they should have their ServerName and Id passed along to be persisted then responded with a message letting them know it was faild.', async () => {
-        let messagePassed = undefined;
-        const expectedPlayerId = '1';
-        const expectedPlayerName = 'Roidrage';
-        const expectedServerName = 'Goon Squad';
-        const expectedPreferredChampions = [];
+    test('When a user requests to subscribe and the subscription returns true initially, they should have their ' +
+        'ServerName and Id passed along to be persisted then responded with a message letting them know ' +
+        'it was failed.', async () => {
         const expectedSubscriptions = { 'UpcomingClashTournamentDiscordDM': true };
-        let msg = {
-            reply: (value) => messagePassed = value,
-            author: {
-                username: expectedPlayerName,
-                id: expectedPlayerId
-            },
-            guild: {
-                name: expectedServerName
-            }
-        };
+        const expectedPreferredChampions = [];
+        const msg = buildMockInteraction();
         const mockGetUserResponse = {
-            id: expectedPlayerId,
-            playerName: expectedPlayerName,
-            serverName: expectedServerName,
+            id: msg.user.id,
+            playerName: msg.user.username,
+            serverName: msg.member.guild.name,
             preferredChampions: expectedPreferredChampions,
             subscriptions: expectedSubscriptions
         };
@@ -81,32 +61,27 @@ describe('Subscribe', () => {
         await subscribe.execute(msg);
 
         expect(userServiceImpl.getUserDetails).toBeCalledTimes(1);
-        expect(userServiceImpl.getUserDetails).toBeCalledWith(expectedPlayerId);
+        expect(userServiceImpl.getUserDetails).toBeCalledWith(msg.user.id);
         expect(userServiceImpl.postUserDetails).not.toHaveBeenCalled();
-        expect(messagePassed).toEqual('You are already subscribed.');
+        expect(msg.deferReply).toHaveBeenCalledTimes(1);
+        expect(msg.reply).toHaveBeenCalledTimes(1);
+        expect(msg.reply).toHaveBeenCalledWith('You are already subscribed.');
     })
 })
 
 describe('Error', () => {
     test('When an error occurs while trying to subscribe, the user should be notified.', async () => {
-        let messagePassed;
-        let msg = {
-            reply: (value) => messagePassed = value,
-            author: {
-                username: 'TestPlayer',
-                id: '123456789'
-            },
-            guild: {
-                name: 'TestServer'
-            }
-        };
+        const msg = buildMockInteraction();
 
         userServiceImpl.getUserDetails.mockRejectedValue('Something went wrong.');
         errorHandling.handleError = jest.fn();
 
         await subscribe.execute(msg);
+        expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(userServiceImpl.getUserDetails).toBeCalledTimes(1);
-        expect(userServiceImpl.getUserDetails).toBeCalledWith(msg.author.id);
-        expect(errorHandling.handleError.mock.calls.length).toEqual(1);
+        expect(userServiceImpl.getUserDetails).toBeCalledWith(msg.user.id);
+        expect(errorHandling.handleError).toHaveBeenCalledTimes(1);
+        expect(errorHandling.handleError).toHaveBeenCalledWith(subscribe.name, 'Something went wrong.',
+            msg, 'Failed to subscribe.');
     })
 })
