@@ -107,8 +107,8 @@ describe('Retrieve Teams', () => {
         clashBotTeamsServiceImpl.retrieveActiveTeamsForServer.mockResolvedValue(JSON.parse(JSON.stringify(sampleTeamTwoPlayers)));
         await teams.execute(msg);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith({ embeds: [ copy ]});
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
     })
 
     test('When multiple teams are passed back, they should be populated as individual fields in the embedded property of the reply with their corresponding tournaments.', async () => {
@@ -157,8 +157,8 @@ describe('Retrieve Teams', () => {
         clashBotTeamsServiceImpl.retrieveActiveTeamsForServer.mockResolvedValue(JSON.parse(JSON.stringify(sampleTeamTwoPlayers)));
         await teams.execute(msg);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith({ embeds: [ copy ]});
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
     })
 
     test('When no teams are passed back, it should be populate the not existing teams message.', async () => {
@@ -170,8 +170,8 @@ describe('Retrieve Teams', () => {
 
         await teams.execute(msg);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith({ embeds: [ copy ]});
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
     })
 
     test('When tentative players and no teams are passed back, it should populate the tentative list with an empty teams message.', async () => {
@@ -191,8 +191,8 @@ describe('Retrieve Teams', () => {
         await teams.execute(msg);
         expect(tentativeServiceImpl.retrieveTentativeListForServer).toBeCalledWith(msg.member.guild.name);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith({ embeds: [ copy ]});
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
     })
 
     test('When multiple tentative players and a team are passed back, it should populate the tentative list with the existing team based on all the tournaments.', async () => {
@@ -249,8 +249,8 @@ describe('Retrieve Teams', () => {
         expect(clashBotTeamsServiceImpl.retrieveActiveTeamsForServer).toHaveBeenCalledWith(msg.member.guild.name);
         expect(tentativeServiceImpl.retrieveTentativeListForServer).toBeCalledWith(msg.member.guild.name);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith({ embeds: [ copy ]});
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
     })
 
     test('When multiple tentative players and a team are passed back and some have empty Tentative Player lists, it should populate the tentative list with the existing team based on all the tournaments.', async () => {
@@ -314,8 +314,8 @@ describe('Retrieve Teams', () => {
         expect(clashBotTeamsServiceImpl.retrieveActiveTeamsForServer).toHaveBeenCalledWith(msg.member.guild.name);
         expect(tentativeServiceImpl.retrieveTentativeListForServer).toBeCalledWith(msg.member.guild.name);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith({ embeds: [ copy ]});
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
     })
 })
 

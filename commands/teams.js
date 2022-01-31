@@ -59,7 +59,7 @@ module.exports = {
                 }
                 copy.fields.push({name: 'Tentative Queue', value: message});
             }
-            msg.reply({embeds: [ copy ]});
+            msg.editReply({embeds: [ copy ]});
         }).catch(err => errorHandler.handleError(this.name, err, msg, 'Failed to retrieve the current Clash Teams status.'))
             .finally(() => {
                 timeTracker.endExecution(this.name, startTime);

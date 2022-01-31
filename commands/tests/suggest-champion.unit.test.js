@@ -43,8 +43,8 @@ describe('Suggest Champion Command', () => {
         expect(userServiceImpl.postUserDetails).toHaveBeenCalledTimes(1);
         expect(userServiceImpl.postUserDetails).toBeCalledWith(msg.user.id, msg.user.username, msg.member.guild.name,
             mockPostUserResponse.preferredChampions, mockGetUserResponse.subscriptions);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toBeCalledWith(`Successfully updated your preferred champions list, here are your current Champions: '${mockPostUserResponse.preferredChampions}'`);
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toBeCalledWith(`Successfully updated your preferred champions list, here are your current Champions: '${mockPostUserResponse.preferredChampions}'`);
     })
 
     test('A User should be able to pass in a champion name as an argument to be added to their preferred champions list if their list is already populated.', async () => {
@@ -74,8 +74,8 @@ describe('Suggest Champion Command', () => {
         expect(userServiceImpl.postUserDetails).toHaveBeenCalledTimes(1);
         expect(userServiceImpl.postUserDetails).toBeCalledWith(msg.user.id, msg.user.username,
             msg.member.guild.name, mockPostUserResponse.preferredChampions, mockGetUserResponse.subscriptions);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toBeCalledWith(`Successfully updated your preferred champions list, here are your current Champions: '${mockPostUserResponse.preferredChampions}'`);
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toBeCalledWith(`Successfully updated your preferred champions list, here are your current Champions: '${mockPostUserResponse.preferredChampions}'`);
     })
 
     test('A user should not be able to add more than 5 preferred champions to their list.', async () => {
@@ -103,8 +103,8 @@ describe('Suggest Champion Command', () => {
         expect(userServiceImpl.getUserDetails).toHaveBeenCalledTimes(1);
         expect(userServiceImpl.getUserDetails).toBeCalledWith(msg.user.id);
         expect(userServiceImpl.postUserDetails).not.toHaveBeenCalled();
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toBeCalledWith('Sorry! You cannot have more than 5 champions in your list. ' +
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toBeCalledWith('Sorry! You cannot have more than 5 champions in your list. ' +
             'Please remove by passing a champion in your list and then try adding again. Thank you!');
     })
 
@@ -124,8 +124,8 @@ describe('Suggest Champion Command', () => {
             prepareDDragonApiData();
             await suggestChampion.execute(msg, args)
             expect(msg.deferReply).toHaveBeenCalledTimes(1);
-            expect(msg.reply).toHaveBeenCalledTimes(1);
-            expect(msg.reply).toBeCalledWith(`Champion name passed does not exist. Please validate with !clash champions ${args[0]}`);
+            expect(msg.editReply).toHaveBeenCalledTimes(1);
+            expect(msg.editReply).toBeCalledWith(`Champion name passed does not exist. Please validate with !clash champions ${args[0]}`);
             expect(userServiceImpl.getUserDetails).not.toBeCalled();
         })
     })

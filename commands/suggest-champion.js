@@ -31,13 +31,13 @@ module.exports = {
                             : userDetails.preferredChampions.push(args[0]) ;
                         let updatedUserDetails = await userServiceImpl.postUserDetails(msg.user.id, msg.user.username,
                             userDetails.serverName, userDetails.preferredChampions, userDetails.subscriptions);
-                        await msg.reply(`Successfully updated your preferred champions list, here are your current Champions: '${updatedUserDetails.preferredChampions}'`);
+                        await msg.editReply(`Successfully updated your preferred champions list, here are your current Champions: '${updatedUserDetails.preferredChampions}'`);
                     } else {
-                        await msg.reply('Sorry! You cannot have more than 5 champions in your list. ' +
+                        await msg.editReply('Sorry! You cannot have more than 5 champions in your list. ' +
                             'Please remove by passing a champion in your list and then try adding again. Thank you!')
                     }
                 } else {
-                    await msg.reply(`Champion name passed does not exist. Please validate with !clash champions ${args[0]}`);
+                    await msg.editReply(`Champion name passed does not exist. Please validate with !clash champions ${args[0]}`);
                 }
             }
         } catch (err) {

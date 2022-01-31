@@ -10,6 +10,10 @@ jest.mock('../../services/tentative-service-impl');
 jest.mock('../../utility/error-handling');
 jest.mock('../command-argument-parser');
 
+beforeEach(() => {
+    jest.resetAllMocks();
+})
+
 describe('Tentative Command', () => {
     test('Should respond with user has been placed on tentative if the player name does not exist in the tentative list.', async () => {
         let msg = buildMockInteraction();
@@ -46,8 +50,8 @@ describe('Tentative Command', () => {
         expect(tentativeServiceImpl.postTentativeUpdateForServerAndTournament).toBeCalledWith(msg.user.id,
             msg.member.guild.name, args[0], args[1]);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith(`We placed you into the tentative queue. If you were on a team, you have been removed. tip: Use '!clash teams' to view current team status`);
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith(`We placed you into the tentative queue. If you were on a team, you have been removed. tip: Use '!clash teams' to view current team status`);
     })
 
     test('Should respond with user has been taken off tentative if the player name does exist in the tentative list.', async () => {
@@ -85,8 +89,8 @@ describe('Tentative Command', () => {
         expect(tentativeServiceImpl.postTentativeUpdateForServerAndTournament).toBeCalledWith(msg.user.id,
             msg.member.guild.name, args[0], args[1]);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith(`We have taken you off of tentative queue. tip: Use '!clash teams' to view current team status`);
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith(`We have taken you off of tentative queue. tip: Use '!clash teams' to view current team status`);
     })
 
     test('If tournament passed by user is not found and return as empty, the user should be notified.', async () => {
@@ -100,8 +104,8 @@ describe('Tentative Command', () => {
         tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue([]);
         await tentative.execute(msg, args);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith('Cannot find the tournament passed. Please check !clash time ' +
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith('Cannot find the tournament passed. Please check !clash time ' +
             'for an appropriate list.');
     })
 

@@ -39,8 +39,8 @@ describe('Unsubscribe', () => {
         expect(userServiceImpl.postUserDetails).toBeCalledWith(msg.user.id, msg.user.username,
             msg.member.guild.name, expectedPreferredChampions, { UpcomingClashTournamentDiscordDM: false });
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith('You have successfully unsubscribed.');
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith('You have successfully unsubscribed.');
     })
 
     test('When a user requests to unsubscribe and they were not subscribed to begin with, they should have a message letting them know they were not subscribed.', async () => {
@@ -64,8 +64,8 @@ describe('Unsubscribe', () => {
         expect(userServiceImpl.getUserDetails).toBeCalledWith(msg.user.id);
         expect(userServiceImpl.postUserDetails).not.toHaveBeenCalled();
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith('No subscription was found.');
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith('No subscription was found.');
     })
 })
 

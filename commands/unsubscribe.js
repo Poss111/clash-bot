@@ -16,12 +16,12 @@ module.exports = {
                 let updatedUserDetails = await userServiceImpl.postUserDetails(msg.user.id, msg.user.username,
                     userDetails.serverName, userDetails.preferredChampions, userDetails.subscriptions);
                 if(!updatedUserDetails.subscriptions.UpcomingClashTournamentDiscordDM) {
-                    await msg.reply('You have successfully unsubscribed.')
+                    await msg.editReply('You have successfully unsubscribed.')
                 } else {
-                    await msg.reply('No subscription was found.');
+                    await msg.editReply('No subscription was found.');
                 }
             } else {
-                await msg.reply('No subscription was found.');
+                await msg.editReply('No subscription was found.');
             }
         } catch (err) {
             errorHandler.handleError(this.name, err, msg, 'Failed to unsubscribe.')

@@ -52,7 +52,6 @@ module.exports = {
         try {
             const userInfo = parseUserInfo(msg);
             let filter;
-            await msg.deferReply();
             if (!args || args.length === 0) {
                 await msg.reply("The role to join a new Team with is missing. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: !clash newTeam ***Top***");
             } else {
@@ -80,6 +79,7 @@ module.exports = {
                 if (roleNotMatching) {
                     await msg.reply(`The role passed is not correct - '${role}'. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: !clash newTeam ***Top***`)
                 } else {
+                    await msg.deferReply();
                     if (args[1]) {
                         let registeringMessage = `Registering '${userInfo.username}' for Tournament '${args[1]}'`;
                         if (args[2]) {
@@ -88,9 +88,9 @@ module.exports = {
                         } else {
                             filter = findTournament(args[1]);
                         }
-                        await msg.reply(registeringMessage + ` as '${role}'...`);
+                        await msg.editReply(registeringMessage + ` as '${role}'...`);
                     } else {
-                        await msg.reply(`Registering '${userInfo.username}' for the first available tournament as '${role}' that you are not already registered to...`);
+                        await msg.editReply(`Registering '${userInfo.username}' for the first available tournament as '${role}' that you are not already registered to...`);
                     }
                     let filteredClashTimes = await tournamentsServiceImpl.retrieveAllActiveTournaments();
                     if (filter && filteredClashTimes) {

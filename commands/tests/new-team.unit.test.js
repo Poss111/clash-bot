@@ -16,19 +16,6 @@ beforeEach(() => {
     jest.resetModules();
 })
 
-function verifyReply(messagePassed, sampleRegisterReturn) {
-    expect(messagePassed.embed.fields[0].name).toEqual(sampleRegisterReturn.teamName);
-    expect(messagePassed.embed.fields[0].value).toEqual(Object.entries(sampleRegisterReturn.playersRoleDetails)
-        .map((key) => `${key[0]} - ${key[1]}`));
-    expect(messagePassed.embed.fields[1].name).toEqual('Tournament Details');
-    expect(messagePassed.embed.fields[1].value)
-        .toEqual(`${sampleRegisterReturn.tournamentDetails.tournamentName} Day ${sampleRegisterReturn.tournamentDetails.tournamentDay}`);
-}
-
-function verifyRedundantRegistration(messagePassed) {
-    expect(messagePassed.embed.description).toEqual(`You are already registered to the given tournament.`);
-}
-
 function buildRegisterResponse(sampleRegisterReturn) {
     let copy = JSON.parse(JSON.stringify(registerReply));
     copy.fields.push({
@@ -96,9 +83,8 @@ describe('New Team', () => {
         expect(teamsServiceImpl.postForNewTeam).toBeCalledWith(msg.user.id, args[0], msg.member.guild.name,
             leagueTimes[0].tournamentName, leagueTimes[0].tournamentDay, leagueTimes[0].startTime);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith(`Registering '${msg.user.username}' for the first available tournament as '${args[0]}' that you are not already registered to...`);
+        expect(msg.editReply).toHaveBeenCalledTimes(2);
+        expect(msg.editReply).toHaveBeenCalledWith(`Registering '${msg.user.username}' for the first available tournament as '${args[0]}' that you are not already registered to...`);
         expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]})
     })
 
@@ -107,9 +93,9 @@ describe('New Team', () => {
         let msg = buildMockInteraction();
         commandArgumentParser.parse.mockReturnValue({});
         await newTeam.execute(msg);
-        expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
+        expect(msg.deferReply).not.toHaveBeenCalled();
         expect(msg.editReply).not.toHaveBeenCalled();
+        expect(msg.reply).toHaveBeenCalledTimes(1);
         expect(teamsServiceImpl.postForNewTeam).not.toHaveBeenCalled();
         expect(msg.reply).toHaveBeenCalledWith(`The role to join a new Team with is missing. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: !clash newTeam ***Top***`);
     })
@@ -120,9 +106,9 @@ describe('New Team', () => {
         commandArgumentParser.parse.mockReturnValue({});
         let rolePassed = 'Jung';
         await newTeam.execute(msg, [rolePassed]);
-        expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
+        expect(msg.deferReply).not.toHaveBeenCalled();
         expect(msg.editReply).not.toHaveBeenCalled();
+        expect(msg.reply).toHaveBeenCalledTimes(1);
         expect(teamsServiceImpl.postForNewTeam).not.toHaveBeenCalled();
         expect(msg.reply).toHaveBeenCalledWith(`The role passed is not correct - '${rolePassed}'. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: !clash newTeam ***Top***`);
     })
@@ -132,9 +118,9 @@ describe('New Team', () => {
         let msg = buildMockInteraction();
         commandArgumentParser.parse.mockReturnValue({});
         await newTeam.execute(msg, []);
-        expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
+        expect(msg.deferReply).not.toHaveBeenCalled();
         expect(msg.editReply).not.toHaveBeenCalled();
+        expect(msg.reply).toHaveBeenCalledTimes(1);
         expect(teamsServiceImpl.postForNewTeam).not.toHaveBeenCalled();
         expect(msg.reply).toHaveBeenCalledWith(`The role to join a new Team with is missing. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: !clash newTeam ***Top***`);
     })
@@ -147,10 +133,9 @@ describe('New Team', () => {
         tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(undefined);
         await newTeam.execute(msg, args);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledTimes(2);
         expect(teamsServiceImpl.postForNewTeam).not.toHaveBeenCalled();
-        expect(msg.reply).toHaveBeenCalledWith(`Registering '${msg.user.username}' for Tournament '${args[1]}' as '${args[0]}'...`);
+        expect(msg.editReply).toHaveBeenCalledWith(`Registering '${msg.user.username}' for Tournament '${args[1]}' as '${args[0]}'...`);
         expect(msg.editReply).toHaveBeenCalledWith(`We were unable to find a Tournament with '${args[1]}'. Please try again.`);
     })
 
@@ -162,10 +147,9 @@ describe('New Team', () => {
         tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue([]);
         await newTeam.execute(msg, args);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledTimes(2);
         expect(teamsServiceImpl.postForNewTeam).not.toHaveBeenCalled();
-        expect(msg.reply).toHaveBeenCalledWith(`Registering '${msg.user.username}' for Tournament '${args[1]}' as '${args[0]}'...`);
+        expect(msg.editReply).toHaveBeenCalledWith(`Registering '${msg.user.username}' for Tournament '${args[1]}' as '${args[0]}'...`);
         expect(msg.editReply).toHaveBeenCalledWith(`We were unable to find a Tournament with '${args[1]}'. Please try again.`);
     })
 
@@ -177,10 +161,9 @@ describe('New Team', () => {
         tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue([]);
         await newTeam.execute(msg, args);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledTimes(2);
         expect(teamsServiceImpl.postForNewTeam).not.toHaveBeenCalled();
-        expect(msg.reply).toHaveBeenCalledWith(`Registering '${msg.user.username}' for Tournament '${args[1]}' on day '${args[2]}' as '${args[0]}'...`);
+        expect(msg.editReply).toHaveBeenCalledWith(`Registering '${msg.user.username}' for Tournament '${args[1]}' on day '${args[2]}' as '${args[0]}'...`);
         expect(msg.editReply).toHaveBeenCalledWith(`We were unable to find a Tournament with '${args[1]}' and '${args[2]}'. Please try again.`);
     })
 
@@ -223,9 +206,8 @@ describe('New Team', () => {
             leagueTimes[0].tournamentName, leagueTimes[0].tournamentDay, leagueTimes[0].startTime);
 
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith(`Registering '${msg.user.username}' for Tournament '${args[1]}' as '${args[0]}'...`);
+        expect(msg.editReply).toHaveBeenCalledTimes(2);
+        expect(msg.editReply).toHaveBeenCalledWith(`Registering '${msg.user.username}' for Tournament '${args[1]}' as '${args[0]}'...`);
         expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]})
     })
 
@@ -270,9 +252,8 @@ describe('New Team', () => {
             leagueTimes[1].tournamentName, leagueTimes[1].tournamentDay, leagueTimes[1].startTime);
 
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith(`Registering '${msg.user.username}' for Tournament '${args[1]}' on day '${args[2]}' as '${args[0]}'...`);
+        expect(msg.editReply).toHaveBeenCalledTimes(2);
+        expect(msg.editReply).toHaveBeenCalledWith(`Registering '${msg.user.username}' for Tournament '${args[1]}' on day '${args[2]}' as '${args[0]}'...`);
         expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]})
     })
 
@@ -300,9 +281,8 @@ describe('New Team', () => {
 
         expect(teamsServiceImpl.postForNewTeam).toBeCalledTimes(1);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith(`Registering '${msg.user.username}' for Tournament '${args[1]}' on day '${args[2]}' as '${args[0]}'...`);
+        expect(msg.editReply).toHaveBeenCalledTimes(2);
+        expect(msg.editReply).toHaveBeenCalledWith(`Registering '${msg.user.username}' for Tournament '${args[1]}' on day '${args[2]}' as '${args[0]}'...`);
         expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]})
     })
 
@@ -360,9 +340,8 @@ describe('New Team', () => {
             leagueTimes[1].tournamentName, leagueTimes[1].tournamentDay, leagueTimes[1].startTime);
 
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith(`Registering '${msg.user.username}' for Tournament '${args[1]}' as '${args[0]}'...`);
+        expect(msg.editReply).toHaveBeenCalledTimes(2);
+        expect(msg.editReply).toHaveBeenCalledWith(`Registering '${msg.user.username}' for Tournament '${args[1]}' as '${args[0]}'...`);
         expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
     })
 
@@ -388,8 +367,8 @@ describe('Register Error', () => {
         await newTeam.execute(msg, args);
 
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith(`Registering '${msg.user.username}' for Tournament '${args[1]}' on day '${args[2]}' as '${args[0]}'...`);
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith(`Registering '${msg.user.username}' for Tournament '${args[1]}' on day '${args[2]}' as '${args[0]}'...`);
         expect(errorHandling.handleError).toHaveBeenCalledTimes(1);
         expect(errorHandling.handleError).toHaveBeenCalledWith(newTeam.name, 'Some error occurred.', msg, 'Failed to register you to team.');
     })
@@ -406,8 +385,8 @@ describe('Register Error', () => {
 
         expect(teamsServiceImpl.postForNewTeam).not.toHaveBeenCalled();
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith(`Registering '${msg.user.username}' for the first available tournament as '${args[0]}' that you are not already registered to...`);
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith(`Registering '${msg.user.username}' for the first available tournament as '${args[0]}' that you are not already registered to...`);
         expect(errorHandling.handleError).toHaveBeenCalledTimes(1);
         expect(errorHandling.handleError).toHaveBeenCalledWith(newTeam.name,
             new Error('Failed to find any tournaments to attempt to register to.'),

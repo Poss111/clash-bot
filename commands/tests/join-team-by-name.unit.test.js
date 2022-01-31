@@ -89,8 +89,8 @@ describe('Join an existing Team', () => {
         ]);
         await joinTeamByName.execute(msg, args);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith(`The tournament you are trying to join does not exist Name '${args[1]}' Day '${args[2]}'. Please use '!clash times' to see valid tournaments.`);
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith(`The tournament you are trying to join does not exist Name '${args[1]}' Day '${args[2]}'. Please use '!clash times' to see valid tournaments.`);
     })
 
     test('When a user requests to join a team and they pass a Tournament and a Team they should be notified that they have successfully joined a Team.', async () => {
@@ -129,8 +129,8 @@ describe('Join an existing Team', () => {
         expect(teamsServiceImpl.postForTeamRegistration).toBeCalledWith(msg.user.id, args[0], args[3],
             msg.member.guild.name, leagueTimes[0].tournamentName, leagueTimes[0].tournamentDay);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith({ embeds: [copy]});
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith({ embeds: [copy]});
     })
 
     test('When a user requests to join a team and they pass a Tournament and a Team and no Team exists with that name, they should have a message specifying that we were unable to find one matching the criteria.', async () => {
@@ -153,8 +153,8 @@ describe('Join an existing Team', () => {
         await joinTeamByName.execute(msg, args);
         expect(teamsServiceImpl.postForTeamRegistration).toBeCalledWith(msg.user.id, args[0], args[3], msg.member.guild.name, leagueTimes[0].tournamentName, leagueTimes[0].tournamentDay);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith({ embeds: [ copy ]});
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
     })
 
 })

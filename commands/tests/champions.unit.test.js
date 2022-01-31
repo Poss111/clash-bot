@@ -30,8 +30,8 @@ describe('Champions Command', () => {
         expect(msg.createDM).toHaveBeenCalledWith(false);
         expect(createDmResponse.send).toHaveBeenCalledTimes(1);
         expect(createDmResponse.send).toHaveBeenCalledWith(expectedArguments);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith({ content: 'Check your DMs.', ephemeral: true});
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith({ content: 'Check your DMs.', ephemeral: true});
     })
 
     test('The champions command should return a specific champion if one is passed.', async () => {
@@ -52,8 +52,8 @@ describe('Champions Command', () => {
         expect(msg.createDM).toHaveBeenCalledWith(false);
         expect(createDmResponse.send).toHaveBeenCalledTimes(1);
         expect(createDmResponse.send).toHaveBeenCalledWith(expectedArguments);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith({ content: 'Check your DMs.', ephemeral: true});
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith({ content: 'Check your DMs.', ephemeral: true});
     })
 
     test('The champions command should return a specific champion if one is partially passed.', async () => {
@@ -74,8 +74,8 @@ describe('Champions Command', () => {
         expect(msg.createDM).toHaveBeenCalledWith(false);
         expect(createDmResponse.send).toHaveBeenCalledTimes(1);
         expect(createDmResponse.send).toHaveBeenCalledWith(expectedArguments);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith({ content: 'Check your DMs.', ephemeral: true});
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith({ content: 'Check your DMs.', ephemeral: true});
     })
 
     test('The champions command should return a specific champion if one is in a different case is passed.', async () => {
@@ -96,8 +96,8 @@ describe('Champions Command', () => {
         expect(msg.createDM).toHaveBeenCalledWith(false);
         expect(createDmResponse.send).toHaveBeenCalledTimes(1);
         expect(createDmResponse.send).toHaveBeenCalledWith(expectedArguments);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith({ content: 'Check your DMs.', ephemeral: true});
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith({ content: 'Check your DMs.', ephemeral: true});
     })
 
     test('If the champion they specified is not found, then send a response to let them know.', async () => {
@@ -106,8 +106,8 @@ describe('Champions Command', () => {
 
         await champions.execute(msg, ['DNE']);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith('Could not find the champion specified.');
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith('Could not find the champion specified.');
     })
 })
 

@@ -70,7 +70,7 @@ module.exports = {
                 times = times.filter(findTournament(args[1], args[2]));
                 if (times.length === 0) {
                     console.log(`Unable to find Tournament for details - Name ('${args[1]}') Day ('${args[2]}').`);
-                    msg.reply(`The tournament you are trying to join does not exist Name '${args[1]}' Day '${args[2]}'. Please use '!clash times' to see valid tournaments.`)
+                    msg.editReply(`The tournament you are trying to join does not exist Name '${args[1]}' Day '${args[2]}'. Please use '!clash times' to see valid tournaments.`)
                 } else {
                     function buildTournamentDetails(team) {
                         return {
@@ -94,7 +94,7 @@ module.exports = {
                         } else {
                             copy.description = `Failed to find an available team with the following criteria, Role '${args[0]}' Tournament Name '${args[1]}' Tournament Day '${args[2]}' Team Name '${args[3]} or role is not available for that team`;
                         }
-                        msg.reply({embeds: [ copy ]});
+                        msg.editReply({embeds: [ copy ]});
                     });
                 }
             }

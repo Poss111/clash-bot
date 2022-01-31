@@ -5,7 +5,6 @@ module.exports = {
     JoinTeamByName: require('./join-team-by-name'),
     NewTeam: require('./new-team'),
     Ping: require('./ping'),
-    Register: require('./register'),
     Subscribe: require('./subscribe'),
     SuggestChampion: require('./suggest-champion'),
     Teams: require('./teams'),

@@ -37,8 +37,8 @@ describe('Subscribe', () => {
         expect(userServiceImpl.postUserDetails).toBeCalledWith(msg.user.id, msg.user.username,
             msg.member.guild.name, expectedPreferredChampions, { UpcomingClashTournamentDiscordDM: true });
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith('You have subscribed. You will receive a notification the Monday before ' +
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith('You have subscribed. You will receive a notification the Monday before ' +
             'a Clash Tournament weekend. If you want to unsubscribe at any time please use !clash unsubscribe');
     })
 
@@ -64,8 +64,8 @@ describe('Subscribe', () => {
         expect(userServiceImpl.getUserDetails).toBeCalledWith(msg.user.id);
         expect(userServiceImpl.postUserDetails).not.toHaveBeenCalled();
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith('You are already subscribed.');
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith('You are already subscribed.');
     })
 })
 

@@ -51,7 +51,7 @@ module.exports = {
                 let times = await tournamentsServiceImpl.retrieveAllActiveTournaments(parsedArguments.tournamentName,
                     parsedArguments.tournamentDay);
                 if (Array.isArray(times) && times.length) {
-                    await msg.reply(`Unregistering '${msg.user.username}' from Tournament '${times[0].tournamentName}' on day '${times[0].tournamentDay}'...`)
+                    await msg.editReply(`Unregistering '${msg.user.username}' from Tournament '${times[0].tournamentName}' on day '${times[0].tournamentDay}'...`)
                     let data = await teamsServiceImpl.deleteFromTeam(msg.user.id, msg.member.guild.name,
                         times[0].tournamentName, times[0].tournamentDay);
                     if (!data.error) {
@@ -62,7 +62,7 @@ module.exports = {
                             "if you would like to join again. Thank you!");
                     }
                 } else {
-                    await msg.reply("Please provide an existing tournament and day to unregister for. " +
+                    await msg.editReply("Please provide an existing tournament and day to unregister for. " +
                         "Use '!clash team' to print a team.");
                 }
             }

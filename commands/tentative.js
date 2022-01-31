@@ -62,12 +62,12 @@ module.exports = {
                             msg.member.guild.name, times[0].tournamentName, times[0].tournamentDay);
                     if (!tentativeResponse.tentativePlayers
                         || !tentativeResponse.tentativePlayers.includes(msg.user.username)) {
-                        await msg.reply(`We have taken you off of tentative queue. tip: Use '!clash teams' to view current team status`);
+                        await msg.editReply(`We have taken you off of tentative queue. tip: Use '!clash teams' to view current team status`);
                     } else {
-                        await msg.reply(`We placed you into the tentative queue. If you were on a team, you have been removed. tip: Use '!clash teams' to view current team status`);
+                        await msg.editReply(`We placed you into the tentative queue. If you were on a team, you have been removed. tip: Use '!clash teams' to view current team status`);
                     }
                 } else {
-                    await msg.reply('Cannot find the tournament passed. Please check !clash time for an appropriate list.');
+                    await msg.editReply('Cannot find the tournament passed. Please check !clash time for an appropriate list.');
                 }
             }
         } catch (err) {

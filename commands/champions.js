@@ -36,9 +36,9 @@ module.exports = {
                 }
                 const dmChannel = await msg.createDM(false);
                 await dmChannel.send({ embeds: embeddedMessages });
-                await msg.reply({ content: 'Check your DMs.', ephemeral: true});
+                await msg.editReply({ content: 'Check your DMs.', ephemeral: true});
             } else {
-                await msg.reply('Could not find the champion specified.')
+                await msg.editReply('Could not find the champion specified.')
             }
         } finally {
             timeTracker.endExecution(this.name, startTime);

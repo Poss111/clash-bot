@@ -19,7 +19,7 @@ module.exports = {
                     const dateFormat = 'MMMM DD yyyy hh:mm a z';
                     const tournamentDateFormat = 'MMMM DD yyyy';
                     const tierTimeFormat = 'h:mm a z';
-                    const timeZone = 'America/Los_Angeles';
+                    const timeZone = 'America/Los_Angeles';s
                     moment.tz.setDefault(timeZone);
                     clashTimes.forEach((time) => {
                         let parsedDate = new moment(time.registrationTime, dateFormat).format(tournamentDateFormat);
