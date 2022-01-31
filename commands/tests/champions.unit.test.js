@@ -22,12 +22,12 @@ describe('Champions Command', () => {
         };
 
         let expectedArguments = buildExpectedChampionList();
-        msg.createDM.mockResolvedValue(createDmResponse);
+        msg.member.createDM.mockResolvedValue(createDmResponse);
 
         await champions.execute(msg);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.createDM).toHaveBeenCalledTimes(1);
-        expect(msg.createDM).toHaveBeenCalledWith(false);
+        expect(msg.member.createDM).toHaveBeenCalledTimes(1);
+        expect(msg.member.createDM).toHaveBeenCalledWith(false);
         expect(createDmResponse.send).toHaveBeenCalledTimes(1);
         expect(createDmResponse.send).toHaveBeenCalledWith(expectedArguments);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
@@ -41,15 +41,15 @@ describe('Champions Command', () => {
         };
 
         let expectedArguments = buildExpectedChampionList();
-        msg.createDM.mockResolvedValue(createDmResponse);
+        msg.member.createDM.mockResolvedValue(createDmResponse);
 
         expectedArguments.embeds = expectedArguments.embeds
             .filter(record => record.title.includes('Aatrox'));
 
         await champions.execute(msg, ['Aatrox']);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.createDM).toHaveBeenCalledTimes(1);
-        expect(msg.createDM).toHaveBeenCalledWith(false);
+        expect(msg.member.createDM).toHaveBeenCalledTimes(1);
+        expect(msg.member.createDM).toHaveBeenCalledWith(false);
         expect(createDmResponse.send).toHaveBeenCalledTimes(1);
         expect(createDmResponse.send).toHaveBeenCalledWith(expectedArguments);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
@@ -63,15 +63,15 @@ describe('Champions Command', () => {
         };
 
         let expectedArguments = buildExpectedChampionList();
-        msg.createDM.mockResolvedValue(createDmResponse);
+        msg.member.createDM.mockResolvedValue(createDmResponse);
 
         expectedArguments.embeds = expectedArguments.embeds
             .filter(record => record.title.includes('Aa'));
 
         await champions.execute(msg, ['Aa']);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.createDM).toHaveBeenCalledTimes(1);
-        expect(msg.createDM).toHaveBeenCalledWith(false);
+        expect(msg.member.createDM).toHaveBeenCalledTimes(1);
+        expect(msg.member.createDM).toHaveBeenCalledWith(false);
         expect(createDmResponse.send).toHaveBeenCalledTimes(1);
         expect(createDmResponse.send).toHaveBeenCalledWith(expectedArguments);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
@@ -85,15 +85,15 @@ describe('Champions Command', () => {
         };
 
         let expectedArguments = buildExpectedChampionList();
-        msg.createDM.mockResolvedValue(createDmResponse);
+        msg.member.createDM.mockResolvedValue(createDmResponse);
 
         expectedArguments.embeds = expectedArguments.embeds
             .filter(record => record.title.includes('Aa'));
 
         await champions.execute(msg, ['aa']);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.createDM).toHaveBeenCalledTimes(1);
-        expect(msg.createDM).toHaveBeenCalledWith(false);
+        expect(msg.member.createDM).toHaveBeenCalledTimes(1);
+        expect(msg.member.createDM).toHaveBeenCalledWith(false);
         expect(createDmResponse.send).toHaveBeenCalledTimes(1);
         expect(createDmResponse.send).toHaveBeenCalledWith(expectedArguments);
         expect(msg.editReply).toHaveBeenCalledTimes(1);

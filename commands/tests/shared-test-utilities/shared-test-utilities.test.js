@@ -3,7 +3,6 @@ const buildMockInteraction = () => {
         deferReply: jest.fn(),
         reply: jest.fn(),
         editReply: jest.fn(),
-        createDM: jest.fn(),
         followUp: jest.fn(),
         user: {
             id: '1',
@@ -12,7 +11,8 @@ const buildMockInteraction = () => {
         member: {
             guild: {
                 name: 'TestServer'
-            }
+            },
+            createDM: jest.fn()
         }
     };
 }

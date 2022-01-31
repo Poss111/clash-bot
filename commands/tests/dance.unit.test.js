@@ -31,11 +31,11 @@ test('Should not dance when throttled and should not return a message if a notif
     const msg = buildMockInteraction();
     await dance.execute(msg);
     expect(msg.deferReply).not.toHaveBeenCalled();
-    expect(msg.reply).toHaveBeenCalledTimes(1);
-    expect(msg.reply).toHaveBeenCalledWith('I see you know the ways of the spam. ' +
+    expect(msg.editReply).toHaveBeenCalledTimes(1);
+    expect(msg.editReply).toHaveBeenCalledWith('I see you know the ways of the spam. ' +
         'If you want me to dance again, you must wait 30 seconds ;)');
     throttleHandling.hasServerBeenNotified.mockReturnValue(true);
     dance.execute(msg);
     expect(msg.deferReply).not.toHaveBeenCalled();
-    expect(msg.reply).toHaveBeenCalledTimes(1);
+    expect(msg.editReply).toHaveBeenCalledTimes(1);
 })

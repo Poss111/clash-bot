@@ -14,7 +14,7 @@ function buildExpectedRegisterResponse(sampleRegisterReturn) {
     copy.fields.push({
         name: sampleRegisterReturn.teamName,
         value: Object.entries(sampleRegisterReturn.playersRoleDetails)
-            .map(key => `${key[0]} - ${key[1]}`),
+            .map(key => `${key[0]} - ${key[1]}`).join('\n'),
         inline: true
     });
     copy.fields.push({
@@ -68,6 +68,16 @@ describe('Join an existing Team', () => {
         expect(msg.deferReply).toHaveBeenCalledTimes(0);
         expect(msg.reply).toHaveBeenCalledTimes(1);
         expect(msg.reply).toHaveBeenCalledWith(`Team is missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join ${args[0]} ${args[1]} ${args[2]} ***Pikachu***`);
+    })
+
+    test('When a user requests to join a team with only the role and tournament details, ' +
+        'they are required to pass a correct role.', async () => {
+        let msg = buildMockInteraction();
+        let args = ['adc', 'msi2021', '1', 'Blaziken']
+        await joinTeamByName.execute(msg, args);
+        expect(msg.deferReply).toHaveBeenCalledTimes(0);
+        expect(msg.reply).toHaveBeenCalledTimes(1);
+        expect(msg.reply).toHaveBeenCalledWith(`The role passed is not correct - '${args[0]}'. Please pass one of the following Top, Mid, Jg, Bot, or Supp.`);
     })
 
     test('When a user requests to join a team and they pass a role, Tournament details that does not exist, they should be notified.', async () => {

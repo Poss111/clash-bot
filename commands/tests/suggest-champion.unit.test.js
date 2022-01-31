@@ -47,6 +47,38 @@ describe('Suggest Champion Command', () => {
         expect(msg.editReply).toBeCalledWith(`Successfully updated your preferred champions list, here are your current Champions: '${mockPostUserResponse.preferredChampions}'`);
     })
 
+    test('A User should be able to pass in a champion name as an argument to be removed from their preferred champions list.', async () => {
+        const expectedSubscriptions = { 'UpcomingClashTournamentDiscordDM': false };
+        const msg = buildMockInteraction();
+        const mockGetUserResponse = {
+            id: msg.user.id,
+            playerName: msg.user.username,
+            serverName: msg.member.guild.name,
+            preferredChampions: ['Ahri'],
+            subscriptions: expectedSubscriptions
+        };
+
+        let args = ['Ahri'];
+        let mockPostUserResponse = JSON.parse(JSON.stringify(mockGetUserResponse));
+        mockPostUserResponse.preferredChampions = [];
+
+        prepareDDragonApiData();
+
+        userServiceImpl.getUserDetails.mockResolvedValue(mockGetUserResponse);
+        userServiceImpl.postUserDetails.mockResolvedValue(mockPostUserResponse);
+
+        await suggestChampion.execute(msg, args);
+
+        expect(msg.deferReply).toHaveBeenCalledTimes(1);
+        expect(userServiceImpl.getUserDetails).toHaveBeenCalledTimes(1);
+        expect(userServiceImpl.getUserDetails).toBeCalledWith(msg.user.id);
+        expect(userServiceImpl.postUserDetails).toHaveBeenCalledTimes(1);
+        expect(userServiceImpl.postUserDetails).toBeCalledWith(msg.user.id, msg.user.username, msg.member.guild.name,
+            [], mockGetUserResponse.subscriptions);
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toBeCalledWith(`Successfully updated your preferred champions list, here are your current Champions: '${mockPostUserResponse.preferredChampions}'`);
+    })
+
     test('A User should be able to pass in a champion name as an argument to be added to their preferred champions list if their list is already populated.', async () => {
         const expectedSubscriptions = { 'UpcomingClashTournamentDiscordDM': false };
         const msg = buildMockInteraction();

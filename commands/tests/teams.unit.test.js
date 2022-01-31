@@ -15,7 +15,7 @@ function buildExpectedTeamsResponse(sampleTeamList) {
     sampleTeamList.forEach(team => {
         copy.fields.push({
             name: team.teamName,
-            value: team.playersDetails.map(details => `${details.role} - ${details.name}`),
+            value: team.playersDetails.map(details => `${details.role} - ${details.name}`).join('\n'),
             inline: true
         });
         copy.fields.push({
