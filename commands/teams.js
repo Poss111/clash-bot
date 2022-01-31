@@ -24,7 +24,8 @@ module.exports = {
                     if (teams[counter].playersDetails && teams[counter].playersDetails.length > 0) {
                         copy.fields.push({
                             name: teams[counter].teamName,
-                            value: teams[counter].playersDetails.map(record => record.role + " - " + record.name),
+                            value: teams[counter].playersDetails
+                                .map(record => `${record.role} - ${record.name}`).join('\n'),
                             inline: true
                         });
                         copy.fields.push({
@@ -44,7 +45,8 @@ module.exports = {
                     if (!acc[key]) {
                         acc[key] = []
                     }
-                    if (Array.isArray(value.tentativePlayers) && value.tentativePlayers.length > 0) {
+                    if (Array.isArray(value.tentativePlayers)
+                        && value.tentativePlayers.length > 0) {
                         acc[key].push(value.tentativePlayers);
                     }
                     return acc;

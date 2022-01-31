@@ -13,6 +13,28 @@ module.exports = {
             type: 3,
             name: "role",
             description: "Top, Mid, Jg, Bot, or Supp",
+            choices: [
+                {
+                    "name": "Top",
+                    "value": "Top"
+                },
+                {
+                    "name": "Middle",
+                    "value": "Mid"
+                },
+                {
+                    "name": "Jungle",
+                    "value": "Jg"
+                },
+                {
+                    "name": "Bottom",
+                    "value": "Bot"
+                },
+                {
+                    "name": "Supp",
+                    "value": "Supp"
+                }
+            ],
             required: true
         },
         {
@@ -65,37 +87,64 @@ module.exports = {
             } else if (!args[3]) {
                 await msg.reply(`Team is missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join ${args[0]} ${args[1]} ${args[2]} ***Pikachu***`);
             } else {
-                msg.deferReply();
-                let times = await tournamentsServiceImpl.retrieveAllActiveTournaments();
-                times = times.filter(findTournament(args[1], args[2]));
-                if (times.length === 0) {
-                    console.log(`Unable to find Tournament for details - Name ('${args[1]}') Day ('${args[2]}').`);
-                    msg.editReply(`The tournament you are trying to join does not exist Name '${args[1]}' Day '${args[2]}'. Please use '!clash times' to see valid tournaments.`)
+                let role = args[0];
+                let roleNotMatching = false;
+                switch (role.toLowerCase()) {
+                    case('top'):
+                        role = 'Top';
+                        break;
+                    case('mid'):
+                        role = 'Mid';
+                        break;
+                    case('jg'):
+                        role = 'Jg';
+                        break;
+                    case('bot'):
+                        role = 'Bot';
+                        break;
+                    case('supp'):
+                        role = 'Supp';
+                        break;
+                    default:
+                        roleNotMatching = true;
+                }
+                if (roleNotMatching) {
+                    await msg.reply(`The role passed is not correct - '${role}'. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: !clash newTeam ***Top***`)
                 } else {
-                    function buildTournamentDetails(team) {
-                        return {
-                            name: 'Tournament Details',
-                            value: `${team.tournamentDetails.tournamentName} Day ${team.tournamentDetails.tournamentDay}`,
-                            inline: true
-                        };
-                    }
-
-                    let copy = JSON.parse(JSON.stringify(registerReply));
-                    console.log(`Registering ('${msg.user.username}') with Tournaments ('${JSON.stringify(times)}') with role '${args[0]}'...`);
-                    await teamsServiceImpl.postForTeamRegistration(msg.user.id, args[0], args[3], msg.member.guild.name,
-                        times[0].tournamentName, times[0].tournamentDay).then(team => {
-                        if (!team.error) {
-                            console.log(`Registered ('${msg.user.username}') with Role ('${args[0]}') Tournament ('${team.tournamentDetails.tournamentName}') Team ('${team.teamName}').`);
-                            copy.fields.push({
-                                name: team.teamName, value: Object.entries(team.playersRoleDetails)
-                                    .map(key => `${key[0]} - ${key[1]}`), inline: true
-                            });
-                            copy.fields.push(buildTournamentDetails(team));
-                        } else {
-                            copy.description = `Failed to find an available team with the following criteria, Role '${args[0]}' Tournament Name '${args[1]}' Tournament Day '${args[2]}' Team Name '${args[3]} or role is not available for that team`;
+                    await msg.deferReply();
+                    let times = await tournamentsServiceImpl.retrieveAllActiveTournaments();
+                    times = times.filter(findTournament(args[1], args[2]));
+                    if (times.length === 0) {
+                        console.log(`Unable to find Tournament for details - Name ('${args[1]}') Day ('${args[2]}').`);
+                        await msg.editReply(`The tournament you are trying to join does not exist Name '${args[1]}' Day '${args[2]}'. Please use '!clash times' to see valid tournaments.`)
+                    } else {
+                        function buildTournamentDetails(team) {
+                            return {
+                                name: 'Tournament Details',
+                                value: `${team.tournamentDetails.tournamentName} Day ${team.tournamentDetails.tournamentDay}`,
+                                inline: true
+                            };
                         }
-                        msg.editReply({embeds: [ copy ]});
-                    });
+
+                        let copy = JSON.parse(JSON.stringify(registerReply));
+                        console.log(`Registering ('${msg.user.username}') with Tournaments ('${JSON.stringify(times)}') with role '${args[0]}'...`);
+                        await teamsServiceImpl.postForTeamRegistration(msg.user.id, args[0], args[3], msg.member.guild.name,
+                            times[0].tournamentName, times[0].tournamentDay).then(team => {
+                            if (!team.error) {
+                                console.log(`Registered ('${msg.user.username}') with Role ('${args[0]}') Tournament ('${team.tournamentDetails.tournamentName}') Team ('${team.teamName}').`);
+                                copy.fields.push({
+                                    name: team.teamName,
+                                    value: Object.entries(team.playersRoleDetails)
+                                        .map(key => `${key[0]} - ${key[1]}`).join('\n'),
+                                    inline: true
+                                });
+                                copy.fields.push(buildTournamentDetails(team));
+                            } else {
+                                copy.description = `Failed to find an available team with the following criteria, Role '${args[0]}' Tournament Name '${args[1]}' Tournament Day '${args[2]}' Team Name '${args[3]} or role is not available for that team`;
+                            }
+                            msg.editReply({embeds: [copy]});
+                        });
+                    }
                 }
             }
         } catch (err) {

@@ -4,6 +4,7 @@ const clashTimeFields = require('../templates/clash-time-fields');
 const templateBuilder = require('../utility/template-builder');
 const timeTracker = require('../utility/time-tracker');
 const moment = require('moment-timezone');
+const errorHandler = require('../utility/error-handling')
 
 module.exports = {
     name: 'time',
@@ -19,7 +20,7 @@ module.exports = {
                     const dateFormat = 'MMMM DD yyyy hh:mm a z';
                     const tournamentDateFormat = 'MMMM DD yyyy';
                     const tierTimeFormat = 'h:mm a z';
-                    const timeZone = 'America/Los_Angeles';s
+                    const timeZone = 'America/Los_Angeles';
                     moment.tz.setDefault(timeZone);
                     clashTimes.forEach((time) => {
                         let parsedDate = new moment(time.registrationTime, dateFormat).format(tournamentDateFormat);

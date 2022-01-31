@@ -8,7 +8,7 @@ module.exports = {
     execute: async function (msg) {
         const startTime = process.hrtime.bigint();
         try {
-            msg.deferReply();
+            await msg.deferReply();
             let userDetails = await userServiceImpl.getUserDetails(msg.user.id);
             if (!userDetails.subscriptions || !userDetails.subscriptions.UpcomingClashTournamentDiscordDM) {
                 userDetails.subscriptions = { UpcomingClashTournamentDiscordDM : true};

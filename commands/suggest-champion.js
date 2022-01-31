@@ -19,16 +19,21 @@ module.exports = {
             if (Array.isArray(args) && args.length < 1) {
                 msg.reply('no champion name was passed. Please pass one.');
             } else {
-                msg.deferReply();
+                await msg.deferReply();
                 let ddragon = new riotApi.DDragon();
                 let championData = await ddragon.champion.all();
                 if (Object.keys(championData.data).find(record => record === args[0])) {
                     let userDetails = await userServiceImpl.getUserDetails(msg.user.id);
                     if (!Array.isArray(userDetails.preferredChampions)
                         || userDetails.preferredChampions.length <= 4) {
-                        !userDetails.preferredChampions ?
+                        if (!userDetails.preferredChampions) {
                             userDetails.preferredChampions = [args[0]]
-                            : userDetails.preferredChampions.push(args[0]) ;
+                        } else if (userDetails.preferredChampions.includes(args[0])) {
+                            userDetails.preferredChampions =
+                                userDetails.preferredChampions.filter(record => record != args[0]);
+                        } else {
+                            userDetails.preferredChampions.push(args[0]) ;
+                        }
                         let updatedUserDetails = await userServiceImpl.postUserDetails(msg.user.id, msg.user.username,
                             userDetails.serverName, userDetails.preferredChampions, userDetails.subscriptions);
                         await msg.editReply(`Successfully updated your preferred champions list, here are your current Champions: '${updatedUserDetails.preferredChampions}'`);

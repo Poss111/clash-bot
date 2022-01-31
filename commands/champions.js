@@ -34,7 +34,7 @@ module.exports = {
                         version: championData.version
                     }));
                 }
-                const dmChannel = await msg.createDM(false);
+                const dmChannel = await msg.member.createDM(false);
                 await dmChannel.send({ embeds: embeddedMessages });
                 await msg.editReply({ content: 'Check your DMs.', ephemeral: true});
             } else {

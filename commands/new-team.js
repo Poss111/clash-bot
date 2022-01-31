@@ -14,6 +14,28 @@ module.exports = {
             type: 3,
             name: "role",
             description: "Top, Mid, Jg, Bot, or Supp",
+            choices: [
+                {
+                    "name": "Top",
+                    "value": "Top"
+                },
+                {
+                    "name": "Middle",
+                    "value": "Mid"
+                },
+                {
+                    "name": "Jungle",
+                    "value": "Jg"
+                },
+                {
+                    "name": "Bottom",
+                    "value": "Bot"
+                },
+                {
+                    "name": "Supp",
+                    "value": "Supp"
+                }
+            ],
             required: true
         },
         {
