@@ -10,33 +10,19 @@ afterAll(() => {
 
 test('Should dance when not throttled.', async () => {
     jest.setTimeout(30000);
-    const msg = {
-        deferReply: jest.fn(),
-        reply: jest.fn().mockResolvedValue({}),
-        followUp: jest.fn().mockResolvedValue({}),
-        user: {
-            id: '1',
-            username: 'TestPlayer'
-        },
-        member: {
-            guild: {
-                name: 'TestServer'
-            }
-        }
-    };
+    const msg = buildMockInteraction();
     await dance.execute(msg);
     expect(msg.deferReply).toHaveBeenCalledTimes(1);
-    expect(msg.reply).toHaveBeenCalledTimes(1);
-    expect(msg.reply).toHaveBeenCalledWith('I');
-    expect(msg.followUp).toHaveBeenCalledTimes(8);
-    expect(msg.followUp).toHaveBeenCalledWith('want');
-    expect(msg.followUp).toHaveBeenCalledWith('to');
-    expect(msg.followUp).toHaveBeenCalledWith('dance!');
-    expect(msg.followUp).toHaveBeenCalledWith('0.0');
-    expect(msg.followUp).toHaveBeenCalledWith('|0.0/');
-    expect(msg.followUp).toHaveBeenCalledWith('\\0.0|');
-    expect(msg.followUp).toHaveBeenCalledWith('|0.0|');
-    expect(msg.followUp).toHaveBeenCalledWith('_0.0|');
+    expect(msg.editReply).toHaveBeenCalledTimes(9);
+    expect(msg.editReply).toHaveBeenCalledWith('I');
+    expect(msg.editReply).toHaveBeenCalledWith('want');
+    expect(msg.editReply).toHaveBeenCalledWith('to');
+    expect(msg.editReply).toHaveBeenCalledWith('dance!');
+    expect(msg.editReply).toHaveBeenCalledWith('0.0');
+    expect(msg.editReply).toHaveBeenCalledWith('|0.0/');
+    expect(msg.editReply).toHaveBeenCalledWith('\\0.0|');
+    expect(msg.editReply).toHaveBeenCalledWith('|0.0|');
+    expect(msg.editReply).toHaveBeenCalledWith('_0.0|');
 })
 
 test('Should not dance when throttled and should not return a message if a notification has already gone out.', async () => {

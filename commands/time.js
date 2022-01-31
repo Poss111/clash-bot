@@ -10,7 +10,7 @@ module.exports = {
     description: 'Places a player on tentative. Will deregister them if they belong to a team.',
     async execute(msg) {
         const startTime = process.hrtime.bigint();
-        msg.deferReply();
+        await msg.deferReply();
         try {
             await tournamentsServiceImpl.retrieveAllActiveTournaments().then(clashTimes => {
                 console.log('Time retrieved.');
@@ -46,8 +46,10 @@ module.exports = {
                         inline: false,
                     })
                 }
-                msg.reply({embeds: [copy]});
+                msg.editReply({embeds: [copy]});
             });
+        } catch(err) {
+            await errorHandler.handleError(this.name, err, msg, 'Failed to retrieve times.');
         } finally {
             timeTracker.endExecution(this.name, startTime);
         }

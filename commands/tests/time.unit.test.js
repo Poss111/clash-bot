@@ -72,8 +72,8 @@ describe('League Clash Times', () => {
         await time.execute(msg);
         expect(tournamentsServiceImpl.retrieveAllActiveTournaments).toHaveBeenCalledTimes(1);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith({ embeds: [ copy ]});
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
     })
 
     test('When league times returns as undefined, there should be a no times available message returned.', async () => {
@@ -83,8 +83,8 @@ describe('League Clash Times', () => {
         await time.execute(msg);
         expect(tournamentsServiceImpl.retrieveAllActiveTournaments).toHaveBeenCalledTimes(1);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith({ embeds: [ copy ]});
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
     })
 
     test('When league times returns as empty, there should be a no times available message returned.', async () => {
@@ -93,8 +93,8 @@ describe('League Clash Times', () => {
         tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue([]);
         await time.execute(msg);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith({ embeds: [ copy ]});
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
     })
 
 })

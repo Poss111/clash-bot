@@ -130,7 +130,7 @@ let setupCommands = async () => {
 
     try {
         await rest.put(
-            Routes.applicationCommands('839586949748228156'),
+            Routes.applicationCommands(process.env.CLIENT_ID),
             {body: commands}
         );
     } catch (err) {

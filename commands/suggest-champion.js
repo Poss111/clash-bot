@@ -8,7 +8,7 @@ module.exports = {
     options: [
         {
             type: 3,
-            name: "Champion Name",
+            name: "champion-name",
             description: "i.e. Anivia, Aatrox, Volibear, etc...",
             required: true
         }
