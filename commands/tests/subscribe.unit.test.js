@@ -39,7 +39,7 @@ describe('Subscribe', () => {
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledWith('You have subscribed. You will receive a notification the Monday before ' +
-            'a Clash Tournament weekend. If you want to unsubscribe at any time please use !clash unsubscribe');
+            'a Clash Tournament weekend. If you want to unsubscribe at any time please use /unsubscribe');
     })
 
     test('When a user requests to subscribe and the subscription returns true initially, they should have their ' +

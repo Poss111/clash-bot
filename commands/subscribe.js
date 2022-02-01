@@ -17,7 +17,7 @@ module.exports = {
                     msg.member.guild.name, userDetails.preferredChampions, userDetails.subscriptions);
                 if (!userDetails.subscriptions || updatedUserDetails.subscriptions.UpcomingClashTournamentDiscordDM) {
                     await msg.editReply('You have subscribed. You will receive a notification the Monday before ' +
-                        'a Clash Tournament weekend. If you want to unsubscribe at any time please use !clash unsubscribe');
+                        'a Clash Tournament weekend. If you want to unsubscribe at any time please use /unsubscribe');
                 } else {
                     await msg.editReply('Subscription failed. Please try again.');
                 }

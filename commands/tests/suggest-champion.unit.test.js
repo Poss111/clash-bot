@@ -157,7 +157,7 @@ describe('Suggest Champion Command', () => {
             await suggestChampion.execute(msg, args)
             expect(msg.deferReply).toHaveBeenCalledTimes(1);
             expect(msg.editReply).toHaveBeenCalledTimes(1);
-            expect(msg.editReply).toBeCalledWith(`Champion name passed does not exist. Please validate with !clash champions ${args[0]}`);
+            expect(msg.editReply).toBeCalledWith(`Champion name passed does not exist. Please validate with /champions ${args[0]}`);
             expect(userServiceImpl.getUserDetails).not.toBeCalled();
         })
     })

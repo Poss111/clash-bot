@@ -44,7 +44,7 @@ describe('Unregister', () => {
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledTimes(2);
         expect(msg.editReply).toHaveBeenCalledWith(`Unregistering '${msg.user.username}' from Tournament '${leagueTimes[0].tournamentName}' on day '${leagueTimes[0].tournamentDay}'...`);
-        expect(msg.editReply).toHaveBeenCalledWith(`Removed you from your Team. Please use !clash join or !clash newTeam if you would like to join again. Thank you!`);
+        expect(msg.editReply).toHaveBeenCalledWith(`Removed you from your Team. Please use /join or /newTeam if you would like to join again. Thank you!`);
     })
 
     test('When a player does not exist on a team is unregistered, the player should be notified that we have not ' +
@@ -77,7 +77,7 @@ describe('Unregister', () => {
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledTimes(2);
         expect(msg.editReply).toHaveBeenCalledWith(`Unregistering '${msg.user.username}' from Tournament '${leagueTimes[0].tournamentName}' on day '${leagueTimes[0].tournamentDay}'...`);
-        expect(msg.editReply).toHaveBeenCalledWith(`We did not find you on an existing Team. Please use !clash join or !clash newTeam if you would like to join again. Thank you!`);
+        expect(msg.editReply).toHaveBeenCalledWith(`We did not find you on an existing Team. Please use /join or /newTeam if you would like to join again. Thank you!`);
     })
 
     test('When a player does not give which tournament and day to unregister for, the player will be sent back ' +
@@ -88,7 +88,7 @@ describe('Unregister', () => {
         expect(msg.deferReply).not.toHaveBeenCalled();
         expect(msg.reply).toHaveBeenCalledTimes(1);
         expect(msg.reply).toHaveBeenCalledWith('Please pass the tournament and day to unregister for i.e. ' +
-            '!clash unregister ***msi2021*** ***2***');
+            '/unregister ***msi2021*** ***2***');
     })
 
     test('When a player gives a tournament and day that is unavailable to unregister for, ' +
@@ -106,7 +106,7 @@ describe('Unregister', () => {
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledWith("Please provide an existing tournament and day to unregister for. " +
-            "Use '!clash team' to print a team.");
+            "Use '/team' to print a team.");
     })
 })
 

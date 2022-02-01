@@ -97,7 +97,7 @@ describe('New Team', () => {
         expect(msg.editReply).not.toHaveBeenCalled();
         expect(msg.reply).toHaveBeenCalledTimes(1);
         expect(teamsServiceImpl.postForNewTeam).not.toHaveBeenCalled();
-        expect(msg.reply).toHaveBeenCalledWith(`The role to join a new Team with is missing. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: !clash newTeam ***Top***`);
+        expect(msg.reply).toHaveBeenCalledWith(`The role to join a new Team with is missing. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: /newTeam ***Top***`);
     })
 
     test('If a user is registering with an invalid role type (not Top, Mid, Jg, Bot, or Supp for args, then a reply stating that the user needs ' +
@@ -110,7 +110,7 @@ describe('New Team', () => {
         expect(msg.editReply).not.toHaveBeenCalled();
         expect(msg.reply).toHaveBeenCalledTimes(1);
         expect(teamsServiceImpl.postForNewTeam).not.toHaveBeenCalled();
-        expect(msg.reply).toHaveBeenCalledWith(`The role passed is not correct - '${rolePassed}'. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: !clash newTeam ***Top***`);
+        expect(msg.reply).toHaveBeenCalledWith(`The role passed is not correct - '${rolePassed}'. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: /newTeam ***Top***`);
     })
 
     test('If a user is registering with an array for args, then a reply stating that the user needs ' +
@@ -122,7 +122,7 @@ describe('New Team', () => {
         expect(msg.editReply).not.toHaveBeenCalled();
         expect(msg.reply).toHaveBeenCalledTimes(1);
         expect(teamsServiceImpl.postForNewTeam).not.toHaveBeenCalled();
-        expect(msg.reply).toHaveBeenCalledWith(`The role to join a new Team with is missing. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: !clash newTeam ***Top***`);
+        expect(msg.reply).toHaveBeenCalledWith(`The role to join a new Team with is missing. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: /newTeam ***Top***`);
     })
 
     test('If a user requests a specific tournament that does not exist, they should receive a response ' +

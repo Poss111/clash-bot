@@ -56,7 +56,7 @@ beforeEach(async () => {
     delete process.env.TOKEN;
 })
 
-describe('!clash help', () => {
+describe('/help', () => {
     test('When a message event is received, the message should execute the expected command from channel league and the command following the prefix !clash', async () => {
         let {mockDiscordMessage, mockDiscordBot} = setupBotCommand('help');
         let copy = JSON.parse(JSON.stringify(helpMenu));
@@ -66,7 +66,7 @@ describe('!clash help', () => {
     })
 })
 
-describe('!clash time', () => {
+describe('/time', () => {
     test('When the data store has available Tournament dates in it, it should return with actual dates and not No times available.', async () => {
         let {mockDiscordMessage, mockDiscordBot} = setupBotCommand('time');
         let copy = JSON.parse(JSON.stringify(clashTimeMenu));
@@ -81,7 +81,7 @@ describe('!clash time', () => {
     })
 });
 
-describe('!clash teams', () => {
+describe('/teams', () => {
     test('When the data store has available Teams for the specific Tournaments, it should return the given Teams.', async () => {
         let {mockDiscordMessage, mockDiscordBot} = setupBotCommand('teams');
         await loadBot.interactionHandler(mockDiscordMessage, mockDiscordBot);
@@ -90,14 +90,14 @@ describe('!clash teams', () => {
     })
 })
 
-describe('!clash un/subscribe', () => {
+describe('/un/subscribe', () => {
     test('When the User wants to subscribe, their data should be stored successfully to be picked up by the Notification Lambda.', async () => {
         let testUserId = '321654987';
         let {mockDiscordMessage, mockDiscordBot} = setupBotCommand('subscribe', testUserId);
         await loadBot.interactionHandler(mockDiscordMessage, mockDiscordBot);
         expect(mockDiscordMessage.editReply).toBeCalledTimes(1);
         expect(mockDiscordMessage.editReply).toHaveBeenCalledWith('You have subscribed. You will receive a notification the Monday before ' +
-            'a Clash Tournament weekend. If you want to unsubscribe at any time please use !clash unsubscribe');
+            'a Clash Tournament weekend. If you want to unsubscribe at any time please use /unsubscribe');
     })
 
     test('When the User wants to unsubscribe, their data should be reflected that they no longer want a subscription.', async () => {
@@ -109,7 +109,7 @@ describe('!clash un/subscribe', () => {
     })
 })
 
-describe('!clash join', () => {
+describe('/join', () => {
     test('When the User wants to join a specific Team, they should be able to pass the team name and be successfully assigned to them.', async () => {
         let {mockDiscordMessage, mockDiscordBot} = setupBotCommand('join');
         const expectedTeamName = "Charizard";
@@ -149,7 +149,7 @@ describe('!clash join', () => {
     })
 })
 
-describe('!clash new-team', () => {
+describe('/new-team', () => {
     test('When the User wants to create a new Team, they should be able to create for the specified Tournament and Day.', async () => {
         let {mockDiscordMessage, mockDiscordBot} = setupBotCommand('new-team');
         const expectedRole = 'Top';

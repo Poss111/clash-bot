@@ -42,7 +42,7 @@ module.exports = {
                             'Please remove by passing a champion in your list and then try adding again. Thank you!')
                     }
                 } else {
-                    await msg.editReply(`Champion name passed does not exist. Please validate with !clash champions ${args[0]}`);
+                    await msg.editReply(`Champion name passed does not exist. Please validate with /champions ${args[0]}`);
                 }
             }
         } catch (err) {

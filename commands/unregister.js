@@ -44,7 +44,7 @@ module.exports = {
         try {
             const parsedArguments = commandArgumentParser.parse(args);
             if (!parsedArguments || (!parsedArguments.tournamentName || !parsedArguments.tournamentDay)) {
-                msg.reply(`Please pass the tournament and day to unregister for i.e. !clash unregister ***msi2021*** ***2***`);
+                msg.reply(`Please pass the tournament and day to unregister for i.e. /unregister ***msi2021*** ***2***`);
                 timeTracker.endExecution(this.name, startTime);
             } else {
                 await msg.deferReply();
@@ -55,15 +55,15 @@ module.exports = {
                     let data = await teamsServiceImpl.deleteFromTeam(msg.user.id, msg.member.guild.name,
                         times[0].tournamentName, times[0].tournamentDay);
                     if (!data.error) {
-                        await msg.editReply("Removed you from your Team. Please use !clash join or !clash newTeam if you " +
+                        await msg.editReply("Removed you from your Team. Please use /join or /newTeam if you " +
                             "would like to join again. Thank you!")
                     } else {
-                        await msg.editReply("We did not find you on an existing Team. Please use !clash join or !clash newTeam " +
+                        await msg.editReply("We did not find you on an existing Team. Please use /join or /newTeam " +
                             "if you would like to join again. Thank you!");
                     }
                 } else {
                     await msg.editReply("Please provide an existing tournament and day to unregister for. " +
-                        "Use '!clash team' to print a team.");
+                        "Use '/team' to print a team.");
                 }
             }
         } catch (err) {

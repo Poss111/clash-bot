@@ -51,7 +51,7 @@ describe('Tentative Command', () => {
             msg.member.guild.name, args[0], args[1]);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledWith(`We placed you into the tentative queue. If you were on a team, you have been removed. tip: Use '!clash teams' to view current team status`);
+        expect(msg.editReply).toHaveBeenCalledWith(`We placed you into the tentative queue. If you were on a team, you have been removed. tip: Use '/teams' to view current team status`);
     })
 
     test('Should respond with user has been taken off tentative if the player name does exist in the tentative list.', async () => {
@@ -90,7 +90,7 @@ describe('Tentative Command', () => {
             msg.member.guild.name, args[0], args[1]);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledWith(`We have taken you off of tentative queue. tip: Use '!clash teams' to view current team status`);
+        expect(msg.editReply).toHaveBeenCalledWith(`We have taken you off of tentative queue. tip: Use '/teams' to view current team status`);
     })
 
     test('If tournament passed by user is not found and return as empty, the user should be notified.', async () => {
@@ -105,7 +105,7 @@ describe('Tentative Command', () => {
         await tentative.execute(msg, args);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledWith('Cannot find the tournament passed. Please check !clash time ' +
+        expect(msg.editReply).toHaveBeenCalledWith('Cannot find the tournament passed. Please check /time ' +
             'for an appropriate list.');
     })
 
@@ -117,7 +117,7 @@ describe('Tentative Command', () => {
         expect(msg.deferReply).not.toHaveBeenCalled();
         expect(msg.reply).toHaveBeenCalledTimes(1);
         expect(msg.reply).toHaveBeenCalledWith("A Tournament Name to be tentative for is missing. Please " +
-            "use !clash tentative 'tournament name' 'tournament day' to use tentative. i.e. !clash tentative msi2021 1");
+            "use /tentative 'tournament name' 'tournament day' to use tentative. i.e. /tentative msi2021 1");
     })
 
     test('Should require a single argument.', async () => {
@@ -128,7 +128,7 @@ describe('Tentative Command', () => {
         expect(msg.deferReply).not.toHaveBeenCalled();
         expect(msg.reply).toHaveBeenCalledTimes(1);
         expect(msg.reply).toHaveBeenCalledWith("A Tournament Name to be tentative for is missing. Please use " +
-            "!clash tentative 'tournament name' 'tournament day' to use tentative. i.e. !clash tentative msi2021 1");
+            "/tentative 'tournament name' 'tournament day' to use tentative. i.e. /tentative msi2021 1");
     })
 
     test('Should require Tournament Day as a 2nd argument.', async () => {
@@ -139,7 +139,7 @@ describe('Tentative Command', () => {
         expect(msg.deferReply).not.toHaveBeenCalled();
         expect(msg.reply).toHaveBeenCalledTimes(1);
         expect(msg.reply).toHaveBeenCalledWith("A Tournament Day to be tentative for is missing. Please use " +
-            "!clash tentative 'tournament name' 'tournament day' to use tentative. i.e. !clash tentative msi2021 1");
+            "/tentative 'tournament name' 'tournament day' to use tentative. i.e. /tentative msi2021 1");
     })
 })
 

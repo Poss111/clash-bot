@@ -32,7 +32,7 @@ describe('Join an existing Team', () => {
         await joinTeamByName.execute(msg);
         expect(msg.deferReply).toHaveBeenCalledTimes(0);
         expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith("Role, Tournament name, Tournament day, and Team are missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join ***Top*** ***msi2021*** ***1*** ***Pikachu***");
+        expect(msg.reply).toHaveBeenCalledWith("Role, Tournament name, Tournament day, and Team are missing. You can use '/teams' to find existing teams. \n ***Usage***: /join ***Top*** ***msi2021*** ***1*** ***Pikachu***");
     })
 
     test('When a user requests to join a team, they are required to pass the tournament and Team Name and it is given and empty.', async () => {
@@ -40,7 +40,7 @@ describe('Join an existing Team', () => {
         await joinTeamByName.execute(msg, []);
         expect(msg.deferReply).toHaveBeenCalledTimes(0);
         expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith("Role, Tournament name, Tournament day, and Team are missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join ***Top*** ***msi2021*** ***1*** ***Pikachu***");
+        expect(msg.reply).toHaveBeenCalledWith("Role, Tournament name, Tournament day, and Team are missing. You can use '/teams' to find existing teams. \n ***Usage***: /join ***Top*** ***msi2021*** ***1*** ***Pikachu***");
     })
 
     test('When a user requests to join a team with only the role, they are required to pass the tournament name and day and Team Name.', async () => {
@@ -49,7 +49,7 @@ describe('Join an existing Team', () => {
         await joinTeamByName.execute(msg, args);
         expect(msg.deferReply).toHaveBeenCalledTimes(0);
         expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith(`Tournament name, Tournament day and Team are missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join ${args[0]} ***msi2021*** ***1*** ***Pikachu***`);
+        expect(msg.reply).toHaveBeenCalledWith(`Tournament name, Tournament day and Team are missing. You can use '/teams' to find existing teams. \n ***Usage***: /join ${args[0]} ***msi2021*** ***1*** ***Pikachu***`);
     })
 
     test('When a user requests to join a team with only the role and tournament name, they are required to pass the tournament day and Team Name.', async () => {
@@ -58,7 +58,7 @@ describe('Join an existing Team', () => {
         await joinTeamByName.execute(msg, args);
         expect(msg.deferReply).toHaveBeenCalledTimes(0);
         expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith(`Tournament day and Team are missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join ${args[0]} ${args[1]} ***1*** ***Pikachu***`);
+        expect(msg.reply).toHaveBeenCalledWith(`Tournament day and Team are missing. You can use '/teams' to find existing teams. \n ***Usage***: /join ${args[0]} ${args[1]} ***1*** ***Pikachu***`);
     })
 
     test('When a user requests to join a team with only the role and tournament details, they are required to pass the Team Name.', async () => {
@@ -67,7 +67,7 @@ describe('Join an existing Team', () => {
         await joinTeamByName.execute(msg, args);
         expect(msg.deferReply).toHaveBeenCalledTimes(0);
         expect(msg.reply).toHaveBeenCalledTimes(1);
-        expect(msg.reply).toHaveBeenCalledWith(`Team is missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join ${args[0]} ${args[1]} ${args[2]} ***Pikachu***`);
+        expect(msg.reply).toHaveBeenCalledWith(`Team is missing. You can use '/teams' to find existing teams. \n ***Usage***: /join ${args[0]} ${args[1]} ${args[2]} ***Pikachu***`);
     })
 
     test('When a user requests to join a team with only the role and tournament details, ' +
@@ -100,7 +100,7 @@ describe('Join an existing Team', () => {
         await joinTeamByName.execute(msg, args);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledWith(`The tournament you are trying to join does not exist Name '${args[1]}' Day '${args[2]}'. Please use '!clash times' to see valid tournaments.`);
+        expect(msg.editReply).toHaveBeenCalledWith(`The tournament you are trying to join does not exist Name '${args[1]}' Day '${args[2]}'. Please use '/times' to see valid tournaments.`);
     })
 
     test('When a user requests to join a team and they pass a Tournament and a Team they should be notified that they have successfully joined a Team.', async () => {

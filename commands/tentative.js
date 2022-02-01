@@ -46,12 +46,12 @@ module.exports = {
             let parsedArguments = commandArgumentParser.parse(args);
             if (!parsedArguments || !parsedArguments.tournamentName) {
                 await msg.reply("A Tournament Name to be tentative for is missing. " +
-                    "Please use !clash tentative 'tournament name' 'tournament day' " +
-                    "to use tentative. i.e. !clash tentative msi2021 1");
+                    "Please use /tentative 'tournament name' 'tournament day' " +
+                    "to use tentative. i.e. /tentative msi2021 1");
             } else if (!parsedArguments.tournamentDay) {
                 await msg.reply("A Tournament Day to be tentative for is missing. Please " +
-                    "use !clash tentative 'tournament name' 'tournament day' to " +
-                    "use tentative. i.e. !clash tentative msi2021 1");
+                    "use /tentative 'tournament name' 'tournament day' to " +
+                    "use tentative. i.e. /tentative msi2021 1");
             } else {
                 await msg.deferReply();
                 let times = await tournamentsServiceImpl.retrieveAllActiveTournaments();
@@ -62,12 +62,12 @@ module.exports = {
                             msg.member.guild.name, times[0].tournamentName, times[0].tournamentDay);
                     if (!tentativeResponse.tentativePlayers
                         || !tentativeResponse.tentativePlayers.includes(msg.user.username)) {
-                        await msg.editReply(`We have taken you off of tentative queue. tip: Use '!clash teams' to view current team status`);
+                        await msg.editReply(`We have taken you off of tentative queue. tip: Use '/teams' to view current team status`);
                     } else {
-                        await msg.editReply(`We placed you into the tentative queue. If you were on a team, you have been removed. tip: Use '!clash teams' to view current team status`);
+                        await msg.editReply(`We placed you into the tentative queue. If you were on a team, you have been removed. tip: Use '/teams' to view current team status`);
                     }
                 } else {
-                    await msg.editReply('Cannot find the tournament passed. Please check !clash time for an appropriate list.');
+                    await msg.editReply('Cannot find the tournament passed. Please check /time for an appropriate list.');
                 }
             }
         } catch (err) {

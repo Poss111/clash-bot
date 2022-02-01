@@ -75,7 +75,7 @@ module.exports = {
             const userInfo = parseUserInfo(msg);
             let filter;
             if (!args || args.length === 0) {
-                await msg.reply("The role to join a new Team with is missing. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: !clash newTeam ***Top***");
+                await msg.reply("The role to join a new Team with is missing. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: /newTeam ***Top***");
             } else {
                 let role = args[0];
                 let roleNotMatching = false;
@@ -99,7 +99,7 @@ module.exports = {
                         roleNotMatching = true;
                 }
                 if (roleNotMatching) {
-                    await msg.reply(`The role passed is not correct - '${role}'. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: !clash newTeam ***Top***`)
+                    await msg.reply(`The role passed is not correct - '${role}'. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: /newTeam ***Top***`)
                 } else {
                     await msg.deferReply();
                     if (args[1]) {

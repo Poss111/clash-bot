@@ -79,13 +79,13 @@ module.exports = {
 
         try {
             if (!args || args.length === 0) {
-                await msg.reply("Role, Tournament name, Tournament day, and Team are missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join ***Top*** ***msi2021*** ***1*** ***Pikachu***");
+                await msg.reply("Role, Tournament name, Tournament day, and Team are missing. You can use '/teams' to find existing teams. \n ***Usage***: /join ***Top*** ***msi2021*** ***1*** ***Pikachu***");
             } else if (!args[1]) {
-                await msg.reply(`Tournament name, Tournament day and Team are missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join ${args[0]} ***msi2021*** ***1*** ***Pikachu***`);
+                await msg.reply(`Tournament name, Tournament day and Team are missing. You can use '/teams' to find existing teams. \n ***Usage***: /join ${args[0]} ***msi2021*** ***1*** ***Pikachu***`);
             } else if (!args[2]) {
-                await msg.reply(`Tournament day and Team are missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join ${args[0]} ${args[1]} ***1*** ***Pikachu***`);
+                await msg.reply(`Tournament day and Team are missing. You can use '/teams' to find existing teams. \n ***Usage***: /join ${args[0]} ${args[1]} ***1*** ***Pikachu***`);
             } else if (!args[3]) {
-                await msg.reply(`Team is missing. You can use '!clash teams' to find existing teams. \n ***Usage***: !clash join ${args[0]} ${args[1]} ${args[2]} ***Pikachu***`);
+                await msg.reply(`Team is missing. You can use '/teams' to find existing teams. \n ***Usage***: /join ${args[0]} ${args[1]} ${args[2]} ***Pikachu***`);
             } else {
                 let role = args[0];
                 let roleNotMatching = false;
@@ -116,7 +116,7 @@ module.exports = {
                     times = times.filter(findTournament(args[1], args[2]));
                     if (times.length === 0) {
                         console.log(`Unable to find Tournament for details - Name ('${args[1]}') Day ('${args[2]}').`);
-                        await msg.editReply(`The tournament you are trying to join does not exist Name '${args[1]}' Day '${args[2]}'. Please use '!clash times' to see valid tournaments.`)
+                        await msg.editReply(`The tournament you are trying to join does not exist Name '${args[1]}' Day '${args[2]}'. Please use '/times' to see valid tournaments.`)
                     } else {
                         function buildTournamentDetails(team) {
                             return {
