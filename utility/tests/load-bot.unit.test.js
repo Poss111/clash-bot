@@ -292,7 +292,7 @@ describe('Events', () => {
             };
             loadBot.guildCreateHandler(mockGuildObject);
             expect(mockGuildObject.channels.cache[0].send).toBeCalledTimes(1);
-            expect(mockGuildObject.channels.cache[0].send).toBeCalledWith({embed: helpMenu});
+            expect(mockGuildObject.channels.cache[0].send).toBeCalledWith({embeds: [helpMenu]});
             expect(mockGuildObject.channels.cache[1].send).toBeCalledTimes(0);
         })
     })
