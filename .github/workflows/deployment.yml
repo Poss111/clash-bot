@@ -38,6 +38,13 @@ jobs:
       - name: Find and Replace
         uses: jacobtomlinson/gha-find-replace@master
         with:
+          find: "--CLIENT_ID--"
+          replace: "${{ secrets.CLIENT_ID }}"
+          include: "task-definition.json"
+
+      - name: Find and Replace
+        uses: jacobtomlinson/gha-find-replace@master
+        with:
           find: "--SERVICE_URL--"
           replace: "${{ secrets.SERVICE_URL }}"
           include: "task-definition.json"

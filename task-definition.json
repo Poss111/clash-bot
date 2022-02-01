@@ -18,6 +18,10 @@
                     "value": "--DISCORD_KEY--"
                 },
                 {
+                    "name": "CLIENT_ID",
+                    "value": "--CLIENT_ID--"
+                },
+                {
                     "name": "SERVICE_URL",
                     "value": "--SERVICE_URL--"
                 },
