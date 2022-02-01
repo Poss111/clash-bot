@@ -1,7 +1,8 @@
 class ErrorHandling {
-    handleError(command, error, msg, userMessage) {
+    async handleError(command, error, msg, userMessage) {
+        console.error(error);
         console.error(`${command} => ${error}`);
-        msg.reply(`${userMessage}. Please reach out to <@299370234228506627>.`);
+        await msg.editReply(`${userMessage}. Please reach out to <@299370234228506627>.`);
     }
 }
 module.exports = new ErrorHandling;

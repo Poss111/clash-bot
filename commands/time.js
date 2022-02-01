@@ -4,17 +4,18 @@ const clashTimeFields = require('../templates/clash-time-fields');
 const templateBuilder = require('../utility/template-builder');
 const timeTracker = require('../utility/time-tracker');
 const moment = require('moment-timezone');
+const errorHandler = require('../utility/error-handling')
 
 module.exports = {
     name: 'time',
     description: 'Places a player on tentative. Will deregister them if they belong to a team.',
     async execute(msg) {
         const startTime = process.hrtime.bigint();
-
-        await tournamentsServiceImpl.retrieveAllActiveTournaments().then(clashTimes => {
-            console.log('Time retrieved.');
-            const copy = JSON.parse(JSON.stringify(clashTimeMenu));
-            try {
+        await msg.deferReply();
+        try {
+            await tournamentsServiceImpl.retrieveAllActiveTournaments().then(clashTimes => {
+                console.log('Time retrieved.');
+                const copy = JSON.parse(JSON.stringify(clashTimeMenu));
                 if (clashTimes && clashTimes.length > 0) {
                     const dateFormat = 'MMMM DD yyyy hh:mm a z';
                     const tournamentDateFormat = 'MMMM DD yyyy';
@@ -44,12 +45,14 @@ module.exports = {
                         name: 'No times available',
                         value: 'N/A',
                         inline: false,
-                    })
+                    });
                 }
-                msg.channel.send({embed: copy});
-            } finally {
-                timeTracker.endExecution(this.name, startTime);
-            }
-        })
+                msg.editReply({embeds: [copy]});
+            });
+        } catch(err) {
+            await errorHandler.handleError(this.name, err, msg, 'Failed to retrieve times.');
+        } finally {
+            timeTracker.endExecution(this.name, startTime);
+        }
     },
 };

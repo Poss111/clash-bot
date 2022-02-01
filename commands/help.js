@@ -1,12 +1,13 @@
 const helpMenu = require('../templates/help-menu.js');
 const timeTracker = require('../utility/time-tracker');
+
 module.exports = {
     name: 'help',
-    description: 'A simple help menu to be displayed for understanding how to use this bot.',
+    description: 'A self help guide on all the commands available for the Clash Bot.',
     execute(msg) {
         const startTime = process.hrtime.bigint();
         try {
-            msg.channel.send({embed: helpMenu});
+            msg.reply({embeds: [ helpMenu ]});
         } finally {
             timeTracker.endExecution(this.name, startTime);
         }

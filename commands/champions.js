@@ -2,13 +2,23 @@ const timeTracker = require('../utility/time-tracker');
 const championTemplate = require('../templates/champion-description');
 const templateBuilder = require('../utility/template-builder');
 const riotApi = require('@fightmegg/riot-api');
+
 module.exports = {
     name: 'champions',
     description: 'Returns a description of the requested League of Legends Champions based on what the user requests.',
+    options: [
+        {
+            type: 3,
+            name: "champion-name",
+            description: "i.e. Anivia, Aatrox, Volibear, etc...",
+            required: false
+        }
+    ],
     async execute(msg, args) {
         const startTime = process.hrtime.bigint();
         try {
             const ddragon = new riotApi.DDragon();
+            await msg.deferReply();
             let champions = await ddragon.champion.all();
             let championKeys = Object.keys(champions.data);
             if (Array.isArray(args) && args[0]) {
@@ -32,13 +42,12 @@ module.exports = {
                         version: championData.version
                     }));
                 }
-                embeddedMessages.forEach((message) => {
-                    msg.member.send({embed: message});
-                })
+                const dmChannel = await msg.member.createDM(false);
+                await dmChannel.send({ embeds: embeddedMessages });
+                await msg.editReply({ content: 'Check your DMs.', ephemeral: true});
             } else {
-                msg.reply('Could not find the champion specified.')
+                await msg.editReply('Could not find the champion specified.')
             }
-
         } finally {
             timeTracker.endExecution(this.name, startTime);
         }

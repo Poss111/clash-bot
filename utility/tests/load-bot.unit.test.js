@@ -1,14 +1,18 @@
 const discordModulePath = 'discord.js';
 const commandsModulePath = '../../commands';
 const Discord = require('discord.js');
+const {REST} = require('@discordjs/rest');
+const {Routes} = require('discord-api-types/v9');
 const botCommands = require(commandsModulePath);
 const helpMenu = require('../../templates/help-menu');
 const userServiceImpl = require('../../services/user-service-impl');
 const updateNotification = require('../../templates/update-notification');
 const loadBot = require('../load-bot');
+const { buildMockInteraction } = require('../../commands/tests/shared-test-utilities/shared-test-utilities.test');
 
 jest.mock(discordModulePath);
-jest.mock(commandsModulePath);
+jest.mock('@discordjs/rest');
+jest.mock('discord-api-types/v9');
 jest.mock('../../services/user-service-impl')
 
 beforeEach(() => {
@@ -16,12 +20,29 @@ beforeEach(() => {
     delete process.env.LOCAL;
     delete process.env.INTEGRATION_TEST;
     delete process.env.TOKEN;
+    delete process.env.CLIENT_ID;
 })
 
 describe('Load Bot', () => {
     test('Loading the bot should call all expected event listeners if not integration role.', () => {
         process.env.TOKEN = 'SampleToken';
+        process.env.CLIENT_ID = '123321123321123211231231';
+        let restMock = {
+            put: jest.fn()
+        };
+        REST.mockImplementation(() => {
+            return {
+                setToken: () => restMock
+            }
+        })
         let loginMockObject = jest.fn().mockResolvedValue(jest.fn());
+        let expectedCommandsPayload = Object.keys(botCommands).map(key => {
+            let payload = { name: botCommands[key].name, description: botCommands[key].description};
+            if (botCommands[key].options) {
+                payload.options = botCommands[key].options;
+            }
+            return payload;
+        });
         let commandSetMockObject = jest.fn();
         let actualEvents = new Map();
         Discord.Client = jest.fn().mockReturnValue({
@@ -31,24 +52,44 @@ describe('Load Bot', () => {
         Discord.Collection = jest.fn().mockReturnValue({set: commandSetMockObject});
 
         return loadBot.initializeBot().then((botSetup) => {
+            expect(restMock.put).toHaveBeenCalledTimes(1);
+            expect(restMock.put).toHaveBeenCalledWith(undefined, { body: expectedCommandsPayload });
+            expect(Routes.applicationCommands).toHaveBeenCalledTimes(1);
+            expect(Routes.applicationCommands).toHaveBeenCalledWith(process.env.CLIENT_ID);
             expect(commandSetMockObject).toBeCalledTimes(Object.keys(botCommands).length);
             Object.keys(botCommands).forEach((value, index) => {
-                expect(commandSetMockObject).toHaveBeenNthCalledWith(index + 1, botCommands[value].name, botCommands[value]);
+                expect(commandSetMockObject)
+                    .toHaveBeenNthCalledWith(index + 1, botCommands[value].name, botCommands[value]);
             });
             expect(loginMockObject).toBeCalledWith(process.env.TOKEN);
-            expect(actualEvents.size).toEqual(3);
-            expect(actualEvents.get('ready')).toBeTruthy();
-            expect(actualEvents.get('guildCreate')).toBeTruthy();
-            expect(actualEvents.get('message')).toBeTruthy();
+            expect([...actualEvents.keys()])
+                .toEqual(['ready', 'guildCreate', 'messageCreate', 'interactionCreate']);
             expect(botSetup).toBeTruthy();
         })
     })
 
 })
+
 describe('Load Bot - INTEGRATION_TEST', () => {
     test('Loading the bot should call all expected event listeners if it is integration role.', () => {
         process.env.TOKEN = 'SampleToken';
+        process.env.CLIENT_ID = '123321123321123211231231';
         process.env.INTEGRATION_TEST = true;
+        let restMock = {
+            put: jest.fn()
+        };
+        REST.mockImplementation(() => {
+            return {
+                setToken: () => restMock
+            }
+        });
+        let expectedCommandsPayload = Object.keys(botCommands).map(key => {
+            let payload = { name: botCommands[key].name, description: botCommands[key].description};
+            if (botCommands[key].options) {
+                payload.options = botCommands[key].options;
+            }
+            return payload;
+        });
         let loginMockObject = jest.fn().mockResolvedValue(jest.fn());
         let commandSetMockObject = jest.fn();
         let actualEvents = new Map();
@@ -59,15 +100,17 @@ describe('Load Bot - INTEGRATION_TEST', () => {
         Discord.Collection = jest.fn().mockReturnValue({set: commandSetMockObject});
 
         return loadBot.initializeBot().then((botSetup) => {
+            expect(restMock.put).toHaveBeenCalledTimes(1);
+            expect(restMock.put).toHaveBeenCalledWith(undefined, { body: expectedCommandsPayload });
+            expect(Routes.applicationCommands).toHaveBeenCalledTimes(1);
+            expect(Routes.applicationCommands).toHaveBeenCalledWith(process.env.CLIENT_ID);
             expect(commandSetMockObject).toBeCalledTimes(Object.keys(botCommands).length);
             Object.keys(botCommands).forEach((value, index) => {
                 expect(commandSetMockObject).toHaveBeenNthCalledWith(index + 1, botCommands[value].name, botCommands[value]);
             });
             expect(loginMockObject).toBeCalledWith(process.env.TOKEN);
-            expect(actualEvents.size).toEqual(3);
-            expect(actualEvents.get('guildCreate')).toBeTruthy();
-            expect(actualEvents.get('message')).toBeTruthy();
-            expect(actualEvents.get('ready')).toBeTruthy();
+            expect([...actualEvents.keys()])
+                .toEqual(['ready', 'guildCreate', 'messageCreate', 'interactionCreate']);
             expect(botSetup).toBeTruthy();
         })
     })
@@ -77,8 +120,24 @@ describe('Login Bot - LOCAL', () => {
 
     test('Loading the bot should call all expected event listeners and run in the test channel if it is Local.', () => {
         process.env.TOKEN = 'SampleToken';
+        process.env.CLIENT_ID = '123321123321123211231231';
         process.env.LOCAL = true;
         delete process.env.INTEGRATION_TEST;
+        let restMock = {
+            put: jest.fn()
+        };
+        REST.mockImplementation(() => {
+            return {
+                setToken: () => restMock
+            }
+        });
+        let expectedCommandsPayload = Object.keys(botCommands).map(key => {
+            let payload = { name: botCommands[key].name, description: botCommands[key].description};
+            if (botCommands[key].options) {
+                payload.options = botCommands[key].options;
+            }
+            return payload;
+        });
         let loginMockObject = jest.fn().mockResolvedValue(jest.fn());
         let commandSetMockObject = jest.fn();
         let actualEvents = new Map();
@@ -89,153 +148,107 @@ describe('Login Bot - LOCAL', () => {
         Discord.Collection = jest.fn().mockReturnValue({set: commandSetMockObject});
 
         return loadBot.initializeBot().then((botSetup) => {
+            expect(restMock.put).toHaveBeenCalledTimes(1);
+            expect(restMock.put).toHaveBeenCalledWith(undefined, { body: expectedCommandsPayload });
+            expect(Routes.applicationCommands).toHaveBeenCalledTimes(1);
+            expect(Routes.applicationCommands).toHaveBeenCalledWith(process.env.CLIENT_ID);
             expect(commandSetMockObject).toBeCalledTimes(Object.keys(botCommands).length);
             Object.keys(botCommands).forEach((value, index) => {
                 expect(commandSetMockObject).toHaveBeenNthCalledWith(index + 1, botCommands[value].name, botCommands[value]);
             });
             expect(loginMockObject).toBeCalledWith(process.env.TOKEN);
-            expect(actualEvents.size).toEqual(3);
-            expect(actualEvents.get('guildCreate')).toBeTruthy();
-            expect(actualEvents.get('message')).toBeTruthy();
+            expect([...actualEvents.keys()])
+                .toEqual(['ready', 'guildCreate', 'messageCreate', 'interactionCreate']);
             expect(botSetup).toBeTruthy();
         })
     })
 })
 
 describe('Events', () => {
+
     describe('Message', () => {
-        test('When a message event is received, the message should only accept commands from channel league and command should start with !clash', () => {
-            let restrictedChannel = 'league';
-            let commandPrefix = '!clash';
+        test('When a message event is received. The user should be notified of the new slash commands and the command' +
+            'should not be executed..', () => {
             let mockDiscordMessage = {
                 channel: {
-                    name: 'wrong-channel',
                     send: jest.fn()
-                },
-                content: `${commandPrefix} help`
-            };
-            let mockCommands = new Map();
-            mockCommands.set('help', {execute: jest.fn()})
-            let mockDiscordBot = {
-                commands: mockCommands
-            };
-            loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
-            expect(mockDiscordMessage.channel.send).toBeCalledTimes(0);
-            expect(mockDiscordBot.commands.get('help').execute).toBeCalledTimes(0);
-        })
-
-        test('When a message event is received, the message should only accept commands with !clash', () => {
-            let restrictedChannel = 'league';
-            let commandPrefix = '!clash';
-            let mockDiscordMessage = {
-                channel: {
-                    name: restrictedChannel,
-                    send: jest.fn()
-                },
-                content: `!cash help`
-            };
-            let mockCommands = new Map();
-            mockCommands.set('help', {execute: jest.fn()})
-            let mockDiscordBot = {
-                commands: mockCommands
-            };
-            loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
-            expect(mockDiscordMessage.channel.send).toBeCalledTimes(0);
-            expect(mockDiscordBot.commands.get('help').execute).toBeCalledTimes(0);
-        })
-
-        test('When a message event is received, the message should only accept commands with !clash (user gives no space between command and prefix)', () => {
-            let restrictedChannel = 'league';
-            let commandPrefix = '!clash';
-            let mockDiscordMessage = {
-                channel: {
-                    name: restrictedChannel,
-                    send: jest.fn()
-                },
-                content: `!cashhelp`
-            };
-            let mockCommands = new Map();
-            mockCommands.set('help', {execute: jest.fn()})
-            let mockDiscordBot = {
-                commands: mockCommands
-            };
-            loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
-            expect(mockDiscordMessage.channel.send).toBeCalledTimes(0);
-            expect(mockDiscordBot.commands.get('help').execute).toBeCalledTimes(0);
-        })
-
-        test('When a message event is received, there should be no execution if there is not a matching command from the user with the channel league and the command following the prefix !clash', () => {
-            let restrictedChannel = 'league';
-            let commandPrefix = '!clash';
-            let mockDiscordMessage = {
-                channel: {
-                    name: restrictedChannel,
-                    send: jest.fn()
-                },
-                content: `${commandPrefix} dne`,
-                author: {
-                    username: 'Test User'
                 }
             };
+            loadBot.messageHandler(mockDiscordMessage);
+            expect(mockDiscordMessage.channel.send).toBeCalledTimes(1);
+            expect(mockDiscordMessage.channel.send).toHaveBeenCalledWith('Living in the past I see. ' +
+                'Try out our new slash commands! Just type /teams');
+        })
+    })
+
+    describe('CommandInteraction', () => {
+        test('When a Command Interaction event is received, no command should be executed if ' +
+            'it does not match.', async () => {
+            let msg = buildMockInteraction();
+            msg.options = {};
+            msg.commandName = 'not-found';
             let mockCommands = new Map();
             mockCommands.set('help', {execute: jest.fn()})
             let mockDiscordBot = {
                 commands: mockCommands
             };
-            loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
-            expect(mockDiscordMessage.channel.send).toBeCalledTimes(0);
+            await loadBot.interactionHandler(msg, mockDiscordBot);
+            expect(msg.reply).toBeCalledTimes(0);
             expect(mockDiscordBot.commands.get('help').execute).toBeCalledTimes(0);
         })
 
-        test('When a message event is received, the message should execute the expected command from channel league and the command following the prefix !clash', async () => {
-            let restrictedChannel = 'league';
-            let commandPrefix = '!clash';
-            let mockDiscordMessage = {
-                channel: {
-                    name: restrictedChannel,
-                    send: jest.fn()
-                },
-                content: `${commandPrefix} help`,
-                author: {
-                    username: 'Test User',
-                    id: '1'
-                },
-                guild: {
-                    name: 'Server'
-                },
-                reply: jest.fn()
-            };
+        test('When a Command Interaction event is received, the message should execute the expected command.', async () => {
+            let msg = buildMockInteraction();
+            msg.options = {};
+            msg.commandName = 'help';
             let mockCommands = new Map();
             mockCommands.set('help', {execute: jest.fn()})
             let mockDiscordBot = {
                 commands: mockCommands
             };
             userServiceImpl.postVerifyUser.mockResolvedValue({});
-            await loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
-            expect(mockDiscordMessage.channel.send).toBeCalledTimes(0);
+            await loadBot.interactionHandler(msg, mockDiscordBot);
+            expect(msg.reply).not.toHaveBeenCalled();
             expect(mockDiscordBot.commands.get('help').execute).toBeCalledTimes(1);
             expect(userServiceImpl.postVerifyUser).toHaveBeenCalledTimes(1);
-            expect(userServiceImpl.postVerifyUser).toHaveBeenCalledWith(mockDiscordMessage.author.id, mockDiscordMessage.author.username, mockDiscordMessage.guild.name);
+            expect(userServiceImpl.postVerifyUser).toHaveBeenCalledWith(msg.user.id, msg.user.username,
+                msg.member.guild.name);
         })
 
-        test('When a message event is received, and the command is executed but fails to execute. A message replying to the Bot owner should be sent.', async () => {
-            let restrictedChannel = 'league';
-            let commandPrefix = '!clash';
-            let mockDiscordMessage = {
-                channel: {
-                    name: restrictedChannel,
-                    send: jest.fn()
-                },
-                content: `${commandPrefix} help`,
-                author: {
-                    username: 'Test User',
-                    id: '1'
-                },
-                guild: {
-                    name: 'Server'
-                },
-                reply: jest.fn()
+        test('When a Command Interaction event is received, and fails to persist the user before ' +
+            'executing. A message replying to the Bot owner should be sent.', async () => {
+            let msg = buildMockInteraction();
+            msg.options = {};
+            msg.commandName = 'help';
+            let mockCommands = new Map();
+            mockCommands.set('help', {
+                name: 'help',
+                execute: jest.fn().mockImplementation(() => {
+                        let failure = undefined;
+                        // noinspection JSObjectNullOrUndefined
+                        failure.hello;
+                    }
+                )
+            });
+            let mockDiscordBot = {
+                commands: mockCommands
             };
+            userServiceImpl.postVerifyUser.mockRejectedValue(new Error('Failed to persist.'));
+            await loadBot.interactionHandler(msg, mockDiscordBot);
+            expect(msg.reply).toBeCalledTimes(1);
+            expect(msg.reply).toBeCalledWith('there was an error trying to execute that command! ' +
+                'Please reach out to <@299370234228506627>.');
+            expect(mockDiscordBot.commands.get('help').execute).not.toHaveBeenCalled();
+            expect(userServiceImpl.postVerifyUser).toHaveBeenCalledTimes(1);
+            expect(userServiceImpl.postVerifyUser).toHaveBeenCalledWith(msg.user.id, msg.user.username,
+                msg.member.guild.name);
+        })
+
+        test('When a Command Interaction event is received, and fails to execute the command.' +
+            ' A message replying to the Bot owner should be sent.', async () => {
+            let msg = buildMockInteraction();
+            msg.options = {};
+            msg.commandName = 'help';
             let mockCommands = new Map();
             mockCommands.set('help', {
                 name: 'help',
@@ -250,12 +263,14 @@ describe('Events', () => {
                 commands: mockCommands
             };
             userServiceImpl.postVerifyUser.mockResolvedValue({});
-            await loadBot.messageHandler(mockDiscordMessage, restrictedChannel, commandPrefix, mockDiscordBot);
-            expect(mockDiscordMessage.channel.send).toBeCalledTimes(1);
-            expect(mockDiscordMessage.channel.send).toBeCalledWith('there was an error trying to execute that command! Please reach out to <@299370234228506627>.');
+            await loadBot.interactionHandler(msg, mockDiscordBot);
+            expect(msg.reply).toBeCalledTimes(1);
+            expect(msg.reply).toBeCalledWith('there was an error trying to execute that command! ' +
+                'Please reach out to <@299370234228506627>.');
             expect(mockDiscordBot.commands.get('help').execute).toBeCalledTimes(1);
             expect(userServiceImpl.postVerifyUser).toHaveBeenCalledTimes(1);
-            expect(userServiceImpl.postVerifyUser).toHaveBeenCalledWith(mockDiscordMessage.author.id, mockDiscordMessage.author.username, mockDiscordMessage.guild.name);
+            expect(userServiceImpl.postVerifyUser).toHaveBeenCalledWith(msg.user.id, msg.user.username,
+                msg.member.guild.name);
         })
     })
 
@@ -323,7 +338,7 @@ describe('Events', () => {
             expect(mockDiscordBot.guilds.cache[0].channels.cache[0].send).toBeCalledTimes(0);
             expect(mockDiscordBot.guilds.cache[1].channels.cache[0].send).toBeCalledTimes(0);
             expect(mockDiscordBot.guilds.cache[1].channels.cache[1].send).toBeCalledTimes(1);
-            expect(mockDiscordBot.guilds.cache[1].channels.cache[1].send).toBeCalledWith({ embed: updateNotification });
+            expect(mockDiscordBot.guilds.cache[1].channels.cache[1].send).toBeCalledWith({ embeds: [ updateNotification ]});
         })
 
         test('When the bot is ready, if an error occurs while sending to a guild, it should print it out and continue with the rest.', () => {
@@ -374,10 +389,10 @@ describe('Events', () => {
             loadBot.readyHandler(mockDiscordBot, 'league');
             expect(mockDiscordBot.guilds.cache[0].channels.cache[0].send).toBeCalledTimes(0);
             expect(mockDiscordBot.guilds.cache[0].channels.cache[1].send).toBeCalledTimes(1);
-            expect(mockDiscordBot.guilds.cache[0].channels.cache[1].send).toBeCalledWith({ embed: updateNotification });
+            expect(mockDiscordBot.guilds.cache[0].channels.cache[1].send).toBeCalledWith({ embeds: [ updateNotification ]});
             expect(mockDiscordBot.guilds.cache[1].channels.cache[0].send).toBeCalledTimes(0);
             expect(mockDiscordBot.guilds.cache[1].channels.cache[1].send).toBeCalledTimes(1);
-            expect(mockDiscordBot.guilds.cache[1].channels.cache[1].send).toBeCalledWith({ embed: updateNotification });
+            expect(mockDiscordBot.guilds.cache[1].channels.cache[1].send).toBeCalledWith({ embeds: [ updateNotification ]});
         })
 
         test('When the integration test argument is given, then the ready command should not send the update.', () => {
