@@ -6,11 +6,12 @@ const buildMockInteraction = () => {
         followUp: jest.fn(),
         user: {
             id: '1',
-            username: 'TestPlayer'
+            username: 'Shiragaku'
         },
         member: {
             guild: {
-                name: 'TestServer'
+                name: 'LoL-ClashBotSupport',
+                id: 837685892885512202
             },
             createDM: jest.fn()
         },
