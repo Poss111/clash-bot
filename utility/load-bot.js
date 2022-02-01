@@ -69,7 +69,7 @@ let interactionHandler = async (interaction, bot) => {
 
 let guildCreateHandler = (guild) => {
     let channel = guild.channels.cache.find((key) => key.name === 'general');
-    channel.send({embed: JSON.parse(JSON.stringify(helpMenu))});
+    channel.send({embeds: [JSON.parse(JSON.stringify(helpMenu))]});
 }
 
 let readyHandler = (discordBot, restrictedChannel, isIntegrationTesting) => {
