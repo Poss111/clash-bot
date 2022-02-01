@@ -4,12 +4,7 @@ const {buildMockInteraction} = require('./shared-test-utilities/shared-test-util
 
 jest.mock('../../utility/throttle-handling');
 
-afterAll(() => {
-    jest.setTimeout(5000);
-})
-
 test('Should dance when not throttled.', async () => {
-    jest.setTimeout(30000);
     const msg = buildMockInteraction();
     await dance.execute(msg);
     expect(msg.deferReply).toHaveBeenCalledTimes(1);
@@ -23,7 +18,7 @@ test('Should dance when not throttled.', async () => {
     expect(msg.editReply).toHaveBeenCalledWith('\\0.0|');
     expect(msg.editReply).toHaveBeenCalledWith('|0.0|');
     expect(msg.editReply).toHaveBeenCalledWith('_0.0|');
-})
+}, 10000);
 
 test('Should not dance when throttled and should not return a message if a notification has already gone out.', async () => {
     throttleHandling.isThrottled.mockReturnValue(true);

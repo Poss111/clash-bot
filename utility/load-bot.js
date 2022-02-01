@@ -7,7 +7,6 @@ const helpMenu = require('../templates/help-menu');
 const updateNotification = require('../templates/update-notification');
 const userServiceImpl = require('../services/user-service-impl');
 let channel = 'league';
-const COMMAND_PREFIX = '!clash';
 let bot = undefined;
 
 let initializeBot = () => {
@@ -22,9 +21,7 @@ let initializeBot = () => {
             channel = 'league-test';
         }
 
-        bot.on('ready', () => {
-            readyHandler(bot, channel, process.env.INTEGRATION_TEST);
-        });
+        bot.on('ready', () => readyHandler(bot, channel, process.env.INTEGRATION_TEST));
 
         bot.on('guildCreate', (guild) => guildCreateHandler(guild));
 
@@ -34,7 +31,7 @@ let initializeBot = () => {
                 bot.commands.set(botCommands[key].name, botCommands[key]);
             });
 
-            bot.on('message', (msg) => messageHandler(msg, channel, COMMAND_PREFIX, bot));
+            bot.on('messageCreate', (msg) => messageHandler(msg));
 
             bot.on('interactionCreate', (interaction) => interactionHandler(interaction, bot));
 
@@ -43,23 +40,9 @@ let initializeBot = () => {
     }).catch(err => new Error(`Failed to initialize Clash-Bot to Error ('${err}')`));
 }
 
-let messageHandler = async (msg, restrictedChannel, commandPrefix, discordBot) => {
-    if (msg.channel.name === restrictedChannel && msg.content.startsWith(commandPrefix)) {
-        msg.content = msg.content.replace(commandPrefix + ' ', '');
-        const args = msg.content.split(/ +/);
-        const command = args.shift();
-
-        if (!discordBot.commands.has(command)) return;
-
-        try {
-            console.info(`('${msg.author.username}') called command: ('${command}')`);
-            await userServiceImpl.postVerifyUser(msg.author.id, msg.author.username, msg.guild.name)
-            await discordBot.commands.get(command).execute(msg, args);
-        } catch (error) {
-            console.error(`Failed to execute command ('${discordBot.commands.get(command).name}') due to error.`, error);
-            msg.channel.send('there was an error trying to execute that command! Please reach out to <@299370234228506627>.');
-        }
-    }
+let messageHandler = async (msg) => {
+    if (msg.channel)
+    msg.channel.send('Living in the past I see. Try out our new slash commands! Just type /teams');
 }
 
 let interactionHandler = async (interaction, bot) => {
@@ -143,5 +126,6 @@ let setupCommands = async () => {
 module.exports.client = bot;
 module.exports.initializeBot = initializeBot;
 module.exports.messageHandler = messageHandler;
+module.exports.interactionHandler = interactionHandler;
 module.exports.guildCreateHandler = guildCreateHandler;
 module.exports.readyHandler = readyHandler;

@@ -6,6 +6,14 @@ const riotApi = require('@fightmegg/riot-api');
 module.exports = {
     name: 'champions',
     description: 'Returns a description of the requested League of Legends Champions based on what the user requests.',
+    options: [
+        {
+            type: 3,
+            name: "champion-name",
+            description: "i.e. Anivia, Aatrox, Volibear, etc...",
+            required: true
+        }
+    ],
     async execute(msg, args) {
         const startTime = process.hrtime.bigint();
         try {

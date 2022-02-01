@@ -45,7 +45,7 @@ module.exports = {
                         name: 'No times available',
                         value: 'N/A',
                         inline: false,
-                    })
+                    });
                 }
                 msg.editReply({embeds: [copy]});
             });

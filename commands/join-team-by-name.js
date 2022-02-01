@@ -140,7 +140,7 @@ module.exports = {
                                 });
                                 copy.fields.push(buildTournamentDetails(team));
                             } else {
-                                copy.description = `Failed to find an available team with the following criteria, Role '${args[0]}' Tournament Name '${args[1]}' Tournament Day '${args[2]}' Team Name '${args[3]} or role is not available for that team`;
+                                copy.description = `Failed to find an available team with the following criteria, Role '${args[0]}' Tournament Name '${args[1]}' Tournament Day '${args[2]}' Team Name '${args[3]}' or role is not available for that team`;
                             }
                             msg.editReply({embeds: [copy]});
                         });

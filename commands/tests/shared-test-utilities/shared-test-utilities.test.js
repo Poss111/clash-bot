@@ -13,7 +13,9 @@ const buildMockInteraction = () => {
                 name: 'TestServer'
             },
             createDM: jest.fn()
-        }
+        },
+        options: {},
+        isCommand: () => true
     };
 }
 

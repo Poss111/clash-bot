@@ -158,7 +158,7 @@ describe('Join an existing Team', () => {
         tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(leagueTimes);
         teamsServiceImpl.postForTeamRegistration.mockResolvedValue(sampleRegisterReturn);
         let copy = JSON.parse(JSON.stringify(registerReply));
-        copy.description = `Failed to find an available team with the following criteria, Role '${args[0]}' Tournament Name '${args[1]}' Tournament Day '${args[2]}' Team Name '${args[3]} or role is not available for that team`;
+        copy.description = `Failed to find an available team with the following criteria, Role '${args[0]}' Tournament Name '${args[1]}' Tournament Day '${args[2]}' Team Name '${args[3]}' or role is not available for that team`;
 
         await joinTeamByName.execute(msg, args);
         expect(teamsServiceImpl.postForTeamRegistration).toBeCalledWith(msg.user.id, args[0], args[3], msg.member.guild.name, leagueTimes[0].tournamentName, leagueTimes[0].tournamentDay);
