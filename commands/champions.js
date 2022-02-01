@@ -11,7 +11,7 @@ module.exports = {
             type: 3,
             name: "champion-name",
             description: "i.e. Anivia, Aatrox, Volibear, etc...",
-            required: true
+            required: false
         }
     ],
     async execute(msg, args) {

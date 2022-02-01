@@ -4,7 +4,7 @@ const wait = require('util').promisify(setTimeout);
 
 module.exports = {
     name: 'dance',
-    description: 'Just a command to dance!',
+    description: 'It is a secret.',
     async execute(msg) {
         const startTime = process.hrtime.bigint();
         try {
