@@ -13,8 +13,8 @@ function buildExpectedRegisterResponse(sampleRegisterReturn) {
     let copy = JSON.parse(JSON.stringify(registerReply));
     copy.fields.push({
         name: sampleRegisterReturn.teamName,
-        value: Object.entries(sampleRegisterReturn.playersRoleDetails)
-            .map(key => `${key[0]} - ${key[1]}`).join('\n'),
+        value: sampleRegisterReturn.playersDetails
+            .map(details => `${details.role} - ${details.name ? details.name : details.id}`).join('\n'),
         inline: true
     });
     copy.fields.push({
@@ -121,12 +121,11 @@ describe('Join an existing Team', () => {
                 playersDetails: [
                     {
                         id: 1,
-                        name: 'Roidrage'
+                        name: 'Roidrage',
+                        role: 'Top',
+                        champions: []
                     }
                 ],
-                playersRoleDetails: {
-                    Top: 'Roidrage'
-                },
                 tournamentDetails: {
                     tournamentName: leagueTimes[0].tournamentName,
                     tournamentDay: leagueTimes[0].tournamentDay,

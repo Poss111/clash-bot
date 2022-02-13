@@ -20,8 +20,8 @@ function buildRegisterResponse(sampleRegisterReturn) {
     let copy = JSON.parse(JSON.stringify(registerReply));
     copy.fields.push({
         name: sampleRegisterReturn.teamName,
-        value: Object.entries(sampleRegisterReturn.playersRoleDetails)
-            .map(keyValue => `${keyValue[0]} - ${keyValue[1]}`).toString(),
+        value: sampleRegisterReturn.playersDetails
+            .map(details => `${details.role} - ${details.name ? details.name : details.id}`).toString(),
         inline: true
     });
     copy.fields.push({
@@ -65,11 +65,10 @@ describe('New Team', () => {
                     {
                         id: 1,
                         name: 'Roidrage',
+                        role: 'Top',
+                        champions: []
                     }
                 ],
-                playersRoleDetails: {
-                    Top: 'Roidrage'
-                },
                 tournamentDetails: {
                     tournamentName: leagueTimes[0].tournamentName,
                     tournamentDay: leagueTimes[0].tournamentDay,
@@ -192,10 +191,14 @@ describe('New Team', () => {
             registeredTeam: {
                 teamName: 'Team Abra',
                 serverName: msg.member.guild.name,
-                playersDetails: [{name: 'Roidrage'}],
-                playersRoleDetails: {
-                    Top: 'Roidrage'
-                },
+                playersDetails: [
+                    {
+                        id: 1,
+                        name: 'Roidrage',
+                        role: 'Top',
+                        champions: []
+                    }
+                    ],
                 tournamentDetails: {
                     tournamentName: leagueTimes[0].tournamentName,
                     tournamentDay: leagueTimes[0].tournamentDay,
@@ -238,10 +241,14 @@ describe('New Team', () => {
             registeredTeam: {
                 teamName: 'Team Abra',
                 serverName: msg.member.guild.name,
-                playersDetails: [{name: 'Roidrage'}],
-                playersRoleDetails: {
-                    Top: 'Roidrage'
-                },
+                playersDetails: [
+                    {
+                        id: 1,
+                        name: 'Roidrage',
+                        role: 'Top',
+                        champions: []
+                    }
+                    ],
                 tournamentDetails: {
                     tournamentName: leagueTimes[1].tournamentName,
                     tournamentDay: leagueTimes[1].tournamentDay,
@@ -319,12 +326,10 @@ describe('New Team', () => {
                     {
                         id: 1,
                         name: 'Roidrage',
-                        role: 'Top'
+                        role: 'Top',
+                        champions: []
                     }
                 ],
-                playersRoleDetails: {
-                    Top: 'Roidrage'
-                },
                 tournamentDetails: {
                     tournamentName: leagueTimes[1].tournamentName,
                     tournamentDay: leagueTimes[1].tournamentDay,

@@ -131,11 +131,11 @@ module.exports = {
                         await teamsServiceImpl.postForTeamRegistration(msg.user.id, args[0], args[3], msg.member.guild.name,
                             times[0].tournamentName, times[0].tournamentDay).then(team => {
                             if (!team.error) {
-                                console.log(`Registered ('${msg.user.username}') with Role ('${args[0]}') Tournament ('${team.registeredTeam.tournamentDetails.tournamentName}') Team ('${team.teamName}').`);
+                                console.log(`Registered ('${msg.user.username}') with Role ('${args[0]}') Tournament ('${team.registeredTeam.tournamentDetails.tournamentName}') Team ('${team.registeredTeam.teamName}').`);
                                 copy.fields.push({
                                     name: team.registeredTeam.teamName,
-                                    value: Object.entries(team.registeredTeam.playersRoleDetails)
-                                        .map(key => `${key[0]} - ${key[1]}`).join('\n'),
+                                    value: team.registeredTeam.playersDetails
+                                        .map(details => `${details.role} - ${details.name ? details.name : details.id}`).join('\n'),
                                     inline: true
                                 });
                                 copy.fields.push(buildTournamentDetails(team.registeredTeam));

@@ -159,8 +159,8 @@ module.exports = {
                             data = data.registeredTeam;
                             copy.fields.push({
                                 name: data.teamName,
-                                value: Object.entries(data.playersRoleDetails)
-                                    .map(keyValue => `${keyValue[0]} - ${keyValue[1]}`).toString(),
+                                value: data.playersDetails
+                                    .map(details => `${details.role} - ${details.name ? details.name : details.id}`).toString(),
                                 inline: true
                             });
                             copy.fields.push(buildTournamentDetails(data));
