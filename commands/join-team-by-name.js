@@ -131,14 +131,14 @@ module.exports = {
                         await teamsServiceImpl.postForTeamRegistration(msg.user.id, args[0], args[3], msg.member.guild.name,
                             times[0].tournamentName, times[0].tournamentDay).then(team => {
                             if (!team.error) {
-                                console.log(`Registered ('${msg.user.username}') with Role ('${args[0]}') Tournament ('${team.tournamentDetails.tournamentName}') Team ('${team.teamName}').`);
+                                console.log(`Registered ('${msg.user.username}') with Role ('${args[0]}') Tournament ('${team.registeredTeam.tournamentDetails.tournamentName}') Team ('${team.teamName}').`);
                                 copy.fields.push({
-                                    name: team.teamName,
-                                    value: Object.entries(team.playersRoleDetails)
+                                    name: team.registeredTeam.teamName,
+                                    value: Object.entries(team.registeredTeam.playersRoleDetails)
                                         .map(key => `${key[0]} - ${key[1]}`).join('\n'),
                                     inline: true
                                 });
-                                copy.fields.push(buildTournamentDetails(team));
+                                copy.fields.push(buildTournamentDetails(team.registeredTeam));
                             } else {
                                 copy.description = `Failed to find an available team with the following criteria, Role '${args[0]}' Tournament Name '${args[1]}' Tournament Day '${args[2]}' Team Name '${args[3]}' or role is not available for that team`;
                             }

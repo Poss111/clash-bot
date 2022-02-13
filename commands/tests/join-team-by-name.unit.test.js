@@ -3,7 +3,7 @@ const tournamentsServiceImpl = require('../../services/tournaments-service-impl'
 const teamsServiceImpl = require('../../services/teams-service-impl');
 const errorHandling = require('../../utility/error-handling');
 const registerReply = require('../../templates/register-reply');
-const { buildMockInteraction } = require('./shared-test-utilities/shared-test-utilities.test');
+const {buildMockInteraction} = require('./shared-test-utilities/shared-test-utilities.test');
 
 jest.mock('../../services/tournaments-service-impl');
 jest.mock('../../services/teams-service-impl');
@@ -115,32 +115,34 @@ describe('Join an existing Team', () => {
             }
         ];
         const sampleRegisterReturn = {
-            teamName: 'Team Sample',
-            serverName: msg.member.guild.name,
-            playersDetails: [
-                {
-                    id: 1,
-                    name: 'Roidrage'
-                }
-            ],
-            playersRoleDetails: {
-              Top: 'Roidrage'
-            },
-            tournamentDetails: {
-                tournamentName: leagueTimes[0].tournamentName,
-                tournamentDay: leagueTimes[0].tournamentDay,
-            },
-            startTime: leagueTimes[0].startTime
-        }
+            registeredTeam: {
+                teamName: 'Team Sample',
+                serverName: msg.member.guild.name,
+                playersDetails: [
+                    {
+                        id: 1,
+                        name: 'Roidrage'
+                    }
+                ],
+                playersRoleDetails: {
+                    Top: 'Roidrage'
+                },
+                tournamentDetails: {
+                    tournamentName: leagueTimes[0].tournamentName,
+                    tournamentDay: leagueTimes[0].tournamentDay,
+                },
+                startTime: leagueTimes[0].startTime
+            }
+        };
         tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(leagueTimes);
         teamsServiceImpl.postForTeamRegistration.mockResolvedValue(sampleRegisterReturn);
-        let copy = buildExpectedRegisterResponse(sampleRegisterReturn);
+        let copy = buildExpectedRegisterResponse(sampleRegisterReturn.registeredTeam);
         await joinTeamByName.execute(msg, args);
         expect(teamsServiceImpl.postForTeamRegistration).toBeCalledWith(msg.user.id, args[0], args[3],
             msg.member.guild.name, leagueTimes[0].tournamentName, leagueTimes[0].tournamentDay);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledWith({ embeds: [copy]});
+        expect(msg.editReply).toHaveBeenCalledWith({embeds: [copy]});
     })
 
     test('When a user requests to join a team and they pass a Tournament and a Team and no Team exists with that name, they should have a message specifying that we were unable to find one matching the criteria.', async () => {
@@ -164,7 +166,7 @@ describe('Join an existing Team', () => {
         expect(teamsServiceImpl.postForTeamRegistration).toBeCalledWith(msg.user.id, args[0], args[3], msg.member.guild.name, leagueTimes[0].tournamentName, leagueTimes[0].tournamentDay);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
+        expect(msg.editReply).toHaveBeenCalledWith({embeds: [copy]});
     })
 
 })

@@ -156,6 +156,7 @@ module.exports = {
                         if (data.error === 'Player is not eligible to create a new Team.') {
                             copy.description = 'You are already registered to the given tournament.';
                         } else {
+                            data = data.registeredTeam;
                             copy.fields.push({
                                 name: data.teamName,
                                 value: Object.entries(data.playersRoleDetails)
