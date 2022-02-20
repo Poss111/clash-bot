@@ -61,8 +61,18 @@ let interactionHandler = async (interaction, bot) => {
             await bot.commands.get(interaction.commandName).execute(interaction, args);
         } catch (error) {
             console.error(`Failed to execute command ('${bot.commands.get(interaction.commandName).name}') due to error.`, error);
-            interaction.reply('there was an error trying to execute ' +
-                'that command! Please reach out to <@299370234228506627>.');
+            try {
+                if (interaction.deferred
+                    || interaction.replied) {
+                    await interaction.editReply('there was an error trying to execute ' +
+                        'that command! Please reach out to <@299370234228506627>.');
+                } else {
+                    await interaction.reply('there was an error trying to execute ' +
+                        'that command! Please reach out to <@299370234228506627>.');
+                }
+            } catch (error) {
+                console.error(`Failed to send error message due to error.`, error);
+            }
         }
     }
 }
