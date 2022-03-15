@@ -41,8 +41,12 @@ let initializeBot = () => {
 }
 
 let messageHandler = async (msg) => {
-    if (msg.channel)
-    msg.channel.send('Living in the past I see. Try out our new slash commands! Just type /teams');
+    try {
+        if (msg.channel)
+        msg.channel.send('Living in the past I see. Try out our new slash commands! Just type /teams');
+    } catch(err) {
+        console.error(`Failed to execute command 'messageHandler' due to error.`, err);
+    }
 }
 
 let interactionHandler = async (interaction, bot) => {
@@ -78,8 +82,20 @@ let interactionHandler = async (interaction, bot) => {
 }
 
 let guildCreateHandler = (guild) => {
+    try {
     let channel = guild.channels.cache.find((key) => key.name === 'general');
-    channel.send({embeds: [JSON.parse(JSON.stringify(helpMenu))]});
+    if (channel) {
+        channel.send({embeds: [JSON.parse(JSON.stringify(helpMenu))]})
+            .then(() => {
+                console.log(`Successfully sent message to new guild ('${guild.name}')`);
+            })
+            .catch((err) => {
+                console.error(`Failed to send create message to new guild ('${guild.name}') due to error.`, err);
+            });
+    }
+    } catch(error) {
+        console.error(`Failed to retrieve general channel from new guild ('${guild.name}').` , error);
+    }
 }
 
 let readyHandler = (discordBot, restrictedChannel, isIntegrationTesting) => {
@@ -98,7 +114,6 @@ let readyHandler = (discordBot, restrictedChannel, isIntegrationTesting) => {
                 }
                 console.log(`Successfully sent Bot update message to ('${guildKey}')...`);
             }
-
         });
     }
 }

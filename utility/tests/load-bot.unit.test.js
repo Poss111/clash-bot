@@ -281,7 +281,7 @@ describe('Events', () => {
                     cache: [
                         {
                             name: 'general',
-                            send: jest.fn()
+                            send: jest.fn().mockResolvedValue({ status: 'Done' })
                         },
                         {
                             name: 'league',
@@ -294,6 +294,28 @@ describe('Events', () => {
             expect(mockGuildObject.channels.cache[0].send).toBeCalledTimes(1);
             expect(mockGuildObject.channels.cache[0].send).toBeCalledWith({embeds: [helpMenu]});
             expect(mockGuildObject.channels.cache[1].send).toBeCalledTimes(0);
+        })
+
+        test('When a guild create event is sent, do not send a message if no channel with the name of general is found.', () => {
+            let mockGuildObject = {
+                channels: {
+                    cache: [
+                        {
+                            name: 'league',
+                            send: jest.fn()
+                        }
+                    ]
+                }
+            };
+            loadBot.guildCreateHandler(mockGuildObject);
+            expect(mockGuildObject.channels.cache[0].send).toBeCalledTimes(0);
+        })
+
+        test('When a guild create event is sent, and an error occurs then the error should be handled gracefully.', () => {
+            let mockGuildObject = {
+                name: 'New Guild',
+            };
+            expect(() => loadBot.guildCreateHandler(mockGuildObject)).not.toThrow();
         })
     })
 
