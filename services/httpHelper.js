@@ -2,11 +2,14 @@ const axios = require('axios');
 
 let httpCall = (hostname, path, method, payload) => {
     return new Promise((resolve, reject) => {
+        let headers = {};
+        headers[process.env.HEADER_KEY] = 'freljord';
         axios({
             method: method,
             url: hostname + path,
             data: payload,
-            timeout: 10000
+            timeout: 10000,
+            headers: headers
         }).then(response => {
             console.log(`hostname: ('${hostname}') path: ('${path}') method: ('${method}') statusCode: ('${response.status}')`);
             console.debug(`Path: ${path} Response: ${JSON.stringify(response.data)}`)

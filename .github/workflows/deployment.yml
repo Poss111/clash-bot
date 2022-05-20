@@ -49,6 +49,13 @@ jobs:
           replace: "${{ secrets.SERVICE_URL }}"
           include: "task-definition.json"
 
+      - name: Find and Replace
+        uses: jacobtomlinson/gha-find-replace@master
+        with:
+          find: "--HEADER_KEY--"
+          replace: "${{ secrets.HEADER_KEY }}"
+          include: "task-definition.json"
+
       - name: Deployment In Progress Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
         if: ${{ success() }}

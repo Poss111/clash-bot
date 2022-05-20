@@ -14,6 +14,7 @@ const testServerName = 'LoL-ClashBotSupport';
 beforeAll(async () => {
     process.env.INTEGRATION_TEST = true;
     process.env.REGION = 'us-east-1';
+    process.env.HEADER_KEY = 'dummy-header-key';
     let counter = 0;
     const serviceDataHealthcheckPromise = () => new Promise((resolve, reject) => {
         try {

@@ -26,6 +26,10 @@
                     "value": "--SERVICE_URL--"
                 },
                 {
+                    "name": "HEADER_KEY",
+                    "value": "--HEADER_KEY--"
+                },
+                {
                     "name": "REGION",
                     "value": "us-east-1"
                 }
