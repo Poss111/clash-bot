@@ -4,7 +4,8 @@ const clashTimeFields = require('../templates/clash-time-fields');
 const templateBuilder = require('../utility/template-builder');
 const timeTracker = require('../utility/time-tracker');
 const moment = require('moment-timezone');
-const errorHandler = require('../utility/error-handling')
+const errorHandler = require('../utility/error-handling');
+const logger = require('pino')();
 
 module.exports = {
     name: 'time',
@@ -14,7 +15,7 @@ module.exports = {
         await msg.deferReply();
         try {
             await tournamentsServiceImpl.retrieveAllActiveTournaments().then(clashTimes => {
-                console.log('Time retrieved.');
+                logger.info('Time retrieved.');
                 const copy = JSON.parse(JSON.stringify(clashTimeMenu));
                 if (clashTimes && clashTimes.length > 0) {
                     const dateFormat = 'MMMM DD yyyy hh:mm a z';

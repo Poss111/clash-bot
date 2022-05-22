@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",
+    "local-start": "nodemon index.js | pino-pretty -t",
     "test": "jest unit --coverage --coverageReporters=\"json\" --coverageReporters=\"json-summary\" --coverageReporters=\"lcov\" --coverageReporters=\"text\" --silent --detectOpenHandles",
     "integration": "jest int --silent"
   },
@@ -19,11 +20,13 @@
     "discord.js": "^13.6.0",
     "dotenv": "^8.2.0",
     "moment-timezone": "^0.5.33",
+    "pino": "^7.11.0",
     "query-string": "^7.0.1"
   },
   "devDependencies": {
     "jest": "^27.4.7",
     "nock": "^13.0.11",
-    "nodemon": "^2.0.8"
+    "nodemon": "^2.0.8",
+    "pino-pretty": "^7.6.1"
   }
 }

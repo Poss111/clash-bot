@@ -1,23 +1,24 @@
 const loadBot = require('./utility/load-bot');
+const logger = require('pino')();
 
 loadBot.initializeBot()
-    .then(() => console.log('Successfully loaded services and bot.'))
+    .then(() => logger.info('Successfully loaded services and bot.'))
     .catch(err => {
-        console.error('Failed to load services and bot due to error.', err);
+        logger.error('Failed to load services and bot due to error.', err);
         process.exit(1);
     });
 
 process.on('beforeExit', () => {
-    console.log('Process terminated');
+    logger.info('Process terminated');
     process.exit(0);
 });
 
 process.on('SIGTERM', () => {
-    console.log('Process closed');
+    logger.info('Process closed');
     process.exit(0);
 });
 
 process.on('SIGINT', () => {
-    console.log('Process interrupted');
+    logger.info('Process interrupted');
     process.exit(0);
 });

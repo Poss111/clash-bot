@@ -1,6 +1,7 @@
 const throttleHandling = require('../utility/throttle-handling');
 const timeTracker = require('../utility/time-tracker');
 const wait = require('util').promisify(setTimeout);
+const logger = require('pino')();
 
 module.exports = {
     name: 'dance',
@@ -41,7 +42,7 @@ module.exports = {
                 await wait(500);
                 await msg.editReply(messages[8]);
             } else {
-                console.log(`('${msg.user.username}') is trying to spam this resource.`);
+                logger.info(`('${msg.user.username}') is trying to spam this resource.`);
                 if (!throttleHandling.hasServerBeenNotified(this.name, msg.member.guild.name)) {
                     await msg.editReply('I see you know the ways of the spam. ' +
                         'If you want me to dance again, you must wait 30 seconds ;)');
