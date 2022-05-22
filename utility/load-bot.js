@@ -6,6 +6,7 @@ const botCommands = require('../commands');
 const helpMenu = require('../templates/help-menu');
 const updateNotification = require('../templates/update-notification');
 const userServiceImpl = require('../services/user-service-impl');
+const logger = require('pino')();
 let channel = 'league';
 let bot = undefined;
 
@@ -45,7 +46,7 @@ let messageHandler = async (msg) => {
         if (msg.channel)
         msg.channel.send('Living in the past I see. Try out our new slash commands! Just type /teams');
     } catch(err) {
-        console.error(`Failed to execute command 'messageHandler' due to error.`, err);
+        logger.error(`Failed to execute command 'messageHandler' due to error.`, err);
     }
 }
 
@@ -64,7 +65,7 @@ let interactionHandler = async (interaction, bot) => {
                 interaction.user.username, interaction.member.guild.name);
             await bot.commands.get(interaction.commandName).execute(interaction, args);
         } catch (error) {
-            console.error(`Failed to execute command ('${bot.commands.get(interaction.commandName).name}') due to error.`, error);
+            logger.error(`Failed to execute command ('${bot.commands.get(interaction.commandName).name}') due to error.`, error);
             try {
                 if (interaction.deferred
                     || interaction.replied) {
@@ -75,7 +76,7 @@ let interactionHandler = async (interaction, bot) => {
                         'that command! Please reach out to <@299370234228506627>.');
                 }
             } catch (error) {
-                console.error(`Failed to send error message due to error.`, error);
+                logger.error(`Failed to send error message due to error.`, error);
             }
         }
     }
@@ -87,14 +88,14 @@ let guildCreateHandler = (guild) => {
     if (channel) {
         channel.send({embeds: [JSON.parse(JSON.stringify(helpMenu))]})
             .then(() => {
-                console.log(`Successfully sent message to new guild ('${guild.name}')`);
+                logger.info(`Successfully sent message to new guild ('${guild.name}')`);
             })
             .catch((err) => {
-                console.error(`Failed to send create message to new guild ('${guild.name}') due to error.`, err);
+                logger.error(`Failed to send create message to new guild ('${guild.name}') due to error.`, err);
             });
     }
     } catch(error) {
-        console.error(`Failed to retrieve general channel from new guild ('${guild.name}').` , error);
+        logger.error(`Failed to retrieve general channel from new guild ('${guild.name}').` , error);
     }
 }
 
@@ -104,15 +105,15 @@ let readyHandler = (discordBot, restrictedChannel, isIntegrationTesting) => {
         discordBot.guilds.cache.forEach((guildKey) => {
             const filter = guildKey.channels.cache.find((key) => key.name === restrictedChannel);
             if (filter) {
-                console.log(`Sending Bot update message to ('${guildKey}')...`);
+                logger.info(`Sending Bot update message to ('${guildKey}')...`);
                 try {
                     filter.send({
                         embeds: [JSON.parse(JSON.stringify(updateNotification))]
                     });
                 } catch (err) {
-                    console.error('Failed to send update notification due to error.', err);
+                    logger.error('Failed to send update notification due to error.', err);
                 }
-                console.log(`Successfully sent Bot update message to ('${guildKey}')...`);
+                logger.info(`Successfully sent Bot update message to ('${guildKey}')...`);
             }
         });
     }
@@ -129,11 +130,11 @@ let setupCommands = async () => {
 
     commands.forEach(obj => {
        if(obj.description.length > 100) {
-           console.log(obj.name);
+           logger.info(obj.name);
        }
     });
 
-    console.log('Updating bot commands...');
+    logger.info('Updating bot commands...');
     let rest = new REST({version: '9'}).setToken(process.env.TOKEN);
 
     try {
@@ -142,10 +143,10 @@ let setupCommands = async () => {
             {body: commands}
         );
     } catch (err) {
-        console.error(err);
+        logger.error(err);
         throw new Error(err);
     }
-    console.log('Successfully updated bot commands.');
+    logger.info('Successfully updated bot commands.');
 }
 
 module.exports.client = bot;

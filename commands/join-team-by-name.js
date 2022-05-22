@@ -4,6 +4,7 @@ const registerReply = require('../templates/register-reply');
 const {findTournament} = require('../utility/tournament-handler');
 const errorHandling = require('../utility/error-handling');
 const timeTracker = require('../utility/time-tracker');
+const logger = require('pino')();
 
 module.exports = {
     name: 'join',
@@ -115,7 +116,7 @@ module.exports = {
                     let times = await tournamentsServiceImpl.retrieveAllActiveTournaments();
                     times = times.filter(findTournament(args[1], args[2]));
                     if (times.length === 0) {
-                        console.log(`Unable to find Tournament for details - Name ('${args[1]}') Day ('${args[2]}').`);
+                        logger.info(`Unable to find Tournament for details - Name ('${args[1]}') Day ('${args[2]}').`);
                         await msg.editReply(`The tournament you are trying to join does not exist Name '${args[1]}' Day '${args[2]}'. Please use '/times' to see valid tournaments.`)
                     } else {
                         function buildTournamentDetails(team) {
@@ -127,11 +128,11 @@ module.exports = {
                         }
 
                         let copy = JSON.parse(JSON.stringify(registerReply));
-                        console.log(`Registering ('${msg.user.username}') with Tournaments ('${JSON.stringify(times)}') with role '${args[0]}'...`);
+                        logger.info(`Registering ('${msg.user.username}') with Tournaments ('${JSON.stringify(times)}') with role '${args[0]}'...`);
                         await teamsServiceImpl.postForTeamRegistration(msg.user.id, args[0], args[3], msg.member.guild.name,
                             times[0].tournamentName, times[0].tournamentDay).then(team => {
                             if (!team.error) {
-                                console.log(`Registered ('${msg.user.username}') with Role ('${args[0]}') Tournament ('${team.registeredTeam.tournamentDetails.tournamentName}') Team ('${team.registeredTeam.teamName}').`);
+                                logger.info(`Registered ('${msg.user.username}') with Role ('${args[0]}') Tournament ('${team.registeredTeam.tournamentDetails.tournamentName}') Team ('${team.registeredTeam.teamName}').`);
                                 copy.fields.push({
                                     name: team.registeredTeam.teamName,
                                     value: team.registeredTeam.playersDetails
