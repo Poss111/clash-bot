@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",
+    "local-start": "nodemon index.js | pino-pretty -t",
     "test": "jest unit --coverage --coverageReporters=\"json\" --coverageReporters=\"json-summary\" --coverageReporters=\"lcov\" --coverageReporters=\"text\" --silent --detectOpenHandles",
     "integration": "jest int --silent"
   },
