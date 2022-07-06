@@ -3,7 +3,7 @@ const tournamentsServiceImpl = require('../../services/tournaments-service-impl'
 const clashTimeMenu = require('../../templates/clash-times-menu');
 const clashTimeFields = require('../../templates/clash-time-fields');
 const templateBuilder = require('../../utility/template-builder');
-const { buildMockInteraction } = require('./shared-test-utilities/shared-test-utilities.test');
+const {buildMockInteraction} = require('./shared-test-utilities/shared-test-utilities.test');
 const moment = require('moment-timezone');
 
 jest.mock('../../services/tournaments-service-impl');
@@ -60,20 +60,21 @@ describe('League Clash Times', () => {
 
     test('When league times returns successfully, there should be a formatted time for each available clash and tier returned.', async () => {
         let msg = buildMockInteraction();
-        let sampleTime =  [
+        let sampleTime = [
             {
                 tournamentName: 'awesome_sauce',
                 tournamentDay: '1',
                 startTime: 'June 26 2021 07:00 pm PDT',
                 registrationTime: 'June 26 2021 04:15 pm PDT'
-            }];
+            }
+        ];
         let copy = buildExpectedTournamentTimesResponse(sampleTime);
         tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(sampleTime);
         await time.execute(msg);
         expect(tournamentsServiceImpl.retrieveAllActiveTournaments).toHaveBeenCalledTimes(1);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
+        expect(msg.editReply).toHaveBeenCalledWith({embeds: [copy]});
     })
 
     test('When league times returns as undefined, there should be a no times available message returned.', async () => {
@@ -84,7 +85,7 @@ describe('League Clash Times', () => {
         expect(tournamentsServiceImpl.retrieveAllActiveTournaments).toHaveBeenCalledTimes(1);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
+        expect(msg.editReply).toHaveBeenCalledWith({embeds: [copy]});
     })
 
     test('When league times returns as empty, there should be a no times available message returned.', async () => {
@@ -94,7 +95,51 @@ describe('League Clash Times', () => {
         await time.execute(msg);
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
+        expect(msg.editReply).toHaveBeenCalledWith({embeds: [copy]});
+    })
+
+    test('When there are more than 4 tournaments returned, then it should be trimmed to only work with 4.', async () => {
+        let msg = buildMockInteraction();
+        let sampleTime = [
+            {
+                tournamentName: 'awesome_sauce',
+                tournamentDay: '1',
+                startTime: 'June 26 2021 07:00 pm PDT',
+                registrationTime: 'June 26 2021 04:15 pm PDT'
+            },
+            {
+                tournamentName: 'awesome_sauce',
+                tournamentDay: '2',
+                startTime: 'June 26 2021 07:00 pm PDT',
+                registrationTime: 'June 26 2021 04:15 pm PDT'
+            },
+            {
+                tournamentName: 'awesome_sauce',
+                tournamentDay: '3',
+                startTime: 'June 26 2021 07:00 pm PDT',
+                registrationTime: 'June 26 2021 04:15 pm PDT'
+            },
+            {
+                tournamentName: 'awesome_sauce',
+                tournamentDay: '4',
+                startTime: 'June 26 2021 07:00 pm PDT',
+                registrationTime: 'June 26 2021 04:15 pm PDT'
+            },
+            {
+                tournamentName: 'awesome_sauce',
+                tournamentDay: '5',
+                startTime: 'June 26 2021 07:00 pm PDT',
+                registrationTime: 'June 26 2021 04:15 pm PDT'
+            }
+        ];
+        let copy = buildExpectedTournamentTimesResponse(sampleTime);
+        copy.fields = copy.fields.slice(0,4);
+        tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(sampleTime);
+        await time.execute(msg);
+        expect(tournamentsServiceImpl.retrieveAllActiveTournaments).toHaveBeenCalledTimes(1);
+        expect(msg.deferReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith({embeds: [copy]});
     })
 
 })

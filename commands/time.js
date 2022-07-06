@@ -15,14 +15,15 @@ module.exports = {
         await msg.deferReply();
         try {
             await tournamentsServiceImpl.retrieveAllActiveTournaments().then(clashTimes => {
-                logger.info('Time retrieved.');
                 const copy = JSON.parse(JSON.stringify(clashTimeMenu));
                 if (clashTimes && clashTimes.length > 0) {
+                    logger.info(`${clashTimes.length} Tournaments retrieved.`);
                     const dateFormat = 'MMMM DD yyyy hh:mm a z';
                     const tournamentDateFormat = 'MMMM DD yyyy';
                     const tierTimeFormat = 'h:mm a z';
                     const timeZone = 'America/Los_Angeles';
                     moment.tz.setDefault(timeZone);
+                    clashTimes = clashTimes.slice(0, 4);
                     clashTimes.forEach((time) => {
                         let parsedDate = new moment(time.registrationTime, dateFormat).format(tournamentDateFormat);
                         let parsedRegistrationDate = new moment(time.registrationTime, dateFormat);
