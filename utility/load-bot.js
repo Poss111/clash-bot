@@ -13,7 +13,7 @@ let bot = undefined;
 let initializeBot = () => {
     return new Promise((resolve) => {
         setupCommands();
-        bot = new Discord.Client({ intents: [Discord.Intents.FLAGS.GUILDS] });
+        bot = new Discord.Client({intents: [Discord.Intents.FLAGS.GUILDS]});
         bot.commands = new Discord.Collection();
 
         if (process.env.INTEGRATION_TEST) {
@@ -44,8 +44,8 @@ let initializeBot = () => {
 let messageHandler = async (msg) => {
     try {
         if (msg.channel)
-        msg.channel.send('Living in the past I see. Try out our new slash commands! Just type /teams');
-    } catch(err) {
+            msg.channel.send('Living in the past I see. Try out our new slash commands! Just type /teams');
+    } catch (err) {
         logger.error(`Failed to execute command 'messageHandler' due to error.`, err);
     }
 }
@@ -54,15 +54,15 @@ let interactionHandler = async (interaction, bot) => {
     if (interaction.isCommand()) {
         let args = [];
         if (interaction.options.data) {
-         args = interaction.options.data.map(data => data.value);
+            args = interaction.options.data.map(data => data.value);
         }
 
         if (!bot.commands.has(interaction.commandName)) return;
 
         try {
             console.info(`('${interaction.user.username}') called command: ('${interaction.commandName}')`);
-            await userServiceImpl.postVerifyUser(interaction.user.id,
-                interaction.user.username, interaction.member.guild.name);
+            // await userServiceImpl.postVerifyUser(interaction.user.id,
+            //     interaction.user.username, interaction.member.guild.name);
             await bot.commands.get(interaction.commandName).execute(interaction, args);
         } catch (error) {
             logger.error(`Failed to execute command ('${bot.commands.get(interaction.commandName).name}') due to error.`, error);
@@ -84,24 +84,24 @@ let interactionHandler = async (interaction, bot) => {
 
 let guildCreateHandler = (guild) => {
     try {
-    let channel = guild.channels.cache.find((key) => key.name === 'general');
-    if (channel) {
-        channel.send({embeds: [JSON.parse(JSON.stringify(helpMenu))]})
-            .then(() => {
-                logger.info(`Successfully sent message to new guild ('${guild.name}')`);
-            })
-            .catch((err) => {
-                logger.error(`Failed to send create message to new guild ('${guild.name}') due to error.`, err);
-            });
-    }
-    } catch(error) {
-        logger.error(`Failed to retrieve general channel from new guild ('${guild.name}').` , error);
+        let channel = guild.channels.cache.find((key) => key.name === 'general');
+        if (channel) {
+            channel.send({embeds: [JSON.parse(JSON.stringify(helpMenu))]})
+                .then(() => {
+                    logger.info(`Successfully sent message to new guild ('${guild.name}')`);
+                })
+                .catch((err) => {
+                    logger.error(`Failed to send create message to new guild ('${guild.name}') due to error.`, err);
+                });
+        }
+    } catch (error) {
+        logger.error(`Failed to retrieve general channel from new guild ('${guild.name}').`, error);
     }
 }
 
 let readyHandler = (discordBot, restrictedChannel, isIntegrationTesting) => {
     console.info(`Logged in as ${discordBot.user.tag}!`);
-    if (!isIntegrationTesting) {
+    if (!isIntegrationTesting && !process.env.LOCAL) {
         discordBot.guilds.cache.forEach((guildKey) => {
             const filter = guildKey.channels.cache.find((key) => key.name === restrictedChannel);
             if (filter) {
@@ -129,9 +129,9 @@ let setupCommands = async () => {
     });
 
     commands.forEach(obj => {
-       if(obj.description.length > 100) {
-           logger.info(obj.name);
-       }
+        if (obj.description.length > 100) {
+            logger.info(obj.name);
+        }
     });
 
     logger.info('Updating bot commands...');

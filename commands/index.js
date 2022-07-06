@@ -12,4 +12,5 @@ module.exports = {
     Time: require('./time'),
     Unregister: require('./unregister'),
     Unsubscribe: require('./unsubscribe'),
+    Test: require('./new-command')
 };
