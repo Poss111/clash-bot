@@ -27,5 +27,8 @@ resource "aws_ecs_cluster" "clash-bot-cluster" {
     name  = "containerInsights"
     value = "enabled"
   }
-  tags = ["ClashBot", "DiscordBot"]
+  tags = {
+    Name = "ClashBotDiscordBot"
+    Type = "Bot"
+  }
 }
