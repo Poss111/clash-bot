@@ -5,7 +5,7 @@ output "arn" {
 }
 
 output "name" {
-  value = aws_ecs_cluster.clash-bot-cluster.name
+  value       = aws_ecs_cluster.clash-bot-cluster.name
   description = "The name for Clash Bot's ECS cluster."
 }
 
