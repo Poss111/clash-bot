@@ -3,8 +3,10 @@ name: Terraform
 on:
   push:
     branches:
-      - testing/tfeCloudIntegration
+      - master
   pull_request:
+    branches:
+      - master
 
 jobs:
   terraform:
