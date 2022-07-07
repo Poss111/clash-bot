@@ -14,9 +14,7 @@ terraform {
   }
 }
 
-provider "aws" {
-  region = "us-east-1"
-}
+provider "aws" {}
 
 resource "aws_ecs_cluster" "clash-bot-cluster" {
   name = "clash-bot-tfe-ecs"
