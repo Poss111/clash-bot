@@ -112,7 +112,7 @@ jobs:
           TF_VAR_region: "us-east-1"
           TF_VAR_image_id: ${{ needs.check-applications.outputs.deploy-ui }}
           TF_VAR_prefix: "clash-bot-discord"
-          TF_VAR_repository_name: ${{ ECR_REPOSITORY }}
+          TF_VAR_repository_name: "poss11111"
           TF_VAR_iam_secret_policies: ${{ secrets.IAM_SECRET_POLICIES }}
           TF_VAR_ecs_iam_secret_policies: ${{ secrets.ECS_IAM_SECRET_POLICIES }}
           TF_VAR_ecs_cloudwatch_policies: ${{ secrets.ECS_CLOUDWATCH_POLICIES }}
