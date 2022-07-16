@@ -83,40 +83,41 @@ let interactionHandler = async (interaction, bot) => {
 }
 
 let guildCreateHandler = (guild) => {
-    try {
-    let channel = guild.channels.cache.find((key) => key.name === 'general');
-    if (channel) {
-        channel.send({embeds: [JSON.parse(JSON.stringify(helpMenu))]})
-            .then(() => {
-                logger.info(`Successfully sent message to new guild ('${guild.name}')`);
-            })
-            .catch((err) => {
-                logger.error(`Failed to send create message to new guild ('${guild.name}') due to error.`, err);
-            });
-    }
-    } catch(error) {
-        logger.error(`Failed to retrieve general channel from new guild ('${guild.name}').` , error);
-    }
+    logger.info("New guild added.", guild);
+    // try {
+    //     let channel = guild.channels.cache.find((key) => key.name === 'general');
+    //     if (channel) {
+    //         channel.send({embeds: [JSON.parse(JSON.stringify(helpMenu))]})
+    //             .then(() => {
+    //                 logger.info(`Successfully sent message to new guild ('${guild.name}')`);
+    //             })
+    //             .catch((err) => {
+    //                 logger.error(`Failed to send create message to new guild ('${guild.name}') due to error.`, err);
+    //             });
+    //     }
+    // } catch(error) {
+    //     logger.error(`Failed to retrieve general channel from new guild ('${guild.name}').` , error);
+    // }
 }
 
 let readyHandler = (discordBot, restrictedChannel, isIntegrationTesting) => {
     console.info(`Logged in as ${discordBot.user.tag}!`);
-    if (!isIntegrationTesting) {
-        discordBot.guilds.cache.forEach((guildKey) => {
-            const filter = guildKey.channels.cache.find((key) => key.name === restrictedChannel);
-            if (filter) {
-                logger.info(`Sending Bot update message to ('${guildKey}')...`);
-                try {
-                    filter.send({
-                        embeds: [JSON.parse(JSON.stringify(updateNotification))]
-                    });
-                } catch (err) {
-                    logger.error('Failed to send update notification due to error.', err);
-                }
-                logger.info(`Successfully sent Bot update message to ('${guildKey}')...`);
-            }
-        });
-    }
+    // if (!isIntegrationTesting) {
+    //     discordBot.guilds.cache.forEach((guildKey) => {
+    //         const filter = guildKey.channels.cache.find((key) => key.name === restrictedChannel);
+    //         if (filter) {
+    //             logger.info(`Sending Bot update message to ('${guildKey}')...`);
+    //             try {
+    //                 filter.send({
+    //                     embeds: [JSON.parse(JSON.stringify(updateNotification))]
+    //                 });
+    //             } catch (err) {
+    //                 logger.error('Failed to send update notification due to error.', err);
+    //             }
+    //             logger.info(`Successfully sent Bot update message to ('${guildKey}')...`);
+    //         }
+    //     });
+    // }
 }
 
 let setupCommands = async () => {

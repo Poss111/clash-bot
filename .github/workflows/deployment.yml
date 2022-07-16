@@ -1,9 +1,11 @@
 name: Deployment
 
 on:
-  push:
-    tags:
-      - 'v*'
+#  push:
+#    tags:
+#      - 'v*'
+  pull_request:
+    branches: [ master ]
     paths-ignore:
       - '**/README.md'
       - '**/.gitignore'
