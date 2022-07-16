@@ -21,7 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup Terraform
+      - name: Setup Terraformt
         uses: hashicorp/setup-terraform@v1
         with:
           # terraform_version: 0.13.0
@@ -46,6 +46,19 @@ jobs:
           export TF_VAR_access_key="${{ secrets.AWS_SECRET_ID }}"
           export TF_VAR_secret_key="${{ secrets.AWS_SECRET_KEY }}"
           export TF_VAR_region="us-east-1"
+          export TF_VAR_app_count="1"
+          export TF_VAR_image_id="Pr-Build"
+          export TF_VAR_prefix="clash-bot-discord"
+          export TF_VAR_repository_name="discord-clash-bot
+          export TF_VAR_iam_secret_policies="${{ secrets.IAM_SECRET_POLICIES }}"
+          export TF_VAR_ecs_iam_secret_policies="${{ secrets.ECS_IAM_SECRET_POLICIES }}"
+          export TF_VAR_ecs_cloudwatch_policies="${{ secrets.ECS_CLOUDWATCH_POLICIES }}"
+          export TF_VAR_registry_ecr_iam_policies="${{ secrets.REGISTRY_ECR_IAM_POLICIES }}"
+          export TF_VAR_ecr_specific_iam_policies="${{ secrets.ECR_SPECIFIC_IAM_POLICIES }}"
+          export TF_VAR_one="${{ secrets.ONE }}"
+          export TF_VAR_two="${{ secrets.TWO }}"
+          export TF_VAR_three="${{ secrets.THREE }}"
+          export TF_VAR_four="${{ secrets.FOUR }}"
           terraform plan -no-color -input=false
         continue-on-error: true
 
@@ -57,7 +70,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            const output = `Clash Bot Workspace - Plan
+            #### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
             #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
             #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
             #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
@@ -82,7 +96,3 @@ jobs:
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
         run: exit 1
-
-      - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -auto-approve -input=false

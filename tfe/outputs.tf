@@ -1,11 +1,9 @@
-output "arn" {
-  value       = aws_ecs_cluster.clash-bot-cluster.arn
-  description = "The arn for Clash Bot's ECS cluster."
-  sensitive   = true
+output "ecs-name" {
+  value       = aws_ecs_cluster.clash-bot-ecs.name
+  description = "ECS Name"
 }
 
-output "name" {
-  value       = aws_ecs_cluster.clash-bot-cluster.name
-  description = "The name for Clash Bot's ECS cluster."
+output "task_definition_version" {
+  value       = aws_ecs_task_definition.clash-bot-discord-bot-task-def.revision
+  description = "Task definition revision"
 }
-
