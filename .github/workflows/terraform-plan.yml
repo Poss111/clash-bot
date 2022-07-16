@@ -1,12 +1,6 @@
 name: Terraform
 
 on:
-  push:
-    branches:
-      - master
-    paths-ignore:
-      - '**/README.md'
-      - '**/.gitignore'
   pull_request:
     branches:
       - master
