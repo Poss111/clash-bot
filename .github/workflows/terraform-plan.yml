@@ -103,7 +103,12 @@ jobs:
         with:
           discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
           title: 'Clash Bot Terraform Build Notification'
-          message: 'Github Terraform build failed!'
+          message: |
+            Github Terraform build failed!
+            #### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
           message-color: '16711680'
 
       - name: Build Success Discord Webhook
@@ -114,5 +119,8 @@ jobs:
           title: 'Clash Bot Terraform Build Notification'
           message: |
             Github Terraform build succeeded!
-            terraform\n${{ steps.plan.outputs.stdout }}
+            #### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
           message-color: '65345'
