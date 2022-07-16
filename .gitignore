@@ -11,3 +11,4 @@ aws-resources.txt
 .github/workflows/discord*
 /aws-resources
 /notes
+**local.tfvars

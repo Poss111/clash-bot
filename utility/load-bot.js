@@ -83,17 +83,18 @@ let interactionHandler = async (interaction, bot) => {
 }
 
 let guildCreateHandler = (guild) => {
+    logger.info("New guild added.", guild);
     try {
-    let channel = guild.channels.cache.find((key) => key.name === 'general');
-    if (channel) {
-        channel.send({embeds: [JSON.parse(JSON.stringify(helpMenu))]})
-            .then(() => {
-                logger.info(`Successfully sent message to new guild ('${guild.name}')`);
-            })
-            .catch((err) => {
-                logger.error(`Failed to send create message to new guild ('${guild.name}') due to error.`, err);
-            });
-    }
+        let channel = guild.channels.cache.find((key) => key.name === 'general');
+        if (channel) {
+            channel.send({embeds: [JSON.parse(JSON.stringify(helpMenu))]})
+                .then(() => {
+                    logger.info(`Successfully sent message to new guild ('${guild.name}')`);
+                })
+                .catch((err) => {
+                    logger.error(`Failed to send create message to new guild ('${guild.name}') due to error.`, err);
+                });
+        }
     } catch(error) {
         logger.error(`Failed to retrieve general channel from new guild ('${guild.name}').` , error);
     }

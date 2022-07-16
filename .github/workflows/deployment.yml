@@ -9,7 +9,8 @@ on:
       - '**/.gitignore'
 
 jobs:
-  build:
+  deployment:
+    name: 'Discord Notification Start'
     runs-on: ubuntu-latest
 
     steps:
@@ -20,50 +21,20 @@ jobs:
         with:
           discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
           title: 'Clash Bot Deployment Notification'
-          message: 'Starting Github deployment...'
+          message: 'Deployment in progress...'
           message-color: '15258703'
 
-      - name: Check
-        run : echo build $GITHUB_RUN_NUMBER
+  image-build:
+    needs:  deployment
+    name: 'Build/Deploy Image'
+    runs-on: ubuntu-latest
 
-      - uses: actions/checkout@v2
+    outputs:
+      image-url: ${{ steps.build-image.outputs.image }}
 
-      - name: Find and Replace
-        uses: jacobtomlinson/gha-find-replace@master
-        with:
-          find: "--DISCORD_KEY--"
-          replace: "${{ secrets.DISCORD_KEY }}"
-          include: "task-definition.json"
-
-      - name: Find and Replace
-        uses: jacobtomlinson/gha-find-replace@master
-        with:
-          find: "--CLIENT_ID--"
-          replace: "${{ secrets.CLIENT_ID }}"
-          include: "task-definition.json"
-
-      - name: Find and Replace
-        uses: jacobtomlinson/gha-find-replace@master
-        with:
-          find: "--SERVICE_URL--"
-          replace: "${{ secrets.SERVICE_URL }}"
-          include: "task-definition.json"
-
-      - name: Find and Replace
-        uses: jacobtomlinson/gha-find-replace@master
-        with:
-          find: "--HEADER_KEY--"
-          replace: "${{ secrets.HEADER_KEY }}"
-          include: "task-definition.json"
-
-      - name: Deployment In Progress Discord Webhook
-        uses: Poss111/discord-hook-action@v1.6.8
-        if: ${{ success() }}
-        with:
-          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          title: 'Clash Bot Deployment Notification'
-          message: 'Deployment in progress...'
-          message-color: '16750902'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -87,21 +58,66 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
-      - name: Update task-definition file for deployment
-        id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
+      - name: Image Build Failed Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        if: ${{ failure() }}
         with:
-          task-definition: task-definition.json
-          container-name: clash-bot-dynamic
-          image: ${{ steps.build-image.outputs.image }}
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Image Build Notification'
+          message: 'Image Build failed!'
+          message-color: '16711680'
 
-      - name: Deploy Clash-Bot
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
         with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: clash-bot-secretive-service
-          cluster: clash-bot
-          wait-for-service-stability: true
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform Format
+        working-directory: tfe
+        id: fmt
+        run: terraform fmt -check
+
+      - name: Terraform Init
+        working-directory: tfe
+        id: init
+        run: terraform init
+
+      - name: Terraform Validate
+        working-directory: tfe
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Terraform Apply
+        working-directory: tfe
+        id: apply
+        env:
+          TF_VAR_access_key: ${{ secrets.AWS_SECRET_ID }}
+          TF_VAR_secret_key: ${{ secrets.AWS_SECRET_KEY }}
+          TF_VAR_app_count: 1
+          TF_VAR_region: "us-east-1"
+          TF_VAR_image_id: ${{ steps.build-image.outputs.image }}
+          TF_VAR_prefix: "clash-bot-discord"
+          TF_VAR_repository_name: "poss11111"
+          TF_VAR_iam_secret_policies: ${{ secrets.IAM_SECRET_POLICIES }}
+          TF_VAR_ecs_iam_secret_policies: ${{ secrets.ECS_IAM_SECRET_POLICIES }}
+          TF_VAR_ecs_cloudwatch_policies: ${{ secrets.ECS_CLOUDWATCH_POLICIES }}
+          TF_VAR_registry_ecr_iam_policies: ${{ secrets.REGISTRY_ECR_IAM_POLICIES }}
+          TF_VAR_ecr_specific_iam_policies: ${{ secrets.ECR_SPECIFIC_IAM_POLICIES }}
+          TF_VAR_one: ${{ secrets.ONE }}
+          TF_VAR_two: ${{ secrets.TWO }}
+          TF_VAR_three: ${{ secrets.THREE }}
+          TF_VAR_four: ${{ secrets.FOUR }}
+        run: terraform apply -auto-approve -input=false
+
+      - name: Terraform Output
+        working-directory: tfe
+        id: tfe-outcome
+        if: steps.plan.outcome == 'success'
+        run: terraform output
+
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
 
       - name: Deployment Failed Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
