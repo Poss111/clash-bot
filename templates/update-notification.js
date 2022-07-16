@@ -1,8 +1,8 @@
 module.exports = {
-    title: "Clash-Bot has been updated :partying_face:!",
+    title: "Clash-Bot Discord-Bot has been updated :partying_face:!",
     url: "https://github.com/Poss111/clash-bot/releases",
-    description: "**We have a new site to go along with the Bot :man_dancing:**!! https://clash-bot.ninja " +
-        "Please check the Releases page for new updates and bug fixes :smile:. Donations are always " +
+    description: "**Check out the site! https://clash-bot.ninja " +
+        "The Release page has been updated with updates and bug fixes :smile:. Donations are always " +
         "welcome [Paypal](https://www.paypal.com/paypalme/poss11111), it takes :moneybag: to keep a bot " +
         "alive these days.",
     image: {
