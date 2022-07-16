@@ -58,7 +58,7 @@ jobs:
           TF_VAR_one: ${{ secrets.ONE }}
           TF_VAR_two: ${{ secrets.TWO }}
           TF_VAR_three: ${{ secrets.THREE }}
-          TF_VAR_four: ${{ secrets.FOUR }}
+          TF_VAR_four: ${{ secrets.FOUR
         run: terraform plan -no-color -input=false
         continue-on-error: true
 
@@ -96,3 +96,23 @@ jobs:
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
         run: exit 1
+
+      - name: Build Failed Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        if: ${{ failure() }}
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Terraform Build Notification'
+          message: 'Github Terraform build failed!'
+          message-color: '16711680'
+
+      - name: Build Success Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        if: ${{ success() }}
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Terraform Build Notification'
+          message: |
+            Github Terraform build succeeded!
+            terraform\n${{ steps.plan.outputs.stdout }}
+          message-color: '65345'
