@@ -12,7 +12,7 @@ on:
 
 jobs:
   deployment:
-    name: 'Build/Deploy Image'
+    name: 'Discord Notification Start'
     runs-on: ubuntu-latest
 
     steps:
@@ -23,31 +23,21 @@ jobs:
         with:
           discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
           title: 'Clash Bot Deployment Notification'
-          message: 'Starting Github deployment...'
+          message: 'Deployment in progress...'
           message-color: '15258703'
 
-      - name: Check
-        run : echo build $GITHUB_RUN_NUMBER
-
-      - uses: actions/checkout@v2
-
-      - name: Deployment In Progress Discord Webhook
-        uses: Poss111/discord-hook-action@v1.6.8
-        if: ${{ success() }}
-        with:
-          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          title: 'Clash Bot Deployment Notification'
-          message: 'Deployment in progress...'
-          message-color: '16750902'
-
   image-build:
-    name: 'Image Build'
+    needs:  deployment
+    name: 'Build/Deploy Image'
     runs-on: ubuntu-latest
 
     outputs:
       image-url: ${{ steps.build-image.outputs.image }}
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -70,7 +60,17 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
+      - name: Image Build Failed Discord Webhook
+        uses: Poss111/discord-hook-action@v1.6.8
+        if: ${{ failure() }}
+        with:
+          discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: 'Clash Bot Image Build Notification'
+          message: 'Image Build failed!'
+          message-color: '16711680'
+
   terraform-apply:
+    needs: image-build
     name: 'Terraform Apply'
     runs-on: ubuntu-latest
     defaults:
