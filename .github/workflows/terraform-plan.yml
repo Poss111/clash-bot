@@ -50,16 +50,17 @@ jobs:
           TF_VAR_image_id: "Pr-Build"
           TF_VAR_prefix: "clash-bot-discord"
           TF_VAR_repository_name: "discord-clash-bot"
-          TF_VAR_iam_secret_policies: secrets.IAM_SECRET_POLICIES
-          TF_VAR_ecs_iam_secret_policies: secrets.ECS_IAM_SECRET_POLICIES
-          TF_VAR_ecs_cloudwatch_policies: secrets.ECS_CLOUDWATCH_POLICIES
-          TF_VAR_registry_ecr_iam_policies: secrets.REGISTRY_ECR_IAM_POLICIES
-          TF_VAR_ecr_specific_iam_policies: secrets.ECR_SPECIFIC_IAM_POLICIES
-          TF_VAR_one: secrets.ONE
-          TF_VAR_two: secrets.TWO
-          TF_VAR_three: secrets.THREE
-          TF_VAR_four: secrets.FOUR
-        run: terraform plan -no-color -input=false
+        run: |
+          terraform plan -no-color -input=false \
+          -var="iam_secret_policies=${{ secrets.IAM_SECRET_POLICIES }} \
+          -var="ecs_iam_secret_policies=${{ secrets.ECS_IAM_SECRET_POLICIES }} \
+          -var="registry_ecr_iam_policies=${{ secrets.REGISTRY_ECR_IAM_POLICIES }} \
+          -var="ecs_cloudwatch_policies=${{ secrets.ECS_CLOUDWATCH_POLICIES }} \
+          -var="ecr_specific_iam_policies=${{ secrets.ECR_SPECIFIC_IAM_POLICIES }} \ 
+          -var="one=${{ secrets.ONE }} \
+          -var="two=${{ secrets.TWO }} \
+          -var="three=${{ secrets.THREE }} \
+          -var="four=${{ secrets.FOUR }}"
         continue-on-error: true
 
       - name: Update Pull Request
