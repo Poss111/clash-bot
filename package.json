@@ -21,7 +21,9 @@
     "dotenv": "^8.2.0",
     "moment-timezone": "^0.5.33",
     "pino": "^7.11.0",
-    "query-string": "^7.0.1"
+    "query-string": "^7.0.1",
+    "express": "^4.17.1",
+    "cors": "^2.8.5"
   },
   "devDependencies": {
     "jest": "^27.4.7",
