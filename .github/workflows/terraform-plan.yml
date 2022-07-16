@@ -42,24 +42,24 @@ jobs:
       - name: Terraform Plan
         id: plan
         if: github.event_name == 'pull_request'
-        run: |
-          export TF_VAR_access_key="${{ secrets.AWS_SECRET_ID }}"
-          export TF_VAR_secret_key="${{ secrets.AWS_SECRET_KEY }}"
-          export TF_VAR_region="us-east-1"
-          export TF_VAR_app_count="1"
-          export TF_VAR_image_id="Pr-Build"
-          export TF_VAR_prefix="clash-bot-discord"
-          export TF_VAR_repository_name="discord-clash-bot"
-          export TF_VAR_iam_secret_policies="${{ secrets.IAM_SECRET_POLICIES }}"
-          export TF_VAR_ecs_iam_secret_policies="${{ secrets.ECS_IAM_SECRET_POLICIES }}"
-          export TF_VAR_ecs_cloudwatch_policies="${{ secrets.ECS_CLOUDWATCH_POLICIES }}"
-          export TF_VAR_registry_ecr_iam_policies="${{ secrets.REGISTRY_ECR_IAM_POLICIES }}"
-          export TF_VAR_ecr_specific_iam_policies="${{ secrets.ECR_SPECIFIC_IAM_POLICIES }}"
-          export TF_VAR_one="${{ secrets.ONE }}"
-          export TF_VAR_two="${{ secrets.TWO }}"
-          export TF_VAR_three="${{ secrets.THREE }}"
-          export TF_VAR_four="${{ secrets.FOUR }}"
-          terraform plan -no-color -input=false
+        env:
+          TF_VAR_access_key: secrets.AWS_SECRET_ID
+          TF_VAR_secret_key: secrets.AWS_SECRET_KEY
+          TF_VAR_app_count: 1
+          TF_VAR_region: "us-east-1"
+          TF_VAR_image_id: "Pr-Build"
+          TF_VAR_prefix: "clash-bot-discord"
+          TF_VAR_repository_name: "discord-clash-bot"
+          TF_VAR_iam_secret_policies: secrets.IAM_SECRET_POLICIES
+          TF_VAR_ecs_iam_secret_policies: secrets.ECS_IAM_SECRET_POLICIES
+          TF_VAR_ecs_cloudwatch_policies: secrets.ECS_CLOUDWATCH_POLICIES
+          TF_VAR_registry_ecr_iam_policies: secrets.REGISTRY_ECR_IAM_POLICIES
+          TF_VAR_ecr_specific_iam_policies: secrets.ECR_SPECIFIC_IAM_POLICIES
+          TF_VAR_one: secrets.ONE
+          TF_VAR_two: secrets.TWO
+          TF_VAR_three: secrets.THREE
+          TF_VAR_four: secrets.FOUR
+        run: terraform plan -no-color -input=false
         continue-on-error: true
 
       - name: Update Pull Request
