@@ -58,7 +58,7 @@ jobs:
           TF_VAR_one: ${{ secrets.ONE }}
           TF_VAR_two: ${{ secrets.TWO }}
           TF_VAR_three: ${{ secrets.THREE }}
-          TF_VAR_four: ${{ secrets.FOUR
+          TF_VAR_four: ${{ secrets.FOUR }}
         run: terraform plan -no-color -input=false
         continue-on-error: true
 
