@@ -49,7 +49,7 @@ jobs:
           export TF_VAR_app_count="1"
           export TF_VAR_image_id="Pr-Build"
           export TF_VAR_prefix="clash-bot-discord"
-          export TF_VAR_repository_name="discord-clash-bot
+          export TF_VAR_repository_name="discord-clash-bot"
           export TF_VAR_iam_secret_policies="${{ secrets.IAM_SECRET_POLICIES }}"
           export TF_VAR_ecs_iam_secret_policies="${{ secrets.ECS_IAM_SECRET_POLICIES }}"
           export TF_VAR_ecs_cloudwatch_policies="${{ secrets.ECS_CLOUDWATCH_POLICIES }}"
