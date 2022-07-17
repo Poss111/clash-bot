@@ -414,6 +414,12 @@ resource "aws_ecs_task_definition" "clash-bot-discord-bot-task-def" {
           awslogs-stream-prefix = "${var.prefix}-ecs"
         }
       }
+      environment = [
+        {
+          "name" : "DISCORD_BOT_RELEASE_TITLE",
+          "value" : var.release_title
+        }
+      ]
       secrets = [
         {
           name : var.one["name"]

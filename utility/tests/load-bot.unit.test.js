@@ -9,6 +9,7 @@ const userServiceImpl = require('../../services/user-service-impl');
 const updateNotification = require('../../templates/update-notification');
 const loadBot = require('../load-bot');
 const { buildMockInteraction } = require('../../commands/tests/shared-test-utilities/shared-test-utilities.test');
+const templateBuilder = require("../template-builder");
 
 jest.mock(discordModulePath);
 jest.mock('@discordjs/rest');
@@ -356,11 +357,16 @@ describe('Events', () => {
                     ]
                 }
             }
-            loadBot.readyHandler(mockDiscordBot, 'league');
+            process.env.DISCORD_BOT_RELEASE_TITLE = "v1.0.4"
+            loadBot.readyHandler(mockDiscordBot, 'league', true);
+
+            let copy = JSON.parse(JSON.stringify(updateNotification));
+            copy = templateBuilder.buildMessage(copy, { releaseTitle: process.env.DISCORD_BOT_RELEASE_TITLE });
+
             expect(mockDiscordBot.guilds.cache[0].channels.cache[0].send).toBeCalledTimes(0);
             expect(mockDiscordBot.guilds.cache[1].channels.cache[0].send).toBeCalledTimes(0);
             expect(mockDiscordBot.guilds.cache[1].channels.cache[1].send).toBeCalledTimes(1);
-            expect(mockDiscordBot.guilds.cache[1].channels.cache[1].send).toBeCalledWith({ embeds: [ updateNotification ]});
+            expect(mockDiscordBot.guilds.cache[1].channels.cache[1].send).toBeCalledWith({ embeds: [ copy ]});
         })
 
         test('When the bot is ready, if an error occurs while sending to a guild, it should print it out and continue with the rest.', () => {
@@ -408,13 +414,17 @@ describe('Events', () => {
                     ]
                 }
             }
-            loadBot.readyHandler(mockDiscordBot, 'league');
+            process.env.DISCORD_BOT_RELEASE_TITLE = "v1.0.4"
+            loadBot.readyHandler(mockDiscordBot, 'league', true);
+
+            let copy = JSON.parse(JSON.stringify(updateNotification));
+            copy = templateBuilder.buildMessage(copy, { releaseTitle: process.env.DISCORD_BOT_RELEASE_TITLE });
             expect(mockDiscordBot.guilds.cache[0].channels.cache[0].send).toBeCalledTimes(0);
             expect(mockDiscordBot.guilds.cache[0].channels.cache[1].send).toBeCalledTimes(1);
-            expect(mockDiscordBot.guilds.cache[0].channels.cache[1].send).toBeCalledWith({ embeds: [ updateNotification ]});
+            expect(mockDiscordBot.guilds.cache[0].channels.cache[1].send).toBeCalledWith({ embeds: [ copy ]});
             expect(mockDiscordBot.guilds.cache[1].channels.cache[0].send).toBeCalledTimes(0);
             expect(mockDiscordBot.guilds.cache[1].channels.cache[1].send).toBeCalledTimes(1);
-            expect(mockDiscordBot.guilds.cache[1].channels.cache[1].send).toBeCalledWith({ embeds: [ updateNotification ]});
+            expect(mockDiscordBot.guilds.cache[1].channels.cache[1].send).toBeCalledWith({ embeds: [ copy ]});
         })
 
         test('When the integration test argument is given, then the ready command should not send the update.', () => {
@@ -453,7 +463,7 @@ describe('Events', () => {
                     ]
                 }
             }
-            loadBot.readyHandler(mockDiscordBot, 'league', true);
+            loadBot.readyHandler(mockDiscordBot, 'league', false);
             expect(mockDiscordBot.guilds.cache[0].channels.cache[0].send).toBeCalledTimes(0);
             expect(mockDiscordBot.guilds.cache[1].channels.cache[0].send).toBeCalledTimes(0);
             expect(mockDiscordBot.guilds.cache[1].channels.cache[1].send).toBeCalledTimes(0);

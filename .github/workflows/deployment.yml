@@ -107,6 +107,7 @@ jobs:
           TF_VAR_two: ${{ secrets.TWO }}
           TF_VAR_three: ${{ secrets.THREE }}
           TF_VAR_four: ${{ secrets.FOUR }}
+          TF_VAR_release_title : ${{ GITHUB_REF##*/ }}
         run: terraform apply -auto-approve -input=false
 
       - name: Terraform Output
