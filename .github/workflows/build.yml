@@ -37,7 +37,7 @@ jobs:
       env:
         cache-name: cache-node-modules
       with:
-        path: ~/.npm
+        path: .npm
         key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-build-${{ env.cache-name }}-
@@ -48,7 +48,9 @@ jobs:
       run: npm i
 
     - name: Run unit tests
-      run: npm test
+      run: |
+        ls -lha
+        npm test
 
     - name: Start App container
       run: docker-compose up -d
