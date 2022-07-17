@@ -139,7 +139,7 @@ jobs:
           TF_VAR_three: ${{ secrets.THREE }}
           TF_VAR_four: ${{ secrets.FOUR }}
           TF_VAR_release_title : ${{ steps.vars.outputs.tag }}
-        run: terraform apply -auto-approve -input=false
+        run: terraform apply -input=false
 
       - name: Terraform Output
         working-directory: tfe
