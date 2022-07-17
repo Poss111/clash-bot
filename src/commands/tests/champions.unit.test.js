@@ -1,5 +1,4 @@
 const champions = require('../champions');
-const championTemplate = require('../../templates/champion-description');
 const templateBuilder = require('../../utility/template-builder');
 const template = require('../../templates/champion-description');
 const riotApi = require('@fightmegg/riot-api');

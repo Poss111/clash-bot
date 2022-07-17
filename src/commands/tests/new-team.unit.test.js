@@ -387,8 +387,6 @@ describe('Register Error', () => {
     })
 
     test('If a user does not request a specific tournament that does not exist and the list is empty, they should receive a response letting them know we were unable to find a tournament.', async () => {
-        let messagePassed = '';
-        let sendMessage = '';
         let msg = buildMockInteraction();
         errorHandling.handleError = jest.fn();
         const args = ['Top'];
