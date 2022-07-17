@@ -94,7 +94,7 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          if ! [[ $IMAGE =~ ^$ECR_REGISTRY\/$ECR_REPOSITORY:.*$ ]]; then
+          if ! [[ $IMAGE =~ ^$ECR_REGISTRY\/$ECR_REPOSITORY:.+$ ]]; then
             echo "Invalid Image Url"
             exit 1
           fi
