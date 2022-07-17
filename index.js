@@ -1,5 +1,8 @@
 const loadBot = require('./utility/load-bot');
 const logger = require('pino')();
+const express = require('express');
+const cors = require('cors');
+const app = express();
 
 loadBot.initializeBot()
     .then(() => logger.info('Successfully loaded services and bot.'))
@@ -7,6 +10,19 @@ loadBot.initializeBot()
         logger.error('Failed to load services and bot due to error.', err);
         process.exit(1);
     });
+
+app.use(express.json());
+app.use(cors());
+
+app.get(`/health`, (req, res) => {
+    res.json({
+        status: 'Healthy'
+    });
+})
+
+app.listen(8080, () => {
+    logger.info(`Clash Bot Service up and running on Port ('8080')!`);
+});
 
 process.on('beforeExit', () => {
     logger.info('Process terminated');

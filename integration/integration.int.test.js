@@ -13,6 +13,7 @@ const testServerName = 'LoL-ClashBotSupport';
 
 beforeAll(async () => {
     process.env.INTEGRATION_TEST = true;
+    process.env.SHOW_RELEASE_MESSAGE = false;
     process.env.REGION = 'us-east-1';
     process.env.HEADER_KEY = 'dummy-header-key';
     let counter = 0;

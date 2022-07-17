@@ -329,6 +329,16 @@ resource "aws_lb_target_group" "clash-bot-discord-bot-tg" {
   protocol    = "HTTP"
   vpc_id      = aws_vpc.clash-bot-vpc.id
   target_type = "ip"
+  health_check {
+    enabled             = true
+    healthy_threshold   = 2
+    unhealthy_threshold = 3
+    interval            = 300
+    protocol            = "HTTP"
+    path                = "/health"
+    port                = 8080
+    timeout             = 10
+  }
 
   tags = {
     Name = "${var.prefix}-ecs-tg"
@@ -404,6 +414,12 @@ resource "aws_ecs_task_definition" "clash-bot-discord-bot-task-def" {
           awslogs-stream-prefix = "${var.prefix}-ecs"
         }
       }
+      environment = [
+        {
+          "name" : "DISCORD_BOT_RELEASE_TITLE",
+          "value" : var.release_title
+        }
+      ]
       secrets = [
         {
           name : var.one["name"]

@@ -6,6 +6,7 @@ const botCommands = require('../commands');
 const helpMenu = require('../templates/help-menu');
 const updateNotification = require('../templates/update-notification');
 const userServiceImpl = require('../services/user-service-impl');
+const templateBuilder = require("./template-builder");
 const logger = require('pino')();
 let channel = 'league';
 let bot = undefined;
@@ -22,7 +23,7 @@ let initializeBot = () => {
             channel = 'league-test';
         }
 
-        bot.on('ready', () => readyHandler(bot, channel, process.env.INTEGRATION_TEST));
+        bot.on('ready', () => readyHandler(bot, channel, process.env.SHOW_RELEASE_MESSAGE));
 
         bot.on('guildCreate', (guild) => guildCreateHandler(guild));
 
@@ -83,33 +84,34 @@ let interactionHandler = async (interaction, bot) => {
 }
 
 let guildCreateHandler = (guild) => {
-    logger.info("New guild added.", guild);
     try {
-        let channel = guild.channels.cache.find((key) => key.name === 'general');
-        if (channel) {
-            channel.send({embeds: [JSON.parse(JSON.stringify(helpMenu))]})
-                .then(() => {
-                    logger.info(`Successfully sent message to new guild ('${guild.name}')`);
-                })
-                .catch((err) => {
-                    logger.error(`Failed to send create message to new guild ('${guild.name}') due to error.`, err);
-                });
-        }
+    let channel = guild.channels.cache.find((key) => key.name === 'general');
+    if (channel) {
+        channel.send({embeds: [JSON.parse(JSON.stringify(helpMenu))]})
+            .then(() => {
+                logger.info(`Successfully sent message to new guild ('${guild.name}')`);
+            })
+            .catch((err) => {
+                logger.error(`Failed to send create message to new guild ('${guild.name}') due to error.`, err);
+            });
+    }
     } catch(error) {
         logger.error(`Failed to retrieve general channel from new guild ('${guild.name}').` , error);
     }
 }
 
-let readyHandler = (discordBot, restrictedChannel, isIntegrationTesting) => {
-    console.info(`Logged in as ${discordBot.user.tag}!`);
-    if (!isIntegrationTesting) {
+let readyHandler = (discordBot, restrictedChannel, showRelease) => {
+    logger.info(`Logged in as ${discordBot.user.tag}!`);
+    if (showRelease) {
+        let updateMessage = templateBuilder.buildMessage(
+            JSON.parse(JSON.stringify(updateNotification)), {releaseTitle: process.env.DISCORD_BOT_RELEASE_TITLE});
         discordBot.guilds.cache.forEach((guildKey) => {
             const filter = guildKey.channels.cache.find((key) => key.name === restrictedChannel);
             if (filter) {
                 logger.info(`Sending Bot update message to ('${guildKey}')...`);
                 try {
                     filter.send({
-                        embeds: [JSON.parse(JSON.stringify(updateNotification))]
+                        embeds: [updateMessage]
                     });
                 } catch (err) {
                     logger.error('Failed to send update notification due to error.', err);
@@ -118,6 +120,7 @@ let readyHandler = (discordBot, restrictedChannel, isIntegrationTesting) => {
             }
         });
     }
+    logger.info(`Total # of guilds using Bot ('${ discordBot.guilds.cache.size}')`);
 }
 
 let setupCommands = async () => {

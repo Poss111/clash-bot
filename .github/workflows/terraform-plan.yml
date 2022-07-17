@@ -21,6 +21,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Print branch name
+        id: vars
+        run: echo "::set-output name=branch::$(echo ${GITHUB_HEAD_REF})"
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
@@ -59,6 +63,7 @@ jobs:
           TF_VAR_two: ${{ secrets.TWO }}
           TF_VAR_three: ${{ secrets.THREE }}
           TF_VAR_four: ${{ secrets.FOUR }}
+          TF_VAR_release_title : ${{ steps.vars.outputs.branch }}
         run: terraform plan -no-color -input=false
         continue-on-error: true
 

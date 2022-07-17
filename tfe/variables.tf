@@ -17,6 +17,11 @@ variable "region" {
   sensitive   = true
 }
 
+variable "release_title" {
+  type    = string
+  default = "Awesome_Sauce"
+}
+
 variable "app_count" {
   type    = number
   default = 1
