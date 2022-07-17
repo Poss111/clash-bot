@@ -333,7 +333,7 @@ resource "aws_lb_target_group" "clash-bot-discord-bot-tg" {
     enabled             = true
     healthy_threshold   = 2
     unhealthy_threshold = 3
-    interval            = 300
+    interval            = 30
     protocol            = "HTTP"
     path                = "/health"
     port                = 8080
