@@ -27,10 +27,10 @@ jobs:
         message: 'Starting Github build...'
         message-color: '15258703'
 
+    - uses: actions/checkout@v2
+
     - name: Check
       run : echo build $GITHUB_RUN_NUMBER
-
-    - uses: actions/checkout@v2
 
     - name: Cache node modules
       uses: actions/cache@v2
