@@ -23,6 +23,7 @@ provider "aws" {
     tags = {
       Application = "Clash-Bot-Discord-Bot"
       Type        = "Bot"
+      Release     = var.release_title
     }
   }
 }
