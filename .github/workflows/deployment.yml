@@ -52,7 +52,7 @@ jobs:
         run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
 
       - name: Check output
-        if: ${{ steps.check-apps.outputs.srcCode == 'true'}}
+        if: steps.check-apps.outputs.srcCode == 'true'
         env:
           RELEASE_VERSION: ${{ steps.vars.outputs.tag }}
         run: |
