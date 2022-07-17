@@ -55,9 +55,9 @@ resource "aws_iam_role_policy_attachment" "clash_bot_policy_attachment" {
 }
 
 resource "aws_iam_policy" "clash-bot-iam-policy" {
-  name = "secrets-policy"
+  name   = "secrets-policy"
   policy = jsonencode({
-    Version = "2012-10-17",
+    Version   = "2012-10-17",
     Statement = [
       {
         Action   = var.iam_secret_policies,
@@ -69,13 +69,13 @@ resource "aws_iam_policy" "clash-bot-iam-policy" {
 }
 
 resource "aws_iam_policy" "secrets_iam_policy" {
-  name = "ecs-secrets-policy"
+  name   = "ecs-secrets-policy"
   policy = jsonencode({
-    Version = "2012-10-17",
+    Version   = "2012-10-17",
     Statement = [
       {
-        Effect = "Allow",
-        Action = var.ecs_iam_secret_policies,
+        Effect   = "Allow",
+        Action   = var.ecs_iam_secret_policies,
         Resource = [
           "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:*"
         ]
@@ -85,9 +85,9 @@ resource "aws_iam_policy" "secrets_iam_policy" {
 }
 
 resource "aws_iam_policy" "ecr_iam_policy" {
-  name = "ecr-ecs-policy"
+  name   = "ecr-ecs-policy"
   policy = jsonencode({
-    Version = "2012-10-17",
+    Version   = "2012-10-17",
     Statement = [
       {
         Effect   = "Allow",
@@ -99,13 +99,13 @@ resource "aws_iam_policy" "ecr_iam_policy" {
 }
 
 resource "aws_iam_policy" "ecr_registry_iam_policy" {
-  name = "ecr-ecs-registry-policy"
+  name   = "ecr-ecs-registry-policy"
   policy = jsonencode({
-    Version = "2012-10-17",
+    Version   = "2012-10-17",
     Statement = [
       {
-        Effect = "Allow",
-        Action = var.ecr_specific_iam_policies,
+        Effect   = "Allow",
+        Action   = var.ecr_specific_iam_policies,
         Resource = [
           "arn:aws:ecr:${var.region}:${data.aws_caller_identity.current.account_id}:repository/${var.repository_name}"
         ]
@@ -115,13 +115,13 @@ resource "aws_iam_policy" "ecr_registry_iam_policy" {
 }
 
 resource "aws_iam_policy" "logs_iam_policy" {
-  name = "ecs-logs-policy"
+  name   = "ecs-logs-policy"
   policy = jsonencode({
-    Version = "2012-10-17",
+    Version   = "2012-10-17",
     Statement = [
       {
-        Effect = "Allow",
-        Action = var.ecs_cloudwatch_policies,
+        Effect   = "Allow",
+        Action   = var.ecs_cloudwatch_policies,
         Resource = [
           "${aws_cloudwatch_log_group.clash-bot-task-logs.arn}:log-stream:*"
         ]
@@ -131,7 +131,7 @@ resource "aws_iam_policy" "logs_iam_policy" {
 }
 
 resource "aws_iam_role" "clash-bot-exec-role" {
-  name = "${var.prefix}-exec-role"
+  name               = "${var.prefix}-exec-role"
   assume_role_policy = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : [
@@ -213,7 +213,7 @@ resource "aws_secretsmanager_secret_version" "four_version" {
 
 resource "aws_vpc" "clash-bot-vpc" {
   cidr_block = "172.0.0.0/20"
-  tags = {
+  tags       = {
     Name = "${var.prefix}-vpc"
   }
 }
@@ -224,7 +224,7 @@ resource "aws_subnet" "clash-bot-subnet-public" {
   availability_zone       = data.aws_availability_zones.available_zones.names[count.index]
   vpc_id                  = aws_vpc.clash-bot-vpc.id
   map_public_ip_on_launch = true
-  tags = {
+  tags                    = {
     Name = "${var.prefix}-${count.index}-public"
   }
 }
@@ -234,14 +234,14 @@ resource "aws_subnet" "clash-bot-subnet-private" {
   cidr_block        = cidrsubnet(aws_vpc.clash-bot-vpc.cidr_block, 8, count.index)
   availability_zone = data.aws_availability_zones.available_zones.names[count.index]
   vpc_id            = aws_vpc.clash-bot-vpc.id
-  tags = {
+  tags              = {
     Name = "${var.prefix}-${count.index}-private"
   }
 }
 
 resource "aws_internet_gateway" "gateway" {
   vpc_id = aws_vpc.clash-bot-vpc.id
-  tags = {
+  tags   = {
     Name = "${var.prefix}-ig"
   }
 }
@@ -256,7 +256,7 @@ resource "aws_eip" "clash-bot-eip-gateway" {
   count      = 2
   vpc        = true
   depends_on = [aws_internet_gateway.gateway]
-  tags = {
+  tags       = {
     Name = "${var.prefix}-eip"
   }
 }
@@ -265,7 +265,7 @@ resource "aws_nat_gateway" "clash-bot-gateway" {
   count         = 2
   subnet_id     = element(aws_subnet.clash-bot-subnet-public.*.id, count.index)
   allocation_id = element(aws_eip.clash-bot-eip-gateway.*.id, count.index)
-  tags = {
+  tags          = {
     Name = "${var.prefix}-nat-gateway"
   }
 }
@@ -324,12 +324,12 @@ resource "aws_lb" "clash-bot-discord-bot-lb" {
 }
 
 resource "aws_lb_target_group" "clash-bot-discord-bot-tg" {
-  name        = "${var.prefix}-tg"
-  port        = 8080
-  protocol    = "HTTP"
-  vpc_id      = aws_vpc.clash-bot-vpc.id
-  target_type = "ip"
-  health_check = {
+  name         = "${var.prefix}-tg"
+  port         = 8080
+  protocol     = "HTTP"
+  vpc_id       = aws_vpc.clash-bot-vpc.id
+  target_type  = "ip"
+  health_check {
     enabled             = true
     healthy_threshold   = 2
     unhealthy_threshold = 3
@@ -398,17 +398,17 @@ resource "aws_ecs_task_definition" "clash-bot-discord-bot-task-def" {
   cpu                      = 256
   memory                   = 512
   execution_role_arn       = aws_iam_role.clash-bot-exec-role.arn
-  container_definitions = jsonencode([
+  container_definitions    = jsonencode([
     {
-      name        = var.prefix
-      image       = var.image_id
-      cpu         = 10
-      memory      = 512
-      essential   = true
-      networkMode = "awsvpc"
+      name             = var.prefix
+      image            = var.image_id
+      cpu              = 10
+      memory           = 512
+      essential        = true
+      networkMode      = "awsvpc"
       logConfiguration = {
         logDriver = "awslogs"
-        options = {
+        options   = {
           awslogs-group         = aws_cloudwatch_log_group.clash-bot-task-logs.name
           awslogs-region        = var.region
           awslogs-stream-prefix = "${var.prefix}-ecs"
