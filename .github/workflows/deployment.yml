@@ -29,12 +29,20 @@ jobs:
     name: 'Build/Deploy Image'
     runs-on: ubuntu-latest
 
-    outputs:
-      image-url: ${{ steps.build-image.outputs.image }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Set Tag output
+        id: vars
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+
+      - name: Check output
+        env:
+          RELEASE_VERSION: ${{ steps.vars.outputs.tag }}
+        run: |
+          echo $RELEASE_VERSION
+          echo ${{ steps.vars.outputs.tag }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -107,7 +115,7 @@ jobs:
           TF_VAR_two: ${{ secrets.TWO }}
           TF_VAR_three: ${{ secrets.THREE }}
           TF_VAR_four: ${{ secrets.FOUR }}
-          TF_VAR_release_title : ${{ GITHUB_REF##*/ }}
+          TF_VAR_release_title : ${{ steps.vars.outputs.tag }}
         run: terraform apply -auto-approve -input=false
 
       - name: Terraform Output
