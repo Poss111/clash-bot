@@ -23,7 +23,7 @@ jobs:
 
       - name: Print branch name
         id: vars
-        run: echo "::set-env name=branch::$(echo ${GITHUB_HEAD_REF})"
+        run: echo "::set-output name=branch::$(echo ${GITHUB_HEAD_REF})"
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
