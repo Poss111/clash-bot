@@ -23,7 +23,6 @@ provider "aws" {
     tags = {
       Application = "Clash-Bot-Discord-Bot"
       Type        = "Bot"
-      Release     = var.release_title
     }
   }
 }
@@ -450,7 +449,8 @@ resource "aws_ecs_task_definition" "clash-bot-discord-bot-task-def" {
   ])
 
   tags = {
-    Name = "${var.prefix}-task"
+    Name    = "${var.prefix}-task"
+    Release = var.release_title
   }
 }
 
