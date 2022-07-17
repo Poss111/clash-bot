@@ -454,11 +454,13 @@ resource "aws_ecs_task_definition" "clash-bot-discord-bot-task-def" {
 }
 
 resource "aws_ecs_service" "clash-bot-discord-bot-service" {
-  name            = "${var.prefix}-service"
-  cluster         = aws_ecs_cluster.clash-bot-ecs.id
-  task_definition = aws_ecs_task_definition.clash-bot-discord-bot-task-def.arn
-  desired_count   = var.app_count
-  launch_type     = "FARGATE"
+  name                               = "${var.prefix}-service"
+  cluster                            = aws_ecs_cluster.clash-bot-ecs.id
+  task_definition                    = aws_ecs_task_definition.clash-bot-discord-bot-task-def.arn
+  desired_count                      = var.app_count
+  launch_type                        = "FARGATE"
+  deployment_minimum_healthy_percent = 0
+  deployment_maximum_percent         = 100
 
   network_configuration {
     security_groups = [aws_security_group.clash-bot-discord-bot-task-sg.id]

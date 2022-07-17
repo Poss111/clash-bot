@@ -10,7 +10,11 @@ on:
 
 jobs:
   build:
+    name: 'Build/Test Verification'
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src
 
     steps:
     - uses: FranzDiebold/github-env-vars-action@v2.1.0
@@ -23,17 +27,17 @@ jobs:
         message: 'Starting Github build...'
         message-color: '15258703'
 
+    - uses: actions/checkout@v2
+
     - name: Check
       run : echo build $GITHUB_RUN_NUMBER
-
-    - uses: actions/checkout@v2
 
     - name: Cache node modules
       uses: actions/cache@v2
       env:
         cache-name: cache-node-modules
       with:
-        path: ~/.npm
+        path: .npm
         key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-build-${{ env.cache-name }}-
@@ -44,7 +48,9 @@ jobs:
       run: npm i
 
     - name: Run unit tests
-      run: npm test
+      run: |
+        ls -lha
+        npm test
 
     - name: Start App container
       run: docker-compose up -d

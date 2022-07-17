@@ -7,6 +7,7 @@ on:
     paths-ignore:
       - '**/README.md'
       - '**/.gitignore'
+      - 'src/**'
 
 jobs:
   terraform:
@@ -15,6 +16,7 @@ jobs:
     defaults:
       run:
         working-directory: tfe
+
     steps:
       - uses: FranzDiebold/github-env-vars-action@v2.1.0
 

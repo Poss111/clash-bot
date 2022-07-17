@@ -4,10 +4,10 @@
   "description": "A Discord bot for League of Legends Clash team management.",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js",
-    "local-start": "nodemon index.js | pino-pretty -t",
-    "test": "jest unit --coverage --coverageReporters=\"json\" --coverageReporters=\"json-summary\" --coverageReporters=\"lcov\" --coverageReporters=\"text\" --silent --detectOpenHandles",
-    "integration": "jest int --silent"
+    "start": "./node_modules/.bin/nodemon index.js",
+    "local-start": "./node_modules/.bin/nodemon index.js | pino-pretty -t",
+    "test": "./node_modules/.bin/jest unit --coverage --coverageReporters=\\\"json\\\" --coverageReporters=\\\"json-summary\\\" --coverageReporters=\\\"lcov\\\" --coverageReporters=\\\"text\\\" --silent --detectOpenHandles",
+    "integration": "./node_modules/.bin/jest int --silent"
   },
   "keywords": [],
   "author": "Daniel Poss",
