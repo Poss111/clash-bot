@@ -73,6 +73,8 @@ jobs:
       - name: Pull latest ecr image
         id: get-latest
         if: steps.check-apps.outputs.srcCode == 'false'
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
           chmod 755 ./get_latest_image.sh
           ./get_latest_image.sh
