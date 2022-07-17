@@ -10,7 +10,7 @@ do
   else
     srcCode=false
   fi
-  if [[ "$i" == *"tf/"* && !$tfCode ]];
+  if [[ "$i" == *"tfe/"* && !$tfCode ]];
   then
     tfCode=true
   else
