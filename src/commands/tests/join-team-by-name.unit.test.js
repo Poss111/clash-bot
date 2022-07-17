@@ -3,25 +3,31 @@ const tournamentsServiceImpl = require('../../services/tournaments-service-impl'
 const teamsServiceImpl = require('../../services/teams-service-impl');
 const errorHandling = require('../../utility/error-handling');
 const registerReply = require('../../templates/register-reply');
+const alreadyRegisteredReply = require('../../templates/already-registered-reply');
 const {buildMockInteraction} = require('./shared-test-utilities/shared-test-utilities.test');
+const templateBuilder = require("../../utility/template-builder");
 
 jest.mock('../../services/tournaments-service-impl');
 jest.mock('../../services/teams-service-impl');
 jest.mock('../../utility/error-handling');
 
-function buildExpectedRegisterResponse(sampleRegisterReturn) {
-    let copy = JSON.parse(JSON.stringify(registerReply));
-    copy.fields.push({
+function buildTeamPayload(msg, sampleRegisterReturn) {
+    msg.fields.push({
         name: sampleRegisterReturn.teamName,
         value: sampleRegisterReturn.playersDetails
             .map(details => `${details.role} - ${details.name ? details.name : details.id}`).join('\n'),
         inline: true
     });
-    copy.fields.push({
+    msg.fields.push({
         name: 'Tournament Details',
         value: `${sampleRegisterReturn.tournamentDetails.tournamentName} Day ${sampleRegisterReturn.tournamentDetails.tournamentDay}`,
         inline: true
     });
+}
+
+function buildExpectedRegisterResponse(sampleRegisterReturn) {
+    let copy = JSON.parse(JSON.stringify(registerReply));
+    buildTeamPayload(copy, sampleRegisterReturn);
     return copy;
 }
 
@@ -136,6 +142,57 @@ describe('Join an existing Team', () => {
         tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(leagueTimes);
         teamsServiceImpl.postForTeamRegistration.mockResolvedValue(sampleRegisterReturn);
         let copy = buildExpectedRegisterResponse(sampleRegisterReturn.registeredTeam);
+        await joinTeamByName.execute(msg, args);
+        expect(teamsServiceImpl.postForTeamRegistration).toBeCalledWith(msg.user.id, args[0], args[3],
+            msg.member.guild.name, leagueTimes[0].tournamentName, leagueTimes[0].tournamentDay);
+        expect(msg.deferReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledTimes(1);
+        expect(msg.editReply).toHaveBeenCalledWith({embeds: [copy]});
+    })
+
+    test('When a user requests to join a team and they pass a Tournament and a Team they already belong to, they should be notified that they cannot join a team they are already on.', async () => {
+        let msg = buildMockInteraction();
+        let args = ['Supp', 'msi2021', '1', 'Sample']
+        const leagueTimes = [
+            {
+                tournamentName: "msi2021",
+                tournamentDay: "1",
+                startTime: "May 29 2021 07:00 pm PDT",
+                registrationTime: "May 29 2021 04:15 pm PDT"
+            }
+        ];
+        const sampleRegisterReturn = {
+            registeredTeam: {
+                teamName: 'Team Sample',
+                serverName: msg.member.guild.name,
+                playersDetails: [
+                    {
+                        id: 1,
+                        name: 'Roidrage',
+                        role: 'Top',
+                        champions: []
+                    },
+                    {
+                        id: msg.user.id,
+                        name: msg.user.username,
+                        role: 'Supp',
+                        champions: []
+
+                    }
+                ],
+                tournamentDetails: {
+                    tournamentName: leagueTimes[0].tournamentName,
+                    tournamentDay: leagueTimes[0].tournamentDay,
+                },
+                startTime: leagueTimes[0].startTime
+            }
+        };
+        tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(leagueTimes);
+        teamsServiceImpl.postForTeamRegistration.mockResolvedValue(sampleRegisterReturn);
+        let copy = templateBuilder.buildMessage(JSON.parse(JSON.stringify(alreadyRegisteredReply)),
+            { team: sampleRegisterReturn.registeredTeam.teamName, role: args[0]});
+        buildTeamPayload(copy, sampleRegisterReturn.registeredTeam);
+
         await joinTeamByName.execute(msg, args);
         expect(teamsServiceImpl.postForTeamRegistration).toBeCalledWith(msg.user.id, args[0], args[3],
             msg.member.guild.name, leagueTimes[0].tournamentName, leagueTimes[0].tournamentDay);
