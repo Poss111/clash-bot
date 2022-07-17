@@ -2,7 +2,7 @@
 /.idea
 logs.txt
 *.iml
-.env
+src/.env
 .prodenv
 common-commands.txt
 credentials.json

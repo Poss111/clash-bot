@@ -12,6 +12,8 @@ jobs:
   deployment:
     name: 'Discord Notification Start'
     runs-on: ubuntu-latest
+    env:
+      ECR_REPOSITORY: poss11111
 
     steps:
       - uses: FranzDiebold/github-env-vars-action@v2.1.0
@@ -33,11 +35,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Run shell to check to deploy Iac or service
+        id: check-apps
+        run: |
+          chmod 755 ./check_diff_between_tags.sh
+          ./check_diff_between_tags.sh
+
+      - name: Check Output for source
+        run: echo ${{ steps.check-apps.outputs.srcCode }}
+
+      - name: Check Output for Terraform
+        run: echo ${{ steps.check-apps.outputs.tfCode }}
+
       - name: Set Tag output
         id: vars
         run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
 
       - name: Check output
+        if: ${{ steps.check-apps.outputs.srcCode == 'true'}}
         env:
           RELEASE_VERSION: ${{ steps.vars.outputs.tag }}
         run: |
@@ -55,16 +70,24 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Build, tag, and push Clash-Bot image to Amazon ECR
-        id: build-image
+      - name: Pull latest ecr image
+        if: steps.check-apps.outputs.srcCode == 'false'
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: poss11111
+        run: |
+          echo "IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:$ECR_REGISTRY/$ECR_REPOSITORY:$(aws ecr describe-images --repository-name poss11111 --query \
+          'sort_by(imageDetails,& imagePushedAt)[*]' | jq '.[0].imageTags[0]')" >> $GITHUB_ENV
+
+      - name: Build, tag, and push Clash-Bot image to Amazon ECR
+        if: steps.check-apps.outputs.srcCode == 'true'
+        working-directory: src
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          echo "IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_ENV
 
       - name: Image Build Failed Discord Webhook
         uses: Poss111/discord-hook-action@v1.6.8
@@ -103,7 +126,7 @@ jobs:
           TF_VAR_secret_key: ${{ secrets.AWS_SECRET_KEY }}
           TF_VAR_app_count: 1
           TF_VAR_region: "us-east-1"
-          TF_VAR_image_id: ${{ steps.build-image.outputs.image }}
+          TF_VAR_image_id: ${{ env.IMAGE }}
           TF_VAR_prefix: "clash-bot-discord"
           TF_VAR_repository_name: "poss11111"
           TF_VAR_iam_secret_policies: ${{ secrets.IAM_SECRET_POLICIES }}
