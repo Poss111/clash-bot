@@ -71,13 +71,18 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Pull latest ecr image
+        id: get-latest
+        if: steps.check-apps.outputs.srcCode == 'false'
+        run: echo ::set-output name=image_response::$(aws ecr describe-images --repository-name poss11111 --query 'sort_by(imageDetails,& imagePushedAt)[-1]')
+
+      - name: Parse image path
         if: steps.check-apps.outputs.srcCode == 'false'
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_RESPONSE: ${{ steps.get-latest.outputs.image_response}}
         run: |
-          IMAGE_RESPONSE=$(aws ecr describe-images --repository-name poss11111 --query 'sort_by(imageDetails,& imagePushedAt)[-1]')
-          echo "Timestamp for image: $(IMAGE_RESPONSE | jq -r '.imagePushedAt')"
-          echo "IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:$(IMAGE_RESPONSE | jq -r '.imageTags[0]')" >> $GITHUB_ENV
+          echo "Timestamp for image: $($IMAGE_RESPONSE | jq -r '.imagePushedAt')"
+          echo "IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:$($IMAGE_RESPONSE | jq -r '.imageTags[0]')" >> $GITHUB_ENV
 
       - name: Build, tag, and push Clash-Bot image to Amazon ECR
         if: steps.check-apps.outputs.srcCode == 'true'
