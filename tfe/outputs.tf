@@ -1,9 +1,9 @@
-output "ecs-name" {
+output "ecs_name" {
   value       = aws_ecs_cluster.clash-bot-ecs.name
   description = "ECS Name"
 }
 
-output "ecs-id" {
+output "ecs_id" {
   value       = aws_ecs_cluster.clash-bot-ecs.id
   description = "ECS Id"
 }
