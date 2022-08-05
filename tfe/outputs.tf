@@ -3,6 +3,11 @@ output "ecs-name" {
   description = "ECS Name"
 }
 
+output "ecs-id" {
+  value       = aws_ecs_cluster.clash-bot-ecs.id
+  description = "ECS Id"
+}
+
 output "task_definition_version" {
   value       = aws_ecs_task_definition.clash-bot-discord-bot-task-def.revision
   description = "Task definition revision"
