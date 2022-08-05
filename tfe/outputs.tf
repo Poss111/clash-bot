@@ -9,16 +9,16 @@ output "task_definition_version" {
 }
 
 output "vpc_id" {
-  value = aws_vpc.clash-bot-vpc.id
+  value       = aws_vpc.clash-bot-vpc.id
   description = "Clash Bot's vpc"
 }
 
 output "public_subnet_ids" {
-  value = aws_subnet.clash-bot-subnet-public.*.id
+  value       = aws_subnet.clash-bot-subnet-public.*.id
   description = "Public Subnet Ids"
 }
 
 output "private_subnet_ids" {
-  value = aws_subnet.clash-bot-subnet-private.*.id
+  value       = aws_subnet.clash-bot-subnet-private.*.id
   description = "Private Subnet Ids"
 }
