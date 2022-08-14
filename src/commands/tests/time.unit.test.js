@@ -1,5 +1,4 @@
 const time = require('../time');
-const tournamentsServiceImpl = require('../../services/tournaments-service-impl');
 const clashTimeMenu = require('../../templates/clash-times-menu');
 const clashTimeFields = require('../../templates/clash-time-fields');
 const templateBuilder = require('../../utility/template-builder');
@@ -7,7 +6,6 @@ const {buildMockInteraction} = require('./shared-test-utilities/shared-test-util
 const moment = require('moment-timezone');
 const clashBotRestClient = require('clash-bot-rest-client');
 
-jest.mock('../../services/tournaments-service-impl');
 jest.mock('clash-bot-rest-client');
 
 const expectedDateFormat = 'MMMM DD yyyy hh:mm a z';

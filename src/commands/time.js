@@ -1,4 +1,3 @@
-const tournamentsServiceImpl = require('../services/tournaments-service-impl');
 const clashTimeMenu = require('../templates/clash-times-menu');
 const clashTimeFields = require('../templates/clash-time-fields');
 const templateBuilder = require('../utility/template-builder');
