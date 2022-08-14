@@ -15,7 +15,7 @@ module.exports = {
         const startTime = process.hrtime.bigint();
         await msg.deferReply();
         try {
-            const client = new ClashBotRestClient.TournamentApi(new ClashBotRestClient.ApiClient('http://localhost:8085/api/v2'));
+            const client = new ClashBotRestClient.TournamentApi(new ClashBotRestClient.ApiClient('http://localhost:8080/api/v2'));
             let response = await client.getTournaments({});
             const copy = JSON.parse(JSON.stringify(clashTimeMenu));
             if (response && response.length > 0) {
