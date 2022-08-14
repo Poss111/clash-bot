@@ -1,26 +1,26 @@
 const teams = require('../teams');
-const clashBotTeamsServiceImpl = require('../../services/teams-service-impl');
-const tentativeServiceImpl = require('../../services/tentative-service-impl');
 const errorHandling = require('../../utility/error-handling');
 const teamsCard = require('../../templates/teams');
 const { buildMockInteraction } = require('./shared-test-utilities/shared-test-utilities.test');
+const clashBotRestClient = require('clash-bot-rest-client');
 
-jest.mock('../../services/teams-service-impl');
-jest.mock('../../services/tentative-service-impl');
 jest.mock('../../utility/error-handling');
+jest.mock('clash-bot-rest-client');
 
 function buildExpectedTeamsResponse(sampleTeamList) {
     let copy = JSON.parse(JSON.stringify(teamsCard));
     let counter = 1;
     sampleTeamList.forEach(team => {
         copy.fields.push({
-            name: team.teamName,
-            value: team.playersDetails.map(details => `${details.role} - ${details.name}`).join('\n'),
+            name: team.name,
+            value: Object.entries(team.playerDetails)
+              .map(details => `${details[0]} - ${details[1].name}`)
+              .join('\n'),
             inline: true
         });
         copy.fields.push({
             name: 'Tournament Details',
-            value: `${team.tournamentDetails.tournamentName} Day ${team.tournamentDetails.tournamentDay}`,
+            value: `${team.tournament.tournamentName} Day ${team.tournament.tournamentDay}`,
             inline: true
         });
         if (counter !== sampleTeamList.length) {
@@ -51,7 +51,7 @@ function buildExpectedTeamsListWithTentative(sampleRegisteredTeams, sampleTentat
             acc[key] = []
         }
         if (Array.isArray(value.tentativePlayers) && value.tentativePlayers.length > 0) {
-            acc[key].push(value.tentativePlayers);
+            acc[key].push(value.tentativePlayers.map(player => player.name));
         }
         return acc;
     }, {});
@@ -67,274 +67,450 @@ function buildExpectedTeamsListWithTentative(sampleRegisteredTeams, sampleTentat
     return copy;
 }
 
-describe('Retrieve Teams', () => {
+function create500HttpError() {
+    return {
+        error: `Failed to make call.`,
+        headers: undefined,
+        status: 500,
+        statusText: "Bad Request",
+        url: "https://localhost.com/api"
+    };
+}
 
-    beforeEach(() => {
-        jest.resetAllMocks();
-    })
-
-    test('When a team is passed back, it should be populated as a field in the embedded property of the reply.', async () => {
-        let msg = buildMockInteraction();
-        const sampleTeamTwoPlayers = [
-            {
-                teamName: 'Team Abra',
-                playersDetails: [
-                    {
-                        name: 'Roïdräge',
-                        champions: ['Volibear', 'Ornn', 'Sett'],
-                        role: 'Top'
-                    },
-                    {
-                        name: 'TheIncentive',
-                        champions: ['Lucian'],
-                        role: 'ADC'
-                    },
-                    {
-                        name: 'Pepe Conrad',
-                        champions: ['Lucian'],
-                        role: 'Jg'
-                    }
-                ],
-                tournamentDetails: {
-                    tournamentName: 'awesome_sauce',
-                    tournamentDay: '1'
-                }
-            }
-        ];
-
-        let copy = buildExpectedTeamsResponse(sampleTeamTwoPlayers);
-
-        clashBotTeamsServiceImpl.retrieveActiveTeamsForServer.mockResolvedValue(JSON.parse(JSON.stringify(sampleTeamTwoPlayers)));
-        await teams.execute(msg);
-        expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
-    })
-
-    test('When multiple teams are passed back, they should be populated as individual fields in the embedded property of the reply with their corresponding tournaments.', async () => {
-        let msg = buildMockInteraction();
-        const sampleTeamTwoPlayers = [
-            {
-                teamName: 'Team Abra',
-                playersDetails: [
-                    {
-                        name: 'Roïdräge',
-                        champions: ['Volibear', 'Ornn', 'Sett'],
-                        role: 'Top'
-                    },
-                    {
-                        name: 'TheIncentive',
-                        champions: ['Lucian'],
-                        role: 'ADC'
-                    },
-                    {
-                        name: 'Pepe Conrad',
-                        champions: ['Lucian'],
-                        role: 'Jg'
-                    }
-                ],
-                tournamentDetails: {
-                    tournamentName: 'awesome_sauce',
-                    tournamentDay: '1'
-                }
-            },
-            {
-                teamName: 'Team Charizard',
-                playersDetails: [
-                    {
-                        name: 'Shiragaku',
-                        champions: ['Volibear', 'Ornn', 'Sett'],
-                        role: 'Top'
-                    }
-                ],
-                tournamentDetails: {
-                    tournamentName: 'awesome_sauce',
-                    tournamentDay: '1'
-                }
-            }
-        ];
-        let copy = buildExpectedTeamsResponse(sampleTeamTwoPlayers);
-        clashBotTeamsServiceImpl.retrieveActiveTeamsForServer.mockResolvedValue(JSON.parse(JSON.stringify(sampleTeamTwoPlayers)));
-        await teams.execute(msg);
-        expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
-    })
-
-    test('When no teams are passed back, it should be populate the not existing teams message.', async () => {
-        let msg = buildMockInteraction();
-        const sampleTeamTwoPlayers = [];
-        clashBotTeamsServiceImpl.retrieveActiveTeamsForServer.mockResolvedValue(sampleTeamTwoPlayers);
-
-        let copy = buildExpectedNoTeamsResponse();
-
-        await teams.execute(msg);
-        expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
-    })
-
-    test('When tentative players and no teams are passed back, it should populate the tentative list with an empty teams message.', async () => {
-        let msg = buildMockInteraction();
-        const sampleTeamTwoPlayers = [];
-        const sampleTentativeList = [{
-            serverName: msg.member.guild.name,
-            tournamentDetails: {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '1'
-            },
-            tentativePlayers: ['Roidrage']
-        }];
-        let copy = buildExpectedTeamsListWithTentative(undefined, sampleTentativeList);
-        clashBotTeamsServiceImpl.retrieveActiveTeamsForServer.mockResolvedValue(sampleTeamTwoPlayers);
-        tentativeServiceImpl.retrieveTentativeListForServer.mockResolvedValue(sampleTentativeList);
-        await teams.execute(msg);
-        expect(tentativeServiceImpl.retrieveTentativeListForServer).toBeCalledWith(msg.member.guild.name);
-        expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
-    })
-
-    test('When multiple tentative players and a team are passed back, it should populate the tentative list with the existing team based on all the tournaments.', async () => {
-        let msg = buildMockInteraction();
-        const sampleTeamTwoPlayers = [
-            {
-                teamName: 'Team Abra',
-                playersDetails: [
-                    {
-                        name: 'Roïdräge',
-                        champions: ['Volibear', 'Ornn', 'Sett'],
-                        role: 'Top'
-                    },
-                    {
-                        name: 'TheIncentive',
-                        champions: ['Lucian'],
-                        role: 'ADC'
-                    },
-                    {
-                        name: 'Pepe Conrad',
-                        champions: ['Lucian'],
-                        role: 'Jg'
-                    }
-                ],
-                tournamentDetails: {
-                    tournamentName: 'awesome_sauce',
-                    tournamentDay: '1'
-                }
-            }
-        ];
-        const sampleTentativeList = [{
-            serverName: msg.member.guild.name,
-            tournamentDetails: {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '1'
-            },
-            tentativePlayers: ['Roidrage']
-        }, {
-            serverName: msg.member.guild.name,
-            tournamentDetails: {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '2'
-            },
-            tentativePlayers: ['TheIncentive']
-        }];
-
-        let copy = buildExpectedTeamsListWithTentative(sampleTeamTwoPlayers, sampleTentativeList);
-        clashBotTeamsServiceImpl.retrieveActiveTeamsForServer.mockResolvedValue(sampleTeamTwoPlayers);
-        tentativeServiceImpl.retrieveTentativeListForServer.mockReturnValue(sampleTentativeList);
-        await teams.execute(msg);
-
-        expect(clashBotTeamsServiceImpl.retrieveActiveTeamsForServer).toHaveBeenCalledTimes(1);
-        expect(tentativeServiceImpl.retrieveTentativeListForServer).toHaveBeenCalledTimes(1);
-        expect(clashBotTeamsServiceImpl.retrieveActiveTeamsForServer).toHaveBeenCalledWith(msg.member.guild.name);
-        expect(tentativeServiceImpl.retrieveTentativeListForServer).toBeCalledWith(msg.member.guild.name);
-        expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
-    })
-
-    test('When multiple tentative players and a team are passed back and some have empty Tentative Player lists, it should populate the tentative list with the existing team based on all the tournaments.', async () => {
-        let msg = buildMockInteraction();
-        const sampleTeamTwoPlayers = [
-            {
-                teamName: 'Team Abra',
-                playersDetails: [
-                    {
-                        name: 'Roïdräge',
-                        champions: ['Volibear', 'Ornn', 'Sett'],
-                        role: 'Top'
-                    },
-                    {
-                        name: 'TheIncentive',
-                        champions: ['Lucian'],
-                        role: 'ADC'
-                    },
-                    {
-                        name: 'Pepe Conrad',
-                        champions: ['Lucian'],
-                        role: 'Jg'
-                    }
-                ],
-                tournamentDetails: {
-                    tournamentName: 'awesome_sauce',
-                    tournamentDay: '1'
-                }
-            }
-        ];
-        let sampleTentativeList = [{
-            serverName: msg.member.guild.name,
-            tournamentDetails: {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '1'
-            },
-            tentativePlayers: ['Roidrage']
-        }, {
-            serverName: msg.member.guild.name,
-            tournamentDetails: {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '2'
-            },
-            tentativePlayers: ['TheIncentive']
-        }, {
-            serverName: msg.member.guild.name,
-            tournamentDetails: {
-                tournamentName: 'awesome_sauce',
-                tournamentDay: '2'
-            },
-            tentativePlayers: []
-        }];
-        sampleTentativeList = JSON.parse(JSON.stringify(sampleTentativeList.filter(record => record.tentativePlayers.length > 0)));
-        let copy = buildExpectedTeamsListWithTentative(sampleTeamTwoPlayers, sampleTentativeList);
-        clashBotTeamsServiceImpl.retrieveActiveTeamsForServer.mockResolvedValue(sampleTeamTwoPlayers);
-        tentativeServiceImpl.retrieveTentativeListForServer.mockReturnValue(sampleTentativeList);
-        await teams.execute(msg);
-
-        expect(clashBotTeamsServiceImpl.retrieveActiveTeamsForServer).toHaveBeenCalledTimes(1);
-        expect(tentativeServiceImpl.retrieveTentativeListForServer).toHaveBeenCalledTimes(1);
-        expect(clashBotTeamsServiceImpl.retrieveActiveTeamsForServer).toHaveBeenCalledWith(msg.member.guild.name);
-        expect(tentativeServiceImpl.retrieveTentativeListForServer).toBeCalledWith(msg.member.guild.name);
-        expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
-    })
+beforeEach(() => {
+    jest.resetAllMocks();
+    jest.resetModules();
 })
 
-describe('Error Handling', () => {
-    test('Error - clashBotTeamsServiceImpl.retrieveActiveTeamsForServer - If an error occurs, the error handler will be invoked.', async () => {
-        errorHandling.handleError = jest.fn();
-        let msg = buildMockInteraction();
-        clashBotTeamsServiceImpl.retrieveActiveTeamsForServer.mockRejectedValue('Some error occurred.');
-        await teams.execute(msg);
-        expect(errorHandling.handleError).toHaveBeenCalledTimes(1);
-        expect(errorHandling.handleError).toHaveBeenCalledWith(teams.name, 'Some error occurred.', msg, 'Failed to retrieve the current Clash Teams status.');
+describe('Retrieve Teams', () => {
+    describe('Happy Path and edge cases', () => {
+        test('When a team is passed back, it should be populated as a field in the embedded property of the reply.', async () => {
+            let msg = buildMockInteraction();
+            const sampleTeamTwoPlayers = [
+                {
+                    name: 'abra',
+                    serverName: msg.member.guild.name,
+                    playerDetails: {
+                        Top: {
+                            id: 1,
+                            name: 'Roïdräge',
+                            champions: ['Volibear', 'Ornn', 'Sett'],
+                            role: 'Top'
+                        },
+                        Bot: {
+                            id: 2,
+                            name: 'TheIncentive',
+                            champions: ['Lucian'],
+                            role: 'Bot'
+                        },
+                        Jg: {
+                            id: 3,
+                            name: 'Pepe Conrad',
+                            champions: ['Lucian'],
+                            role: 'Jg'
+                        }
+                    },
+                    tournament: {
+                        tournamentName: 'awesome_sauce',
+                        tournamentDay: '1'
+                    }
+                }
+            ];
+
+            let parsedResponse = [{ ...sampleTeamTwoPlayers[0] }];
+            parsedResponse[0].name = 'Abra';
+
+            const getTentativeDetailsMock = jest.fn();
+            clashBotRestClient.TentativeApi.mockReturnValue({
+                getTentativeDetails: getTentativeDetailsMock
+                  .mockResolvedValue(undefined)
+            });
+            const getTeamMock = jest.fn();
+            clashBotRestClient.TeamApi.mockReturnValue({
+                getTeam: getTeamMock.mockResolvedValue(sampleTeamTwoPlayers)
+            });
+            let copy = buildExpectedTeamsResponse(parsedResponse);
+            await teams.execute(msg);
+            expect(errorHandling.handleError).not.toHaveBeenCalled();
+            expect(getTentativeDetailsMock).toHaveBeenCalledTimes(1);
+            expect(getTentativeDetailsMock)
+              .toHaveBeenCalledWith(msg.member.guild.name);
+            expect(getTeamMock).toHaveBeenCalledTimes(1);
+            expect(getTeamMock)
+              .toHaveBeenCalledWith(msg.member.guild.name);
+            expect(msg.deferReply).toHaveBeenCalledTimes(1);
+            expect(msg.editReply).toHaveBeenCalledTimes(1);
+            expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
+        })
+
+        test('When multiple teams are passed back, they should be populated as individual fields in the embedded property of the reply with their corresponding tournaments.', async () => {
+            let msg = buildMockInteraction();
+            const sampleTeamTwoPlayers = [
+                {
+                    name: 'abra',
+                    playerDetails: {
+                        Top: {
+                            id: 1,
+                            name: 'Roïdräge',
+                            champions: ['Volibear', 'Ornn', 'Sett'],
+                            role: 'Top'
+                        },
+                        Bot: {
+                            id: 2,
+                            name: 'TheIncentive',
+                            champions: ['Lucian'],
+                            role: 'Bot'
+                        },
+                        Jg: {
+                            id: 3,
+                            name: 'Pepe Conrad',
+                            champions: ['Lucian'],
+                            role: 'Jg'
+                        }
+                    },
+                    tournament: {
+                        tournamentName: 'awesome_sauce',
+                        tournamentDay: '1'
+                    }
+                },
+                {
+                    name: 'charizard',
+                    playerDetails: {
+                        Top: {
+                            name     : 'Shiragaku',
+                            champions: ['Volibear', 'Ornn', 'Sett'],
+                            role     : 'Top'
+                        }
+                    },
+                    tournament: {
+                        tournamentName: 'awesome_sauce',
+                        tournamentDay: '1'
+                    }
+                }
+            ];
+
+            let parsedResponse = [
+              { ...sampleTeamTwoPlayers[0] },
+              { ...sampleTeamTwoPlayers[1] }
+            ];
+            parsedResponse[0].name = 'Abra';
+            parsedResponse[1].name = 'Charizard';
+
+            const getTentativeDetailsMock = jest.fn();
+            clashBotRestClient.TentativeApi.mockReturnValue({
+                getTentativeDetails: getTentativeDetailsMock
+                  .mockResolvedValue(undefined)
+            });
+            const getTeamMock = jest.fn();
+            clashBotRestClient.TeamApi.mockReturnValue({
+                getTeam: getTeamMock.mockResolvedValue(sampleTeamTwoPlayers)
+            });
+            let copy = buildExpectedTeamsResponse(parsedResponse);
+            await teams.execute(msg);
+            expect(errorHandling.handleError).not.toHaveBeenCalled();
+            expect(getTentativeDetailsMock).toHaveBeenCalledTimes(1);
+            expect(getTentativeDetailsMock)
+              .toHaveBeenCalledWith(msg.member.guild.name);
+            expect(getTeamMock).toHaveBeenCalledTimes(1);
+            expect(getTeamMock)
+              .toHaveBeenCalledWith(msg.member.guild.name);
+            expect(msg.deferReply).toHaveBeenCalledTimes(1);
+            expect(msg.editReply).toHaveBeenCalledTimes(1);
+            expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
+        })
+
+        test('When no teams are passed back, it should be populate the not existing teams message.', async () => {
+            let msg = buildMockInteraction();
+            const getTentativeDetailsMock = jest.fn();
+            clashBotRestClient.TentativeApi.mockReturnValue({
+                getTentativeDetails: getTentativeDetailsMock
+                  .mockResolvedValue(undefined)
+            });
+            const getTeamMock = jest.fn();
+            clashBotRestClient.TeamApi.mockReturnValue({
+                getTeam: getTeamMock.mockResolvedValue([])
+            });
+
+            let copy = buildExpectedNoTeamsResponse();
+
+            await teams.execute(msg);
+            expect(msg.deferReply).toHaveBeenCalledTimes(1);
+            expect(msg.editReply).toHaveBeenCalledTimes(1);
+            expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
+        })
+
+        test('When tentative players and no teams are passed back, it should populate the tentative list with an empty teams message.', async () => {
+            let msg = buildMockInteraction();
+            const sampleTentativeList = [{
+                serverName: msg.member.guild.name,
+                tournamentDetails: {
+                    tournamentName: 'awesome_sauce',
+                    tournamentDay: '1'
+                },
+                tentativePlayers: [{
+                    id: '1',
+                    name: 'Roidrage',
+                }]
+            }];
+
+            const getTentativeDetailsMock = jest.fn();
+            clashBotRestClient.TentativeApi.mockReturnValue({
+                getTentativeDetails: getTentativeDetailsMock
+                  .mockResolvedValue(sampleTentativeList)
+            });
+            const getTeamMock = jest.fn();
+            clashBotRestClient.TeamApi.mockReturnValue({
+                getTeam: getTeamMock.mockResolvedValue([])
+            });
+            let copy = buildExpectedTeamsListWithTentative(
+              undefined,
+              sampleTentativeList,
+            );
+            await teams.execute(msg);
+            expect(errorHandling.handleError).not.toHaveBeenCalled();
+            expect(getTentativeDetailsMock).toHaveBeenCalledTimes(1);
+            expect(getTentativeDetailsMock)
+              .toHaveBeenCalledWith(msg.member.guild.name);
+            expect(getTeamMock).toHaveBeenCalledTimes(1);
+            expect(getTeamMock)
+              .toHaveBeenCalledWith(msg.member.guild.name);
+            expect(msg.deferReply).toHaveBeenCalledTimes(1);
+            expect(msg.editReply).toHaveBeenCalledTimes(1);
+            expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
+        })
+
+        test('When multiple tentative players and a team are passed back, it should populate the tentative list with the existing team based on all the tournaments.', async () => {
+            let msg = buildMockInteraction();
+            const sampleTeamTwoPlayers = [
+                {
+                    name: 'abra',
+                    playerDetails: {
+                        Top: {
+                            id: 1,
+                            name: 'Roïdräge',
+                            champions: ['Volibear', 'Ornn', 'Sett'],
+                            role: 'Top'
+                        },
+                        Bot: {
+                            id: 2,
+                            name: 'TheIncentive',
+                            champions: ['Lucian'],
+                            role: 'Bot'
+                        },
+                        Jg: {
+                            id: 3,
+                            name: 'Pepe Conrad',
+                            champions: ['Lucian'],
+                            role: 'Jg'
+                        }
+                    },
+                    tournament: {
+                        tournamentName: 'awesome_sauce',
+                        tournamentDay: '1'
+                    }
+                }
+            ];
+            const sampleTentativeList = [
+              {
+                serverName: msg.member.guild.name,
+                tournamentDetails: {
+                    tournamentName: 'awesome_sauce',
+                    tournamentDay: '1'
+                },
+                tentativePlayers: [{
+                    id: '1',
+                    name: 'Roidrage',
+                }]
+                },
+                {
+                    serverName: msg.member.guild.name,
+                    tournamentDetails: {
+                        tournamentName: 'awesome_sauce',
+                        tournamentDay: '2'
+                    },
+                    tentativePlayers: [{
+                        id: '1',
+                        name: 'Roidrage',
+                    }]
+                }
+            ];
+
+            let parsedResponse = [{ ...sampleTeamTwoPlayers[0] }];
+            parsedResponse[0].name = 'Abra';
+
+            const getTentativeDetailsMock = jest.fn();
+            clashBotRestClient.TentativeApi.mockReturnValue({
+                getTentativeDetails: getTentativeDetailsMock
+                  .mockResolvedValue(sampleTentativeList)
+            });
+            const getTeamMock = jest.fn();
+            clashBotRestClient.TeamApi.mockReturnValue({
+                getTeam: getTeamMock.mockResolvedValue(sampleTeamTwoPlayers)
+            });
+            let copy = buildExpectedTeamsListWithTentative(
+              parsedResponse,
+              sampleTentativeList
+            );
+            await teams.execute(msg);
+            expect(errorHandling.handleError).not.toHaveBeenCalled();
+            expect(getTentativeDetailsMock).toHaveBeenCalledTimes(1);
+            expect(getTentativeDetailsMock)
+              .toHaveBeenCalledWith(msg.member.guild.name);
+            expect(getTeamMock).toHaveBeenCalledTimes(1);
+            expect(getTeamMock)
+              .toHaveBeenCalledWith(msg.member.guild.name);
+            expect(msg.deferReply).toHaveBeenCalledTimes(1);
+            expect(msg.editReply).toHaveBeenCalledTimes(1);
+            expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
+        })
+
+        test('When multiple tentative players and a team are passed back and some have empty Tentative Player lists, it should populate the tentative list with the existing team based on all the tournaments.', async () => {
+            let msg = buildMockInteraction();
+            const sampleTeamTwoPlayers = [
+                {
+                    name: 'abra',
+                    playerDetails: {
+                        Top: {
+                            id: 1,
+                            name: 'Roïdräge',
+                            champions: ['Volibear', 'Ornn', 'Sett'],
+                            role: 'Top'
+                        },
+                        Bot: {
+                            id: 2,
+                            name: 'TheIncentive',
+                            champions: ['Lucian'],
+                            role: 'Bot'
+                        },
+                        Jg: {
+                            id: 3,
+                            name: 'Pepe Conrad',
+                            champions: ['Lucian'],
+                            role: 'Jg'
+                        }
+                    },
+                    tournament: {
+                        tournamentName: 'awesome_sauce',
+                        tournamentDay: '1'
+                    }
+                }
+            ];
+            let sampleTentativeList = [{
+                serverName: msg.member.guild.name,
+                tournamentDetails: {
+                    tournamentName: 'awesome_sauce',
+                    tournamentDay: '1'
+                },
+                tentativePlayers: [{
+                    id: '1',
+                    name: 'Roidrage',
+                }]
+            }, {
+                serverName: msg.member.guild.name,
+                tournamentDetails: {
+                    tournamentName: 'awesome_sauce',
+                    tournamentDay: '2'
+                },
+                tentativePlayers: [{
+                    id: '1',
+                    name: 'Roidrage',
+                }]
+            }, {
+                serverName: msg.member.guild.name,
+                tournamentDetails: {
+                    tournamentName: 'awesome_sauce',
+                    tournamentDay: '3'
+                },
+                tentativePlayers: []
+            }];
+
+            let parsedResponse = [{ ...sampleTeamTwoPlayers[0] }];
+            parsedResponse[0].name = 'Abra';
+
+            const getTentativeDetailsMock = jest.fn();
+            clashBotRestClient.TentativeApi.mockReturnValue({
+                getTentativeDetails: getTentativeDetailsMock
+                  .mockResolvedValue(sampleTentativeList)
+            });
+            const getTeamMock = jest.fn();
+            clashBotRestClient.TeamApi.mockReturnValue({
+                getTeam: getTeamMock.mockResolvedValue(sampleTeamTwoPlayers)
+            });
+            sampleTentativeList = JSON.parse(JSON.stringify(sampleTentativeList.filter(record => record.tentativePlayers.length > 0)));
+            let copy = buildExpectedTeamsListWithTentative(parsedResponse, sampleTentativeList);
+            await teams.execute(msg);
+            expect(errorHandling.handleError).not.toHaveBeenCalled();
+            expect(getTentativeDetailsMock).toHaveBeenCalledTimes(1);
+            expect(getTentativeDetailsMock)
+              .toHaveBeenCalledWith(msg.member.guild.name);
+            expect(getTeamMock).toHaveBeenCalledTimes(1);
+            expect(getTeamMock)
+              .toHaveBeenCalledWith(msg.member.guild.name);
+            expect(msg.deferReply).toHaveBeenCalledTimes(1);
+            expect(msg.editReply).toHaveBeenCalledTimes(1);
+            expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
+        })
     })
 
-    test('Error - tentativeServiceImpl.retrieveTentativeListForServer - If an error occurs, the error handler will be invoked.', async () => {
-        errorHandling.handleError = jest.fn();
-        let msg = buildMockInteraction();
-        tentativeServiceImpl.retrieveTentativeListForServer.mockRejectedValue('Some error occurred.');
-        await teams.execute(msg);
-        expect(errorHandling.handleError).toHaveBeenCalledTimes(1);
-        expect(errorHandling.handleError).toHaveBeenCalledWith(teams.name, 'Some error occurred.', msg, 'Failed to retrieve the current Clash Teams status.');
-    })
+    describe('Error', () => {
+        test('Error - (Retrieve All Teams) - If an error occurs, the error handler will be invoked.', async () => {
+            errorHandling.handleError = jest.fn();
+            let msg = buildMockInteraction();
+            const getTentativeDetailsMock = jest.fn();
+            clashBotRestClient.TentativeApi.mockReturnValue({
+                getTentativeDetails: getTentativeDetailsMock
+                  .mockResolvedValue([])
+            });
+            const getTeamMock = jest.fn();
+            clashBotRestClient.TeamApi.mockReturnValue({
+                getTeam: getTeamMock.mockRejectedValue(create500HttpError())
+            });
+            await teams.execute(msg);
+            expect(getTentativeDetailsMock).toHaveBeenCalledTimes(1);
+            expect(getTentativeDetailsMock)
+              .toHaveBeenCalledWith(msg.member.guild.name);
+            expect(getTeamMock).toHaveBeenCalledTimes(1);
+            expect(getTeamMock)
+              .toHaveBeenCalledWith(msg.member.guild.name);
+            expect(errorHandling.handleError)
+              .toHaveBeenCalledTimes(1);
+            expect(errorHandling.handleError)
+              .toHaveBeenCalledWith(
+                teams.name,
+                create500HttpError(),
+                msg,
+                'Failed to retrieve the current Clash Teams status.'
+              );
+        })
+
+        test('Error - (Get Tenta- If an error occurs, the error handler will be invoked.', async () => {
+            errorHandling.handleError = jest.fn();
+            let msg = buildMockInteraction();
+            const getTentativeDetailsMock = jest.fn();
+            clashBotRestClient.TentativeApi.mockReturnValue({
+                getTentativeDetails: getTentativeDetailsMock
+                  .mockRejectedValue(create500HttpError())
+            });
+            const getTeamMock = jest.fn();
+            clashBotRestClient.TeamApi.mockReturnValue({
+                getTeam: getTeamMock.mockResolvedValue([])
+            });
+            await teams.execute(msg);
+            expect(getTentativeDetailsMock)
+              .toHaveBeenCalledTimes(1);
+            expect(getTentativeDetailsMock)
+              .toHaveBeenCalledWith(msg.member.guild.name);
+            expect(getTeamMock).toHaveBeenCalledTimes(1);
+            expect(getTeamMock)
+              .toHaveBeenCalledWith(msg.member.guild.name);
+            expect(errorHandling.handleError).toHaveBeenCalledTimes(1);
+            expect(errorHandling.handleError)
+              .toHaveBeenCalledWith(
+                teams.name,
+                create500HttpError(),
+                msg,
+                'Failed to retrieve the current Clash Teams status.',
+              );
+        });
+    });
 });

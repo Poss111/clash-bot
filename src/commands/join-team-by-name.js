@@ -117,7 +117,7 @@ module.exports = {
                     await msg.reply(`The role passed is not correct - '${role}'. Please pass one of the following Top, Mid, Jg, Bot, or Supp.`)
                 } else {
                     await msg.deferReply();
-                    const tournamentApi = ClashBotRestClient.TournamentApi(new ClashBotRestClient.ApiClient('http://localhost:8080/api/v2'));
+                    const tournamentApi = new ClashBotRestClient.TournamentApi(new ClashBotRestClient.ApiClient('http://localhost:8080/api/v2'));
                     let times = await tournamentApi.getTournaments({});
                     times = times.filter(findTournament(args[1], args[2]));
                     if (times.length === 0) {
