@@ -20,7 +20,8 @@ module.exports = {
             command: this.name,
             user: msg.user.id,
             username: msg.user.username,
-            server: msg.member ? msg.member.guild.name : {} };
+            server: msg.member ? msg.member.guild.name : {}
+        };
         const startTime = process.hrtime.bigint();
         try {
             if (Array.isArray(args) && args.length < 1) {
@@ -60,6 +61,7 @@ module.exports = {
             }
         } catch (err) {
             if (err.status === 400) {
+                logger.error({ ...loggerContext, err });
                 await msg.editReply('Sorry! You cannot have more than 5 champions in your list. ' +
                   'Please remove by passing a champion in your list and then try adding again. Thank you!');
             } else {

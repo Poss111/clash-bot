@@ -1,10 +1,9 @@
-const tournamentsServiceImpl = require('../services/tournaments-service-impl');
-const teamsServiceImpl = require('../services/teams-service-impl');
+const ClashBotRestClient = require('clash-bot-rest-client');
 const registerReply = require('../templates/register-reply');
 const {findTournament} = require('../utility/tournament-handler');
 const errorHandling = require('../utility/error-handling');
 const timeTracker = require('../utility/time-tracker');
-const logger = require('pino')();
+const logger = require('../utility/logger');
 
 module.exports = {
     name: 'join',
@@ -76,8 +75,13 @@ module.exports = {
         }
     ],
     execute: async function (msg, args) {
+        const loggerContext = {
+            command: this.name,
+            user: msg.user.id,
+            username: msg.user.username,
+            server: msg.member ? msg.member.guild.name : {}
+        };
         const startTime = process.hrtime.bigint();
-
         try {
             if (!args || args.length === 0) {
                 await msg.reply("Role, Tournament name, Tournament day, and Team are missing. You can use '/teams' to find existing teams. \n ***Usage***: /join ***Top*** ***msi2021*** ***1*** ***Pikachu***");
@@ -113,43 +117,58 @@ module.exports = {
                     await msg.reply(`The role passed is not correct - '${role}'. Please pass one of the following Top, Mid, Jg, Bot, or Supp.`)
                 } else {
                     await msg.deferReply();
-                    let times = await tournamentsServiceImpl.retrieveAllActiveTournaments();
+                    const tournamentApi = ClashBotRestClient.TournamentApi(new ClashBotRestClient.ApiClient('http://localhost:8080/api/v2'));
+                    let times = await tournamentApi.getTournaments({});
                     times = times.filter(findTournament(args[1], args[2]));
                     if (times.length === 0) {
-                        logger.info(`Unable to find Tournament for details - Name ('${args[1]}') Day ('${args[2]}').`);
+                        logger.info(loggerContext, `Unable to find Tournament for details - Name ('${args[1]}') Day ('${args[2]}').`);
                         await msg.editReply(`The tournament you are trying to join does not exist Name '${args[1]}' Day '${args[2]}'. Please use '/times' to see valid tournaments.`)
                     } else {
                         function buildTournamentDetails(team) {
                             return {
                                 name: 'Tournament Details',
-                                value: `${team.tournamentDetails.tournamentName} Day ${team.tournamentDetails.tournamentDay}`,
+                                value: `${team.tournament.tournamentName} Day ${team.tournament.tournamentDay}`,
                                 inline: true
                             };
                         }
 
                         let copy = JSON.parse(JSON.stringify(registerReply));
-                        logger.info(`Registering ('${msg.user.username}') with Tournaments ('${JSON.stringify(times)}') with role '${args[0]}'...`);
-                        await teamsServiceImpl.postForTeamRegistration(msg.user.id, args[0], args[3], msg.member.guild.name,
-                            times[0].tournamentName, times[0].tournamentDay).then(team => {
-                            if (!team.error) {
-                                logger.info(`Registered ('${msg.user.username}') with Role ('${args[0]}') Tournament ('${team.registeredTeam.tournamentDetails.tournamentName}') Team ('${team.registeredTeam.teamName}').`);
-                                copy.fields.push({
-                                    name: team.registeredTeam.teamName,
-                                    value: team.registeredTeam.playersDetails
-                                        .map(details => `${details.role} - ${details.name ? details.name : details.id}`).join('\n'),
-                                    inline: true
-                                });
-                                copy.fields.push(buildTournamentDetails(team.registeredTeam));
-                            } else {
-                                copy.description = `Failed to find an available team with the following criteria, Role '${args[0]}' Tournament Name '${args[1]}' Tournament Day '${args[2]}' Team Name '${args[3]}' or role is not available for that team`;
-                            }
-                            msg.editReply({embeds: [copy]});
+                        logger.info(loggerContext, `Registering ('${msg.user.username}') with Tournaments ('${JSON.stringify(times)}') with role '${args[0]}'...`);
+                        const teamApi = ClashBotRestClient
+                          .TeamApi(new ClashBotRestClient.ApiClient('http://localhost:8080/api/v2'));
+                        let opts = {
+                            'updateTeamRequest': new ClashBotRestClient.UpdateTeamRequest({
+                                serverName: msg.member.guild.name,
+                                teamName: args[3].toLowerCase(),
+                                tournamentDetails: {
+                                    tournamentName: times[0].tournamentName,
+                                    tournamentDay: times[0].tournamentDay,
+                                },
+                                playerId: msg.user.id,
+                                role: args[0]
+                            }),
+                        };
+                        const team = await teamApi.updateTeam(opts);
+                        logger.info(loggerContext, `Registered ('${msg.user.username}') with Role ('${args[0]}') Tournament ('${team.tournament.tournamentName}') Team ('${team.name}').`);
+                        copy.fields.push({
+                            name: team.name,
+                            value: Object.entries(team.playerDetails)
+                                .map(details => `${details[0]} - ${details[1].name ? details[1].name : details[1].id}`)
+                              .join('\n'),
+                            inline: true
                         });
+                        copy.fields.push(buildTournamentDetails(team));
+                        await msg.editReply({embeds: [copy]});
                     }
                 }
             }
         } catch (err) {
-            await errorHandling.handleError(this.name, err, msg, 'Failed to join the requested team.');
+            if (err.status === 400) {
+                logger.error({ ...loggerContext, err });
+                await msg.editReply(`Failed to find an available team with the following criteria, Role '${args[0]}' Tournament Name '${args[1]}' Tournament Day '${args[2]}' Team Name '${args[3]}' or role is not available for that team`);
+            } else {
+                await errorHandling.handleError(this.name, err, msg, 'Failed to join the requested team.');
+            }
         } finally {
             timeTracker.endExecution(this.name, startTime);
         }

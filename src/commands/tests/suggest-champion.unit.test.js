@@ -1,11 +1,9 @@
 const suggestChampion = require('../suggest-champion');
-const userServiceImpl = require('../../services/user-service-impl');
 const errorHandler = require('../../utility/error-handling');
 const riotApi = require('@fightmegg/riot-api');
 const {buildMockInteraction} = require('./shared-test-utilities/shared-test-utilities.test');
 const clashBotRestClient = require("clash-bot-rest-client");
 
-jest.mock('../../services/user-service-impl');
 jest.mock('../../utility/error-handling');
 jest.mock('@fightmegg/riot-api');
 jest.mock("clash-bot-rest-client");
@@ -231,7 +229,6 @@ describe('Suggest Champion Command', () => {
             let args = [];
             await suggestChampion.execute(msg, args)
             expect(msg.deferReply).not.toHaveBeenCalled();
-            expect(userServiceImpl.getUserDetails).not.toBeCalled();
             expect(msg.reply).toBeCalledWith('no champion name was passed. Please pass one.');
         })
 
@@ -243,7 +240,6 @@ describe('Suggest Champion Command', () => {
             expect(msg.deferReply).toHaveBeenCalledTimes(1);
             expect(msg.editReply).toHaveBeenCalledTimes(1);
             expect(msg.editReply).toBeCalledWith(`Champion name passed does not exist. Please validate with /champions ${args[0]}`);
-            expect(userServiceImpl.getUserDetails).not.toBeCalled();
         })
     })
 
