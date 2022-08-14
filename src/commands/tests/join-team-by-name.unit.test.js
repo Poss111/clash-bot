@@ -209,7 +209,7 @@ describe('Join an existing Team', () => {
               role      : args[0],
               champions : ['sett'],
               serverName: msg.member.guild.name
-          }
+          };
           let expectedRequest = {
               updateTeamRequest: {
                   serverName       : msg.member.guild.name,

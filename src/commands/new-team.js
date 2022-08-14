@@ -1,10 +1,9 @@
-const tournamentsServiceImpl = require('../services/tournaments-service-impl');
-const teamsServiceImpl = require('../services/teams-service-impl');
+const ClashBotRestClient = require('clash-bot-rest-client');
 const errorHandling = require('../utility/error-handling');
 const timeTracker = require('../utility/time-tracker');
-const {findTournament} = require('../utility/tournament-handler');
 const registerReply = require('../templates/register-reply');
 const {parseUserInfo} = require('../services/user-information-service-impl');
+const logger = require('../utility/logger');
 
 module.exports = {
     name: 'new-team',
@@ -70,6 +69,12 @@ module.exports = {
         }
     ],
     execute: async function (msg, args) {
+        const loggerContext = {
+            command: this.name,
+            user: msg.user.id,
+            username: msg.user.username,
+            server: msg.member ? msg.member.guild.name : {}
+        };
         const startTime = process.hrtime.bigint();
         try {
             const userInfo = parseUserInfo(msg);
@@ -102,26 +107,26 @@ module.exports = {
                     await msg.reply(`The role passed is not correct - '${role}'. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: /newTeam ***Top***`)
                 } else {
                     await msg.deferReply();
+                    const request = {};
                     if (args[1]) {
                         let registeringMessage = `Registering '${userInfo.username}' for Tournament '${args[1]}'`;
+                        request.tournament = args[1];
                         if (args[2]) {
                             registeringMessage = registeringMessage + ` on day '${args[2]}'`;
-                            filter = findTournament(args[1], args[2]);
-                        } else {
-                            filter = findTournament(args[1]);
+                            request.day = args[2];
                         }
                         await msg.editReply(registeringMessage + ` as '${role}'...`);
                     } else {
                         await msg.editReply(`Registering '${userInfo.username}' for the first available tournament as '${role}' that you are not already registered to...`);
                     }
-                    let filteredClashTimes = await tournamentsServiceImpl.retrieveAllActiveTournaments();
-                    if (filter && filteredClashTimes) {
-                        filteredClashTimes = filteredClashTimes.filter(filter)
-                    }
+                    const tournamentApi = new ClashBotRestClient
+                      .TournamentApi(new ClashBotRestClient
+                        .ApiClient('http://localhost:808/api/v2'));
+                    let filteredClashTimes = await tournamentApi.getTournaments(request);
                     if (!filteredClashTimes
                         || !filteredClashTimes.length) {
                         if (!args[1]) {
-                            errorHandling.handleError(this.name,
+                            await errorHandling.handleError(this.name,
                                 new Error('Failed to find any tournaments to attempt to register to.'),
                                 msg, 'Failed to find any tournaments to attempt to register to.');
                         } else {
@@ -135,42 +140,44 @@ module.exports = {
                         function buildTournamentDetails(team) {
                             return {
                                 name: 'Tournament Details',
-                                value: `${team.tournamentDetails.tournamentName} Day ${team.tournamentDetails.tournamentDay}`,
+                                value: `${team.tournament.tournamentName} Day ${team.tournament.tournamentDay}`,
                                 inline: true
                             };
                         }
 
-                        let notRegistered = true;
-                        let data;
-                        while (notRegistered && filteredClashTimes.length > 0) {
-                            data = await teamsServiceImpl.postForNewTeam(userInfo.id, role, userInfo.guild,
-                                filteredClashTimes[0].tournamentName, filteredClashTimes[0].tournamentDay,
-                                filteredClashTimes[0].startTime);
-                            if (data.error !== 'Player is not eligible to create a new Team.') {
-                                notRegistered = false;
-                            } else {
-                                filteredClashTimes.splice(0, 1);
-                            }
-                        }
+                        logger.info(loggerContext, `Create new Team User with TournamentName ('${filteredClashTimes[0].tournamentName}') TournamentDay ('${filteredClashTimes[0].tournamentDay}') Role ('${args[0]}')`);
+
+                        const teamApi = ClashBotRestClient
+                          .TeamApi(new ClashBotRestClient
+                            .ApiClient('http://localhost:8080/api/v2'));
+                        let opts = {
+                            createNewTeamRequest:
+                              {
+                                  serverName: msg.member.guild.name,
+                                  tournamentName: filteredClashTimes[0].tournamentName,
+                                  tournamentDay: filteredClashTimes[0].tournamentDay,
+                                  playerDetails: {
+                                      id: msg.user.id,
+                                      role: args[0]
+                                  }
+                              }
+                        };
+                        const response = await teamApi.createNewTeam(opts);
                         let copy = JSON.parse(JSON.stringify(registerReply));
-                        if (data.error === 'Player is not eligible to create a new Team.') {
-                            copy.description = 'You are already registered to the given tournament.';
-                        } else {
-                            data = data.registeredTeam;
-                            copy.fields.push({
-                                name: data.teamName,
-                                value: data.playersDetails
-                                    .map(details => `${details.role} - ${details.name ? details.name : details.id}`).toString(),
-                                inline: true
-                            });
-                            copy.fields.push(buildTournamentDetails(data));
-                        }
+                        copy.fields.push({
+                            name: response.name,
+                            value: Object.entries(response.playerDetails)
+                              .map(details => `${details[0]} - ${details[1].name ? details[1].name : details[1].id}`)
+                              .toString(),
+                            inline: true,
+                        });
+                        copy.fields.push(buildTournamentDetails(response));
                         await msg.editReply({embeds: [copy]});
                     }
                 }
             }
         } catch (err) {
-            errorHandling.handleError(this.name, err, msg, 'Failed to register you to team.');
+            await errorHandling.handleError(this.name, err, msg, 'Failed to register you to team.');
         } finally {
             timeTracker.endExecution(this.name, startTime);
         }

@@ -1,3 +1,4 @@
+const ClashBotRestClient = require('clash-bot-rest-client');
 const clashTimeMenu = require('../templates/clash-times-menu');
 const clashTimeFields = require('../templates/clash-time-fields');
 const templateBuilder = require('../utility/template-builder');
@@ -5,7 +6,6 @@ const timeTracker = require('../utility/time-tracker');
 const moment = require('moment-timezone');
 const errorHandler = require('../utility/error-handling');
 const logger = require('pino')();
-const ClashBotRestClient = require('clash-bot-rest-client');
 
 module.exports = {
     name: 'time',
