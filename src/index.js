@@ -20,8 +20,8 @@ app.get(`/health`, (req, res) => {
     });
 })
 
-app.listen(8080, () => {
-    logger.info(`Clash Bot Service up and running on Port ('8080')!`);
+app.listen(8082, () => {
+    logger.info(`Clash Bot Service up and running on Port ('8082')!`);
 });
 
 process.on('beforeExit', () => {

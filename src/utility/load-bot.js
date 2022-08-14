@@ -61,9 +61,9 @@ let interactionHandler = async (interaction, bot) => {
         if (!bot.commands.has(interaction.commandName)) return;
 
         try {
-            console.info(`('${interaction.user.username}') called command: ('${interaction.commandName}')`);
-            await userServiceImpl.postVerifyUser(interaction.user.id,
-                interaction.user.username, interaction.member.guild.name);
+            // console.info(`('${interaction.user.username}') called command: ('${interaction.commandName}')`);
+            // await userServiceImpl.postVerifyUser(interaction.user.id,
+            //     interaction.user.username, interaction.member.guild.name);
             await bot.commands.get(interaction.commandName).execute(interaction, args);
         } catch (error) {
             logger.error(`Failed to execute command ('${bot.commands.get(interaction.commandName).name}') due to error.`, error);

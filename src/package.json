@@ -16,14 +16,15 @@
     "@discordjs/rest": "^0.3.0",
     "@fightmegg/riot-api": "0.0.7",
     "axios": "^0.21.1",
+    "clash-bot-rest-client": "^1.0.1",
+    "cors": "^2.8.5",
     "discord-api-types": "^0.26.1",
     "discord.js": "^13.6.0",
     "dotenv": "^8.2.0",
+    "express": "^4.17.1",
     "moment-timezone": "^0.5.33",
     "pino": "^7.11.0",
-    "query-string": "^7.0.1",
-    "express": "^4.17.1",
-    "cors": "^2.8.5"
+    "query-string": "^7.0.1"
   },
   "devDependencies": {
     "jest": "^27.4.7",

@@ -5,8 +5,10 @@ const clashTimeFields = require('../../templates/clash-time-fields');
 const templateBuilder = require('../../utility/template-builder');
 const {buildMockInteraction} = require('./shared-test-utilities/shared-test-utilities.test');
 const moment = require('moment-timezone');
+const clashBotRestClient = require('clash-bot-rest-client');
 
 jest.mock('../../services/tournaments-service-impl');
+jest.mock('clash-bot-rest-client');
 
 const expectedDateFormat = 'MMMM DD yyyy hh:mm a z';
 const expectedTournamentFormat = 'MMMM DD yyyy';
@@ -56,6 +58,14 @@ function buildExpectedNoTimesAvailableResponse() {
     return copy;
 }
 
+function setupGetTournamentsMock(sampleTime) {
+    let getTournamentsMock = jest.fn();
+    clashBotRestClient.TournamentApi.mockReturnValue({
+        getTournaments: getTournamentsMock.mockResolvedValue(sampleTime)
+    });
+    return getTournamentsMock;
+}
+
 describe('League Clash Times', () => {
 
     test('When league times returns successfully, there should be a formatted time for each available clash and tier returned.', async () => {
@@ -69,9 +79,10 @@ describe('League Clash Times', () => {
             }
         ];
         let copy = buildExpectedTournamentTimesResponse(sampleTime);
-        tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(sampleTime);
+        let getTournamentsMock = setupGetTournamentsMock(sampleTime);
         await time.execute(msg);
-        expect(tournamentsServiceImpl.retrieveAllActiveTournaments).toHaveBeenCalledTimes(1);
+        expect(getTournamentsMock).toHaveBeenCalledTimes(1);
+        expect(getTournamentsMock).toHaveBeenCalledWith({});
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledWith({embeds: [copy]});
@@ -80,9 +91,10 @@ describe('League Clash Times', () => {
     test('When league times returns as undefined, there should be a no times available message returned.', async () => {
         let msg = buildMockInteraction();
         let copy = buildExpectedNoTimesAvailableResponse();
-        tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(undefined);
+        let getTournamentsMock = setupGetTournamentsMock(undefined);
         await time.execute(msg);
-        expect(tournamentsServiceImpl.retrieveAllActiveTournaments).toHaveBeenCalledTimes(1);
+        expect(getTournamentsMock).toHaveBeenCalledTimes(1);
+        expect(getTournamentsMock).toHaveBeenCalledWith({});
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledWith({embeds: [copy]});
@@ -91,8 +103,10 @@ describe('League Clash Times', () => {
     test('When league times returns as empty, there should be a no times available message returned.', async () => {
         let msg = buildMockInteraction();
         let copy = buildExpectedNoTimesAvailableResponse();
-        tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue([]);
+        let getTournamentsMock = setupGetTournamentsMock([]);
         await time.execute(msg);
+        expect(getTournamentsMock).toHaveBeenCalledTimes(1);
+        expect(getTournamentsMock).toHaveBeenCalledWith({});
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledWith({embeds: [copy]});
@@ -134,9 +148,10 @@ describe('League Clash Times', () => {
         ];
         let copy = buildExpectedTournamentTimesResponse(sampleTime);
         copy.fields = copy.fields.slice(0,4);
-        tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(sampleTime);
+        let getTournamentsMock = setupGetTournamentsMock(sampleTime);
         await time.execute(msg);
-        expect(tournamentsServiceImpl.retrieveAllActiveTournaments).toHaveBeenCalledTimes(1);
+        expect(getTournamentsMock).toHaveBeenCalledTimes(1);
+        expect(getTournamentsMock).toHaveBeenCalledWith({});
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledWith({embeds: [copy]});
