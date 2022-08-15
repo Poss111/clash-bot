@@ -2,6 +2,7 @@ const throttleHandling = require('../utility/throttle-handling');
 const timeTracker = require('../utility/time-tracker');
 const wait = require('util').promisify(setTimeout);
 const logger = require('../utility/logger');
+const errorHandling = require("../utility/error-handling");
 
 module.exports = {
     name: 'dance',
@@ -55,6 +56,13 @@ module.exports = {
                     throttleHandling.setServerNotified(this.name, msg.member.guild.name);
                 }
             }
+        } catch(error) {
+            await errorHandling.handleError(
+              this.name,
+              error,
+              msg,
+              'Failed to dance for you.',
+              loggerContext);
         } finally {
             timeTracker.endExecution(this.name, startTime);
         }

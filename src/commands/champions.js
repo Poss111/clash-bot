@@ -3,6 +3,7 @@ const championTemplate = require('../templates/champion-description');
 const templateBuilder = require('../utility/template-builder');
 const riotApi = require('@fightmegg/riot-api');
 const logger = require('../utility/logger');
+const errorHandling = require("../utility/error-handling");
 
 module.exports = {
     name: 'champions',
@@ -55,6 +56,13 @@ module.exports = {
             } else {
                 await msg.editReply('Could not find the champion specified.')
             }
+        } catch(error) {
+            await errorHandling.handleError(
+              this.name,
+              error,
+              msg,
+              'Failed to find champions.',
+              loggerContext);
         } finally {
             timeTracker.endExecution(this.name, startTime);
         }
