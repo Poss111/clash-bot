@@ -4,6 +4,7 @@ const {findTournament} = require('../utility/tournament-handler');
 const errorHandling = require('../utility/error-handling');
 const timeTracker = require('../utility/time-tracker');
 const logger = require('../utility/logger');
+const {capitalizeFirstLetter} = require("../utility/utilities");
 
 module.exports = {
     name: 'join',
@@ -134,24 +135,24 @@ module.exports = {
 
                         let copy = JSON.parse(JSON.stringify(registerReply));
                         logger.info(loggerContext, `Registering ('${msg.user.username}') with Tournaments ('${JSON.stringify(times)}') with role '${args[0]}'...`);
-                        const teamApi = ClashBotRestClient
+                        const teamApi = new ClashBotRestClient
                           .TeamApi(new ClashBotRestClient.ApiClient('http://localhost:8080/api/v2'));
                         let opts = {
-                            'updateTeamRequest': new ClashBotRestClient.UpdateTeamRequest({
-                                serverName: msg.member.guild.name,
-                                teamName: args[3].toLowerCase(),
-                                tournamentDetails: {
+                            'updateTeamRequest': new ClashBotRestClient.UpdateTeamRequest(
+                                msg.member.guild.name,
+                                args[3].toLowerCase(),
+                                {
                                     tournamentName: times[0].tournamentName,
                                     tournamentDay: times[0].tournamentDay,
                                 },
-                                playerId: msg.user.id,
-                                role: args[0]
-                            }),
+                                msg.user.id,
+                                args[0]
+                            ),
                         };
                         const team = await teamApi.updateTeam(opts);
                         logger.info(loggerContext, `Registered ('${msg.user.username}') with Role ('${args[0]}') Tournament ('${team.tournament.tournamentName}') Team ('${team.name}').`);
                         copy.fields.push({
-                            name: team.name,
+                            name: capitalizeFirstLetter(team.name),
                             value: Object.entries(team.playerDetails)
                                 .map(details => `${details[0]} - ${details[1].name ? details[1].name : details[1].id}`)
                               .join('\n'),
@@ -167,7 +168,12 @@ module.exports = {
                 logger.error({ ...loggerContext, err });
                 await msg.editReply(`Failed to find an available team with the following criteria, Role '${args[0]}' Tournament Name '${args[1]}' Tournament Day '${args[2]}' Team Name '${args[3]}' or role is not available for that team`);
             } else {
-                await errorHandling.handleError(this.name, err, msg, 'Failed to join the requested team.');
+                await errorHandling.handleError(
+                  this.name,
+                  err,
+                  msg,
+                  'Failed to join the requested team.',
+                  loggerContext);
             }
         } finally {
             timeTracker.endExecution(this.name, startTime);

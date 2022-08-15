@@ -479,7 +479,8 @@ describe('Retrieve Teams', () => {
                 teams.name,
                 create500HttpError(),
                 msg,
-                'Failed to retrieve the current Clash Teams status.'
+                'Failed to retrieve the current Clash Teams status.',
+                expect.anything(),
               );
         })
 
@@ -510,6 +511,7 @@ describe('Retrieve Teams', () => {
                 create500HttpError(),
                 msg,
                 'Failed to retrieve the current Clash Teams status.',
+                expect.anything(),
               );
         });
     });

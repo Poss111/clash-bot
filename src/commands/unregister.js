@@ -81,7 +81,12 @@ module.exports = {
                 logger.error({...loggerContext, error: err});
                 await msg.editReply(`We did not find you on an existing Team for Tournament '${args[0]} - ${args[1]}'. Please use /join or /newTeam if you would like to join again. Thank you!`);
             } else {
-                await errorHandler.handleError(this.name, err, msg, 'Failed to unregister you.');
+                await errorHandler.handleError(
+                  this.name,
+                  err,
+                  msg,
+                  'Failed to unregister you.',
+                  loggerContext);
             }
         } finally {
             timeTracker.endExecution(this.name, startTime);

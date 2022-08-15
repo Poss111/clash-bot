@@ -195,7 +195,8 @@ describe('Unregister', () => {
               unregister.name,
               create500HttpError(),
               msg,
-              'Failed to unregister you.'
+              'Failed to unregister you.',
+              expect.anything(),
             );
         });
 
@@ -244,7 +245,8 @@ describe('Unregister', () => {
               unregister.name,
               create500HttpError(),
               msg,
-              'Failed to unregister you.'
+              'Failed to unregister you.',
+              expect.anything(),
             );
         });
     });

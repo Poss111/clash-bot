@@ -283,7 +283,8 @@ describe('Tentative Command', () => {
               tentative.name,
               create500HttpError(),
               msg,
-              'Failed to place you on tentative.'
+              'Failed to place you on tentative.',
+              expect.anything(),
             );
         })
 
@@ -365,7 +366,8 @@ describe('Tentative Command', () => {
               tentative.name,
               create500HttpError(),
               msg,
-              'Failed to place you on tentative.'
+              'Failed to place you on tentative.',
+              expect.anything(),
             );
         });
 
@@ -446,7 +448,8 @@ describe('Tentative Command', () => {
               tentative.name,
               create500HttpError(),
               msg,
-              'Failed to place you on tentative.'
+              'Failed to place you on tentative.',
+              expect.anything(),
             );
         });
 
@@ -538,7 +541,8 @@ describe('Tentative Command', () => {
               tentative.name,
               create500HttpError(),
               msg,
-              'Failed to place you on tentative.'
+              'Failed to place you on tentative.',
+              expect.anything(),
             );
         });
     })

@@ -65,7 +65,12 @@ module.exports = {
                 await msg.editReply('Sorry! You cannot have more than 5 champions in your list. ' +
                   'Please remove by passing a champion in your list and then try adding again. Thank you!');
             } else {
-                await errorHandler.handleError(this.name, err, msg, 'Failed to update the Users preferred Champions list.');
+                await errorHandler.handleError(
+                  this.name,
+                  err,
+                  msg,
+                  'Failed to update the Users preferred Champions list.',
+                  loggerContext);
             }
         } finally {
             timeTracker.endExecution(this.name, startTime);

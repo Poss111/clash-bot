@@ -120,14 +120,17 @@ module.exports = {
                     }
                     const tournamentApi = new ClashBotRestClient
                       .TournamentApi(new ClashBotRestClient
-                        .ApiClient('http://localhost:808/api/v2'));
+                        .ApiClient('http://localhost:8080/api/v2'));
                     let filteredClashTimes = await tournamentApi.getTournaments(request);
                     if (!filteredClashTimes
                         || !filteredClashTimes.length) {
                         if (!args[1]) {
-                            await errorHandling.handleError(this.name,
-                                new Error('Failed to find any tournaments to attempt to register to.'),
-                                msg, 'Failed to find any tournaments to attempt to register to.');
+                            await errorHandling.handleError(
+                              this.name,
+                              new Error('Failed to find any tournaments to attempt to register to.'),
+                              msg,
+                              'Failed to find any tournaments to attempt to register to.',
+                              loggerContext);
                         } else {
                             let returnMessage = `We were unable to find a Tournament with '${args[1]}'`
                             if (args[2]) {
@@ -146,7 +149,7 @@ module.exports = {
 
                         logger.info(loggerContext, `Create new Team User with TournamentName ('${filteredClashTimes[0].tournamentName}') TournamentDay ('${filteredClashTimes[0].tournamentDay}') Role ('${args[0]}')`);
 
-                        const teamApi = ClashBotRestClient
+                        const teamApi = new ClashBotRestClient
                           .TeamApi(new ClashBotRestClient
                             .ApiClient('http://localhost:8080/api/v2'));
                         let opts = {
@@ -176,7 +179,12 @@ module.exports = {
                 }
             }
         } catch (err) {
-            await errorHandling.handleError(this.name, err, msg, 'Failed to register you to team.');
+            await errorHandling.handleError(
+              this.name,
+              err,
+              msg,
+              'Failed to register you to team.',
+              loggerContext);
         } finally {
             timeTracker.endExecution(this.name, startTime);
         }

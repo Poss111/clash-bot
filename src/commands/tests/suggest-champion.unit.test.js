@@ -261,7 +261,8 @@ describe('Suggest Champion Command', () => {
                 suggestChampion.name,
                 create500HttpError(),
                 msg,
-                'Failed to update the Users preferred Champions list.'
+                'Failed to update the Users preferred Champions list.',
+                expect.anything(),
               );
         });
 
@@ -292,7 +293,9 @@ describe('Suggest Champion Command', () => {
               suggestChampion.name,
               create500HttpError(),
               msg,
-              'Failed to update the Users preferred Champions list.');
+              'Failed to update the Users preferred Champions list.',
+              expect.anything(),
+            );
         });
 
         test('If an error occurs while removing Champion to list, the error handler will be invoked.', async () => {
@@ -321,7 +324,9 @@ describe('Suggest Champion Command', () => {
               suggestChampion.name,
               create500HttpError(),
               msg,
-              'Failed to update the Users preferred Champions list.');
+              'Failed to update the Users preferred Champions list.',
+              expect.anything(),
+            );
         });
     });
 })

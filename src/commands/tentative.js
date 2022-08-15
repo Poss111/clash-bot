@@ -110,7 +110,12 @@ module.exports = {
                 }
             }
         } catch (err) {
-            await errorHandler.handleError(this.name, err, msg, 'Failed to place you on tentative.')
+            await errorHandler.handleError(
+              this.name,
+              err,
+              msg,
+              'Failed to place you on tentative.',
+              loggerContext);
         } finally {
             timeTracker.endExecution(this.name, startTime);
         }

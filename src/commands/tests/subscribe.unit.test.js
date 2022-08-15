@@ -118,8 +118,13 @@ describe('Subscribe', () => {
         expect(retrieveUserSubscriptionsMock).toBeCalledWith(msg.user.id);
         expect(errorHandling.handleError).toHaveBeenCalledTimes(1);
         expect(errorHandling.handleError)
-          .toHaveBeenCalledWith(subscribe.name, new Error('Something went wrong.'),
-            msg, 'Failed to subscribe.');
+          .toHaveBeenCalledWith(
+            subscribe.name,
+            new Error('Something went wrong.'),
+            msg,
+            'Failed to subscribe.',
+            expect.anything(),
+          );
       });
 
     test('When an error occurs while trying to subscribe, the user should be notified.',
@@ -142,8 +147,13 @@ describe('Subscribe', () => {
         expect(subscribeUserMock).toBeCalledWith(msg.user.id);
         expect(errorHandling.handleError).toHaveBeenCalledTimes(1);
         expect(errorHandling.handleError)
-          .toHaveBeenCalledWith(subscribe.name, new Error('Something went wrong.'),
-            msg, 'Failed to subscribe.');
+          .toHaveBeenCalledWith(
+            subscribe.name,
+            new Error('Something went wrong.'),
+            msg,
+            'Failed to subscribe.',
+            expect.anything(),
+          );
       });
   });
 });

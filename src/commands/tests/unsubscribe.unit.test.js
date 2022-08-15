@@ -114,9 +114,14 @@ describe('Unsubscribe', () => {
             expect(retrieveUserSubscriptionsMock).toBeCalledTimes(1);
             expect(retrieveUserSubscriptionsMock).toBeCalledWith(msg.user.id);
             expect(errorHandling.handleError).toHaveBeenCalledTimes(1);
-            expect(errorHandling.handleError).toHaveBeenCalledWith(unsubscribe.name,
-              new Error('Something went wrong.'),
-              msg, 'Failed to unsubscribe.');
+            expect(errorHandling.handleError)
+              .toHaveBeenCalledWith(
+                unsubscribe.name,
+                new Error('Something went wrong.'),
+                msg,
+                'Failed to unsubscribe.',
+                expect.anything(),
+              );
         });
 
         test('When an error occurs while trying to unsubscribe, the user should be notified.', async () => {
@@ -136,9 +141,14 @@ describe('Unsubscribe', () => {
             expect(unsubscribeUserMock).toBeCalledTimes(1);
             expect(unsubscribeUserMock).toBeCalledWith(msg.user.id);
             expect(errorHandling.handleError).toHaveBeenCalledTimes(1);
-            expect(errorHandling.handleError).toHaveBeenCalledWith(unsubscribe.name,
-              new Error('Something went wrong.'),
-              msg, 'Failed to unsubscribe.');
+            expect(errorHandling.handleError)
+              .toHaveBeenCalledWith(
+                  unsubscribe.name,
+                  new Error('Something went wrong.'),
+                  msg,
+                  'Failed to unsubscribe.',
+                  expect.anything(),
+              );
         });
     });
 });

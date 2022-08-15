@@ -26,7 +26,12 @@ module.exports = {
                 await msg.editReply('No subscription was found.');
             }
         } catch (err) {
-            await errorHandler.handleError(this.name, err, msg, 'Failed to unsubscribe.')
+            await errorHandler.handleError(
+              this.name,
+              err,
+              msg,
+              'Failed to unsubscribe.',
+              loggerContext);
         } finally {
             timeTracker.endExecution(this.name, startTime);
         }

@@ -6,7 +6,7 @@ describe('Error Handling', () => {
         const msg = buildMockInteraction();
         const userMessage = 'Sample Test Message to be given to the user';
         const constantSuffix = '. Please reach out to <@299370234228506627>.';
-        errorHandler.handleError('test', 'Test error.', msg, userMessage);
+        errorHandler.handleError('test', 'Test error.', msg, userMessage, {});
         expect(msg.editReply).toHaveBeenCalledWith(userMessage + constantSuffix);
     });
 })

@@ -58,7 +58,12 @@ module.exports = {
             }
             msg.editReply({embeds: [copy]});
         } catch(err) {
-            await errorHandler.handleError(this.name, err, msg, 'Failed to retrieve times.');
+            await errorHandler.handleError(
+              this.name,
+              err,
+              msg,
+              'Failed to retrieve times.',
+              loggerContext);
         } finally {
             timeTracker.endExecution(this.name, startTime);
         }

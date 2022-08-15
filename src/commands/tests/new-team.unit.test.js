@@ -244,7 +244,8 @@ describe('New Team', () => {
               newTeam.name,
               create500HttpError(),
               msg,
-              'Failed to register you to team.'
+              'Failed to register you to team.',
+              expect.anything(),
             );
         })
 
@@ -261,9 +262,12 @@ describe('New Team', () => {
             expect(msg.editReply).toHaveBeenCalledTimes(1);
             expect(msg.editReply).toHaveBeenCalledWith(`Registering '${msg.user.username}' for the first available tournament as '${args[0]}' that you are not already registered to...`);
             expect(errorHandling.handleError).toHaveBeenCalledTimes(1);
-            expect(errorHandling.handleError).toHaveBeenCalledWith(newTeam.name,
+            expect(errorHandling.handleError).toHaveBeenCalledWith(
+              newTeam.name,
               new Error('Failed to find any tournaments to attempt to register to.'),
-              msg, 'Failed to find any tournaments to attempt to register to.');
+              msg, 'Failed to find any tournaments to attempt to register to.',
+              expect.anything(),
+            );
         })
     })
 })

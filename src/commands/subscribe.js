@@ -28,7 +28,12 @@ module.exports = {
                 await msg.editReply('You are already subscribed.');
             }
         } catch (err) {
-            await errorHandler.handleError(this.name, err, msg, 'Failed to subscribe.');
+            await errorHandler.handleError(
+              this.name,
+              err,
+              msg,
+              'Failed to subscribe.',
+              loggerContext);
         } finally {
             timeTracker.endExecution(this.name, startTime);
         }

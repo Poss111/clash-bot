@@ -77,11 +77,11 @@ let interactionHandler = async (interaction, bot) => {
             } catch(error) {
                 if (error.status === 404) {
                     await userApi.createUser({
-                        createUserRequest: new ClashBotRestClient.CreateUserRequest({
-                            id: interaction.user.id,
-                            name: interaction.user.name,
-                            serverName: interaction.member.guild.name,
-                        })
+                        createUserRequest: new ClashBotRestClient.CreateUserRequest(
+                            interaction.user.id,
+                            interaction.user.username,
+                            interaction.member.guild.name
+                        )
                     });
                 } else {
                     throw error;

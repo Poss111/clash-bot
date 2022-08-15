@@ -313,11 +313,14 @@ describe('Join an existing Team', () => {
       expect(getTournamentsMock).toHaveBeenCalledWith({});
       expect(msg.deferReply).toHaveBeenCalledTimes(1);
       expect(errorHandling.handleError).toHaveBeenCalledTimes(1);
-      expect(errorHandling.handleError).toHaveBeenCalledWith(
-        joinTeamByName.name,
-        create500HttpError(),
-        msg,
-        'Failed to join the requested team.');
+      expect(errorHandling.handleError)
+        .toHaveBeenCalledWith(
+          joinTeamByName.name,
+          create500HttpError(),
+          msg,
+          'Failed to join the requested team.',
+          expect.anything(),
+        );
     });
 
     test('If an error occurs while updating Team details, the error handled will be invoked.', async () => {
@@ -355,7 +358,9 @@ describe('Join an existing Team', () => {
         joinTeamByName.name,
         create500HttpError(),
         msg,
-        'Failed to join the requested team.');
+        'Failed to join the requested team.',
+        expect.anything(),
+      );
     });
   });
 });

@@ -3,10 +3,7 @@ const teamsCard = require('../templates/teams');
 const errorHandler = require('../utility/error-handling');
 const timeTracker = require('../utility/time-tracker');
 const logger = require('../utility/logger');
-
-function capitalizeFirstLetter(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-}
+const {capitalizeFirstLetter} = require("../utility/utilities");
 
 module.exports = {
     name: 'teams',
@@ -91,7 +88,8 @@ module.exports = {
               this.name,
               err,
               msg,
-              'Failed to retrieve the current Clash Teams status.'
+              'Failed to retrieve the current Clash Teams status.',
+              loggerContext
             );
         } finally{
             timeTracker.endExecution(this.name, startTime);
