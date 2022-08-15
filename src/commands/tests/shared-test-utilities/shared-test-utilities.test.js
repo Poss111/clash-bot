@@ -30,6 +30,16 @@ const create400HttpError = () => {
     };
 }
 
+const create404HttpError = () => {
+    return {
+        error: `No team found matching criteria ''.`,
+        headers: undefined,
+        status: 404,
+        statusText: "Not Found",
+        url: "https://localhost.com/api"
+    };
+}
+
 const create500HttpError = () => {
     return {
         error: `Failed to make call.`,
@@ -43,5 +53,6 @@ const create500HttpError = () => {
 module.exports = {
     buildMockInteraction,
     create400HttpError,
+    create404HttpError,
     create500HttpError,
 }

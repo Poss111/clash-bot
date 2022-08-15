@@ -5,9 +5,9 @@ const {Routes} = require('discord-api-types/v9');
 const botCommands = require('../commands');
 const helpMenu = require('../templates/help-menu');
 const updateNotification = require('../templates/update-notification');
-const userServiceImpl = require('../services/user-service-impl');
 const templateBuilder = require("./template-builder");
-const logger = require('pino')();
+const ClashBotRestClient = require("clash-bot-rest-client");
+const logger = require('../utility/logger');
 let channel = 'league';
 let bot = undefined;
 
@@ -52,21 +52,44 @@ let messageHandler = async (msg) => {
 }
 
 let interactionHandler = async (interaction, bot) => {
+    const loggerContext = {
+        command: 'interactionHandler',
+        user: interaction.user ? interaction.user.id : 0,
+        username: interaction.user ? interaction.user.username : '',
+        server: interaction.member ? interaction.member.guild.name : {}
+    };
     if (interaction.isCommand()) {
         let args = [];
         if (interaction.options.data) {
          args = interaction.options.data.map(data => data.value);
         }
 
+        logger.info(loggerContext, `('${interaction.user.username}') called command: ('${interaction.commandName}')`);
+
         if (!bot.commands.has(interaction.commandName)) return;
 
         try {
-            // console.info(`('${interaction.user.username}') called command: ('${interaction.commandName}')`);
-            // await userServiceImpl.postVerifyUser(interaction.user.id,
-            //     interaction.user.username, interaction.member.guild.name);
+            const userApi = new ClashBotRestClient
+              .UserApi(new ClashBotRestClient
+                .ApiClient('http://localhost:8080/api/v2'));
+            try {
+                await userApi.getUser(interaction.user.id);
+            } catch(error) {
+                if (error.status === 404) {
+                    await userApi.createUser({
+                        createUserRequest: new ClashBotRestClient.CreateUserRequest({
+                            id: interaction.user.id,
+                            name: interaction.user.name,
+                            serverName: interaction.member.guild.name,
+                        })
+                    });
+                } else {
+                    throw error;
+                }
+            }
             await bot.commands.get(interaction.commandName).execute(interaction, args);
         } catch (error) {
-            logger.error(`Failed to execute command ('${bot.commands.get(interaction.commandName).name}') due to error.`, error);
+            logger.error({ ... loggerContext, error }, `Failed to execute command ('${bot.commands.get(interaction.commandName).name}') due to error.`, error);
             try {
                 if (interaction.deferred
                     || interaction.replied) {
@@ -77,7 +100,7 @@ let interactionHandler = async (interaction, bot) => {
                         'that command! Please reach out to <@299370234228506627>.');
                 }
             } catch (error) {
-                logger.error(`Failed to send error message due to error.`, error);
+                logger.error({ ...loggerContext, error }, `Failed to send error message due to error.`, error);
             }
         }
     }
