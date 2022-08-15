@@ -5,6 +5,7 @@ const errorHandling = require('../utility/error-handling');
 const timeTracker = require('../utility/time-tracker');
 const logger = require('../utility/logger');
 const {capitalizeFirstLetter} = require('../utility/utilities');
+const {client} = require('../utility/rest-api-utilities');
 
 const buildTournamentDetails = (team) => {
     return {
@@ -126,7 +127,7 @@ module.exports = {
                     await msg.reply(`The role passed is not correct - '${role}'. Please pass one of the following Top, Mid, Jg, Bot, or Supp.`);
                 } else {
                     await msg.deferReply();
-                    const tournamentApi = new ClashBotRestClient.TournamentApi(new ClashBotRestClient.ApiClient('http://localhost:8080/api/v2'));
+                    const tournamentApi = new ClashBotRestClient.TournamentApi(client());
                     let times = await tournamentApi.getTournaments({});
                     times = times.filter(findTournament(args[1], args[2]));
                     if (times.length === 0) {
@@ -136,7 +137,7 @@ module.exports = {
                         let copy = JSON.parse(JSON.stringify(registerReply));
                         logger.info(loggerContext, `Registering ('${msg.user.username}') with Tournaments ('${JSON.stringify(times)}') with role '${args[0]}'...`);
                         const teamApi = new ClashBotRestClient
-                          .TeamApi(new ClashBotRestClient.ApiClient('http://localhost:8080/api/v2'));
+                          .TeamApi(client());
                         let opts = {
                             'updateTeamRequest': new ClashBotRestClient.UpdateTeamRequest(
                                 msg.member.guild.name,

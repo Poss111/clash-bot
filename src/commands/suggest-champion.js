@@ -3,6 +3,7 @@ const riotApi = require('@fightmegg/riot-api');
 const timeTracker = require('../utility/time-tracker');
 const errorHandler = require('../utility/error-handling');
 const logger = require('../utility/logger');
+const {client} = require('../utility/rest-api-utilities');
 
 module.exports = {
     name: 'suggest-champion',
@@ -35,7 +36,7 @@ module.exports = {
                 if (Object.keys(championData.data)
                   .find(record => record.toLowerCase() === lowerCasedArg)) {
                     const userApi = new ClashBotRestClient
-                      .UserApi(new ClashBotRestClient.ApiClient('http://localhost:8080/api/v2'));
+                      .UserApi(client());
                     const listOfChampions = await userApi.retrieveListOfUserPreferredChampions(msg.user.id);
                     logger.info(loggerContext, `Current list of Champions ('${listOfChampions}')...`);
                     let response;

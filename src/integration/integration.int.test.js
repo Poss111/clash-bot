@@ -6,6 +6,7 @@ const loadBot = require('../utility/load-bot');
 const {buildMockInteraction} = require('../commands/tests/shared-test-utilities/shared-test-utilities.test');
 const ClashBotRestClient = require('clash-bot-rest-client');
 const logger = require('../utility/logger');
+const {client} = require('../utility/rest-api-utilities');
 
 jest.mock(discordModulePath);
 
@@ -21,7 +22,7 @@ beforeAll(async () => {
     const serviceDataHealthcheckPromise = () => new Promise((resolve, reject) => {
         try {
             logger.info('Checking if service is available...');
-            const teamApi = new ClashBotRestClient.TeamApi(new ClashBotRestClient.ApiClient('http://localhost:8080/api/v2'));
+            const teamApi = new ClashBotRestClient.TeamApi(client());
             teamApi.getTeam(testServerName)
               .then((data) => {
                     if (Array.isArray(data) && data.length > 0) {

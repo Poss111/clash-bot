@@ -7,6 +7,7 @@
     "start": "./node_modules/.bin/nodemon index.js",
     "local-start": "./node_modules/.bin/nodemon index.js | pino-pretty -t",
     "test": "./node_modules/.bin/jest unit --coverage --coverageReporters=\\\"json\\\" --coverageReporters=\\\"json-summary\\\" --coverageReporters=\\\"lcov\\\" --coverageReporters=\\\"text\\\" --silent --detectOpenHandles",
+    "local-test": "./node_modules/.bin/jest unit",
     "integration": "./node_modules/.bin/jest int --silent",
     "lint": "eslint '**/*.js'  --ignore-pattern node_modules/  --ignore-pattern commands/tests/test-data"
   },

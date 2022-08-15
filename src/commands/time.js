@@ -5,7 +5,8 @@ const templateBuilder = require('../utility/template-builder');
 const timeTracker = require('../utility/time-tracker');
 const moment = require('moment-timezone');
 const errorHandler = require('../utility/error-handling');
-const logger = require('pino')();
+const logger = require('../utility/logger');
+const {client} = require('../utility/rest-api-utilities');
 
 module.exports = {
     name: 'time',
@@ -20,8 +21,8 @@ module.exports = {
         const startTime = process.hrtime.bigint();
         await msg.deferReply();
         try {
-            const client = new ClashBotRestClient.TournamentApi(new ClashBotRestClient.ApiClient('http://localhost:8080/api/v2'));
-            let response = await client.getTournaments({});
+            const tournamentApi = new ClashBotRestClient.TournamentApi(client());
+            let response = await tournamentApi.getTournaments({});
             const copy = JSON.parse(JSON.stringify(clashTimeMenu));
             if (response && response.length > 0) {
                 logger.info(loggerContext, `${response.length} Tournaments retrieved.`);

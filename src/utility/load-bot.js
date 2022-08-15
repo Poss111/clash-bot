@@ -147,11 +147,11 @@ let readyHandler = (discordBot, restrictedChannel, showRelease) => {
             }
         });
     }
-    setInterval(() => {
-        logger.info(
-          { type: 'metric' },
-          `Total # of guilds using Bot ('${ discordBot.guilds.cache.size}')`);
-    }, 30000);
+    // setInterval(() => {
+    //     logger.info(
+    //       { type: 'metric' },
+    //       `Total # of guilds using Bot ('${ discordBot.guilds.cache.size}')`);
+    // }, 30000);
 };
 
 let setupCommands = async () => {

@@ -2,6 +2,7 @@ const ClashBotRestClient = require('clash-bot-rest-client');
 const logger = require('../utility/logger');
 const timeTracker = require('../utility/time-tracker');
 const errorHandler = require('../utility/error-handling');
+const {client} = require('../utility/rest-api-utilities');
 
 module.exports = {
     name: 'unsubscribe',
@@ -15,7 +16,7 @@ module.exports = {
         const startTime = process.hrtime.bigint();
         try {
             await msg.deferReply();
-            const userApi = new ClashBotRestClient.UserApi(new ClashBotRestClient.ApiClient('http://localhost:8080/api/v2'));
+            const userApi = new ClashBotRestClient.UserApi(client());
             let subscriptions = await userApi.retrieveUserSubscriptions(msg.user.id);
             let subscription = subscriptions.find((obj) => obj.key === 'UpcomingClashTournamentDiscordDM');
             logger.info(loggerContext, `Users current subscriptions => ${subscriptions}`);

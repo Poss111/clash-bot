@@ -3,6 +3,7 @@ const timeTracker = require('../utility/time-tracker');
 const commandArgumentParser = require('./command-argument-parser');
 const logger = require('../utility/logger');
 const ClashBotRestClient = require('clash-bot-rest-client');
+const {client} = require('../utility/rest-api-utilities');
 
 module.exports = {
     name: 'unregister',
@@ -53,7 +54,7 @@ module.exports = {
                 msg.reply('Please pass the tournament and day to unregister for i.e. /unregister ***msi2021*** ***2***');
             } else {
                 await msg.deferReply();
-                const tournamentApi = new ClashBotRestClient.TournamentApi(new ClashBotRestClient.ApiClient('http://localhost:8080/api/v2'));
+                const tournamentApi = new ClashBotRestClient.TournamentApi(client());
                 let times = await tournamentApi.getTournaments({
                     tournament: parsedArguments.tournamentName,
                     day: parsedArguments.tournamentDay,
@@ -61,7 +62,7 @@ module.exports = {
                 if (Array.isArray(times) && times.length) {
                     logger.info(loggerContext, `Found ('${times ? times.length : 0}') Tournaments.`);
                     await msg.editReply(`Unregistering '${msg.user.username}' from Tournament '${times[0].tournamentName}' on day '${times[0].tournamentDay}'...`);
-                    const teamApi = new ClashBotRestClient.TeamApi(new ClashBotRestClient.ApiClient('http://localhost:8080/api/v2'));
+                    const teamApi = new ClashBotRestClient.TeamApi(client());
                     const response = await teamApi.removePlayerFromTeam(
                       undefined,
                       msg.member.guild.name,

@@ -7,6 +7,7 @@ const clashBotRestClient = require('clash-bot-rest-client');
 jest.mock('../../utility/error-handling');
 jest.mock('@fightmegg/riot-api');
 jest.mock('clash-bot-rest-client');
+jest.mock('../../utility/rest-api-utilities');
 
 beforeEach(() => {
     jest.resetModules();
