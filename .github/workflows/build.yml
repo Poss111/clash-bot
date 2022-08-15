@@ -47,15 +47,19 @@ jobs:
     - name: Install Dependencies
       run: npm i
 
+    - name: Run Linting
+      id: lint
+      run: npm run-script lint
+
     - name: Run unit tests
-      run: |
-        ls -lha
-        npm test
+      id: unit
+      run: npm test
 
     - name: Start App container
       run: docker-compose up -d
 
     - name: Run integration tests on Local DynamoDb
+      id: integration
       run: npm run integration
       timeout-minutes: 2
 
@@ -63,6 +67,54 @@ jobs:
       with:
         name: coverage-artifact
         path: coverage
+
+    - name: Update Pull Request
+      uses: actions/github-script@v6.1.0
+      if: github.event_name == 'pull_request'
+      env:
+        LINT: "Lint\n${{ steps.lint.outputs.stdout }}"
+        UNIT: "Unit\n${{ steps.unit.outputs.stdout }}"
+        INTEGRATION: "Integration\n${{ steps.integration.outputs.stdout }}"
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const output = `Clash Bot Workspace - Build
+          #### Lint 🖌\`${{ steps.lint.outcome }}\`
+          #### Test ⚙️\`${{ steps.unit.outcome }}\`
+          #### Integration 📖\`${{ steps.integration.outcome }}\`
+          
+          <details><summary>Show Lint Report</summary>
+
+          \`\`\`\n
+          ${process.env.LINT}
+          \`\`\`
+
+          </details>
+          
+          <details><summary>Show Unit Test Report</summary>
+
+          \`\`\`\n
+          ${process.env.UNIT}
+          \`\`\`
+
+          </details>
+          
+          <details><summary>Show Integration Test Report</summary>
+
+          \`\`\`\n
+          ${process.env.INTEGRATION}
+          \`\`\`
+
+          </details>
+          
+          *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+          })
 
     - name: Build Failed Discord Webhook
       uses: Poss111/discord-hook-action@v1.6.8
@@ -73,11 +125,16 @@ jobs:
         message: 'Github build failed!'
         message-color: '16711680'
 
-    - name: Build Succeded Discord Webhook
+    - name: Build Succeeded Discord Webhook
       uses: Poss111/discord-hook-action@v1.6.8
       if: ${{ success() }}
       with:
         discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
         title: 'Clash Bot Build Notification'
-        message: 'Github build succeeded!'
+        message: |
+          Github build succeeded!
+          #### Lint 🖌\`${{ steps.lint.outcome }}\`
+          #### Test ⚙️\`${{ steps.unit.outcome }}\`
+          #### Integration 📖\`${{ steps.integration.outcome }}\`
+          *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
         message-color: '65345'
