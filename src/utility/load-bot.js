@@ -46,8 +46,11 @@ let messageHandler = async (msg) => {
     try {
         if (msg.channel)
         msg.channel.send('Living in the past I see. Try out our new slash commands! Just type /teams');
-    } catch(err) {
-        logger.error(`Failed to execute command 'messageHandler' due to error.`, err);
+    } catch(error) {
+        logger.error(
+          { message: error.message, stack: error.stack },
+          "Failed to execute command messageHandler due to error."
+        );
     }
 }
 
@@ -89,7 +92,7 @@ let interactionHandler = async (interaction, bot) => {
             }
             await bot.commands.get(interaction.commandName).execute(interaction, args);
         } catch (error) {
-            logger.error({ ... loggerContext, error }, `Failed to execute command ('${bot.commands.get(interaction.commandName).name}') due to error.`, error);
+            logger.error({ ...loggerContext, message: error.message, stack: error.stack }, `Failed to execute command ('${bot.commands.get(interaction.commandName).name}') due to error.`, error);
             try {
                 if (interaction.deferred
                     || interaction.replied) {
@@ -100,7 +103,7 @@ let interactionHandler = async (interaction, bot) => {
                         'that command! Please reach out to <@299370234228506627>.');
                 }
             } catch (error) {
-                logger.error({ ...loggerContext, error }, `Failed to send error message due to error.`, error);
+                logger.error({ ...loggerContext, message: error.message, stack: error.stack }, `Failed to send error message due to error.`, error);
             }
         }
     }
@@ -114,12 +117,13 @@ let guildCreateHandler = (guild) => {
             .then(() => {
                 logger.info(`Successfully sent message to new guild ('${guild.name}')`);
             })
-            .catch((err) => {
-                logger.error(`Failed to send create message to new guild ('${guild.name}') due to error.`, err);
+            .catch((error) => {
+                logger
+                  .error({ message: error.message, stack: error.stack }, `Failed to send create message to new guild ('${guild.name}') due to error.`);
             });
     }
     } catch(error) {
-        logger.error(`Failed to retrieve general channel from new guild ('${guild.name}').` , error);
+        logger.error({ message: error.message, stack: error.stack }, `Failed to retrieve general channel from new guild ('${guild.name}').`);
     }
 }
 
@@ -136,14 +140,18 @@ let readyHandler = (discordBot, restrictedChannel, showRelease) => {
                     filter.send({
                         embeds: [updateMessage]
                     });
-                } catch (err) {
-                    logger.error('Failed to send update notification due to error.', err);
+                } catch (error) {
+                    logger.error({ message: error.message, stack: error.stack }, 'Failed to send update notification due to error.');
                 }
                 logger.info(`Successfully sent Bot update message to ('${guildKey}')...`);
             }
         });
     }
-    logger.info(`Total # of guilds using Bot ('${ discordBot.guilds.cache.size}')`);
+    setInterval(() => {
+        logger.info(
+          { type: 'metric' },
+          `Total # of guilds using Bot ('${ discordBot.guilds.cache.size}')`);
+    }, 30000);
 }
 
 let setupCommands = async () => {
