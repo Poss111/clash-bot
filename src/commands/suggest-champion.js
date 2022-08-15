@@ -59,15 +59,15 @@ module.exports = {
                     await msg.editReply(`Champion name passed does not exist. Please validate with /champions ${args[0]}`);
                 }
             }
-        } catch (err) {
-            if (err.status === 400) {
-                logger.error({ ...loggerContext, err });
+        } catch (error) {
+            if (error.status === 400) {
+                logger.error({ ...loggerContext, error });
                 await msg.editReply('Sorry! You cannot have more than 5 champions in your list. ' +
                   'Please remove by passing a champion in your list and then try adding again. Thank you!');
             } else {
                 await errorHandler.handleError(
                   this.name,
-                  err,
+                  error,
                   msg,
                   'Failed to update the Users preferred Champions list.',
                   loggerContext);

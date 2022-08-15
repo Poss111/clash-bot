@@ -178,10 +178,10 @@ module.exports = {
                     }
                 }
             }
-        } catch (err) {
+        } catch (error) {
             await errorHandling.handleError(
               this.name,
-              err,
+              error,
               msg,
               'Failed to register you to team.',
               loggerContext);

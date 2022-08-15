@@ -163,14 +163,14 @@ module.exports = {
                     }
                 }
             }
-        } catch (err) {
-            if (err.status === 400) {
-                logger.error({ ...loggerContext, err });
+        } catch (error) {
+            if (error.status === 400) {
+                logger.error({ ...loggerContext, ...error });
                 await msg.editReply(`Failed to find an available team with the following criteria, Role '${args[0]}' Tournament Name '${args[1]}' Tournament Day '${args[2]}' Team Name '${args[3]}' or role is not available for that team`);
             } else {
                 await errorHandling.handleError(
                   this.name,
-                  err,
+                  error,
                   msg,
                   'Failed to join the requested team.',
                   loggerContext);

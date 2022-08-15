@@ -83,10 +83,10 @@ module.exports = {
                 copy.fields.push({name: 'Tentative Queue', value: message});
             }
             await msg.editReply({embeds: [ copy ]});
-        } catch(err) {
+        } catch(error) {
             await errorHandler.handleError(
               this.name,
-              err,
+              error,
               msg,
               'Failed to retrieve the current Clash Teams status.',
               loggerContext

@@ -27,10 +27,10 @@ module.exports = {
             } else {
                 await msg.editReply('You are already subscribed.');
             }
-        } catch (err) {
+        } catch (error) {
             await errorHandler.handleError(
               this.name,
-              err,
+              error,
               msg,
               'Failed to subscribe.',
               loggerContext);

@@ -57,10 +57,10 @@ module.exports = {
                 });
             }
             msg.editReply({embeds: [copy]});
-        } catch(err) {
+        } catch(error) {
             await errorHandler.handleError(
               this.name,
-              err,
+              error,
               msg,
               'Failed to retrieve times.',
               loggerContext);

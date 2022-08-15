@@ -109,10 +109,10 @@ module.exports = {
                     await msg.editReply('Cannot find the tournament passed. Please check /time for an appropriate list.');
                 }
             }
-        } catch (err) {
+        } catch (error) {
             await errorHandler.handleError(
               this.name,
-              err,
+              error,
               msg,
               'Failed to place you on tentative.',
               loggerContext);

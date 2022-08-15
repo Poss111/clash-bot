@@ -25,10 +25,10 @@ module.exports = {
             } else {
                 await msg.editReply('No subscription was found.');
             }
-        } catch (err) {
+        } catch (error) {
             await errorHandler.handleError(
               this.name,
-              err,
+              error,
               msg,
               'Failed to unsubscribe.',
               loggerContext);

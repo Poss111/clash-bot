@@ -76,14 +76,14 @@ module.exports = {
                         "Use '/team' to print a team.");
                 }
             }
-        } catch (err) {
-            if (err.status === 400) {
-                logger.error({...loggerContext, error: err});
+        } catch (error) {
+            if (error.status === 400) {
+                logger.error({...loggerContext, ...error});
                 await msg.editReply(`We did not find you on an existing Team for Tournament '${args[0]} - ${args[1]}'. Please use /join or /newTeam if you would like to join again. Thank you!`);
             } else {
                 await errorHandler.handleError(
                   this.name,
-                  err,
+                  error,
                   msg,
                   'Failed to unregister you.',
                   loggerContext);
