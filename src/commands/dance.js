@@ -1,12 +1,18 @@
 const throttleHandling = require('../utility/throttle-handling');
 const timeTracker = require('../utility/time-tracker');
 const wait = require('util').promisify(setTimeout);
-const logger = require('pino')();
+const logger = require('../utility/logger');
 
 module.exports = {
     name: 'dance',
     description: 'It is a secret.',
     async execute(msg) {
+        const loggerContext = {
+            command: this.name,
+            user: msg.user.id,
+            username: msg.user.username,
+            server: msg.member ? msg.member.guild.name : {}
+        };
         const startTime = process.hrtime.bigint();
         try {
             if (!throttleHandling.isThrottled(this.name, msg.member.guild.name)) {
@@ -42,7 +48,7 @@ module.exports = {
                 await wait(500);
                 await msg.editReply(messages[8]);
             } else {
-                logger.info(`('${msg.user.username}') is trying to spam this resource.`);
+                logger.info(loggerContext, `('${msg.user.username}') is trying to spam this resource.`);
                 if (!throttleHandling.hasServerBeenNotified(this.name, msg.member.guild.name)) {
                     await msg.editReply('I see you know the ways of the spam. ' +
                         'If you want me to dance again, you must wait 30 seconds ;)');

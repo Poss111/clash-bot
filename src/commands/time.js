@@ -11,7 +11,12 @@ module.exports = {
     name: 'time',
     description: 'Places a player on tentative. Will deregister them if they belong to a team.',
     async execute(msg) {
-        const loggerContext = { command: 'time' };
+        const loggerContext = {
+            command: this.name,
+            user: msg.user.id,
+            username: msg.user.username,
+            server: msg.member ? msg.member.guild.name : {}
+        };
         const startTime = process.hrtime.bigint();
         await msg.deferReply();
         try {

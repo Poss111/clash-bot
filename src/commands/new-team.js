@@ -78,7 +78,6 @@ module.exports = {
         const startTime = process.hrtime.bigint();
         try {
             const userInfo = parseUserInfo(msg);
-            let filter;
             if (!args || args.length === 0) {
                 await msg.reply("The role to join a new Team with is missing. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: /newTeam ***Top***");
             } else {

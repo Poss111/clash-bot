@@ -7,9 +7,12 @@ module.exports = {
     name: 'subscribe',
     description: 'Subscribes a user to a scheduled DM in Discord of an upcoming League of Legends Clash Tournament.',
     execute: async function (msg) {
-        const loggerContext = { command: 'subscribe', user: msg.user.id,
+        const loggerContext = {
+            command: this.name,
+            user: msg.user.id,
             username: msg.user.username,
-            server: msg.member ? msg.member.guild.name : {} };
+            server: msg.member ? msg.member.guild.name : {}
+        };
         const startTime = process.hrtime.bigint();
         try {
             await msg.deferReply();
