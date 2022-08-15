@@ -20,4 +20,28 @@ const buildMockInteraction = () => {
     };
 }
 
-module.exports.buildMockInteraction = buildMockInteraction
+const create400HttpError = () => {
+    return {
+        error: `No team found matching criteria ''.`,
+        headers: undefined,
+        status: 400,
+        statusText: "Bad Request",
+        url: "https://localhost.com/api"
+    };
+}
+
+const create500HttpError = () => {
+    return {
+        error: `Failed to make call.`,
+        headers: undefined,
+        status: 500,
+        statusText: "Bad Request",
+        url: "https://localhost.com/api"
+    };
+}
+
+module.exports = {
+    buildMockInteraction,
+    create400HttpError,
+    create500HttpError,
+}

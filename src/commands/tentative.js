@@ -1,9 +1,8 @@
-const tournamentsServiceImpl = require('../services/tournaments-service-impl');
-const tentativeServiceImpl = require('../services/tentative-service-impl');
-const {findTournament} = require('../utility/tournament-handler');
+const ClashBotRestClient = require('clash-bot-rest-client');
 const errorHandler = require('../utility/error-handling');
 const timeTracker = require('../utility/time-tracker');
 const commandArgumentParser = require('./command-argument-parser');
+const logger = require('../utility/logger');
 
 module.exports = {
     name: 'tentative',
@@ -19,7 +18,7 @@ module.exports = {
             type: 4,
             name: "day",
             description: "A day of the tournament to register for.",
-            "choices": [
+            choices: [
                 {
                     "name": "Day 1",
                     "value": 1
@@ -41,6 +40,12 @@ module.exports = {
         }
     ],
     execute: async function (msg, args) {
+        const loggerContext = {
+            command: this.name,
+            user: msg.user.id,
+            username: msg.user.username,
+            server: msg.member ? msg.member.guild.name : {}
+        };
         const startTime = process.hrtime.bigint();
         try {
             let parsedArguments = commandArgumentParser.parse(args);
@@ -54,16 +59,50 @@ module.exports = {
                     "use tentative. i.e. /tentative msi2021 1");
             } else {
                 await msg.deferReply();
-                let times = await tournamentsServiceImpl.retrieveAllActiveTournaments();
-                times = times.filter(findTournament(args[0], args[1]));
+                const tournamentApi = new ClashBotRestClient
+                  .TournamentApi(new ClashBotRestClient
+                    .ApiClient('http://localhost:8080/api/v2'));
+                const request = {};
+                if (parsedArguments.tournamentName) {
+                    request.tournament = parsedArguments.tournamentName;
+                } if (parsedArguments.tournamentDay) {
+                    request.day = parsedArguments.tournamentDay;
+                }
+                let times = await tournamentApi.getTournaments(request);
+                logger.info(loggerContext, `Total found Tournaments ('${Array.isArray(times) ? times.length : 0}')`);
                 if (Array.isArray(times) && times.length > 0) {
-                    const tentativeResponse = await tentativeServiceImpl
-                        .postTentativeUpdateForServerAndTournament(msg.user.id,
-                            msg.member.guild.name, times[0].tournamentName, times[0].tournamentDay);
-                    if (!tentativeResponse.tentativePlayers
-                        || !tentativeResponse.tentativePlayers.includes(msg.user.username)) {
+                    const tentativeApi = new ClashBotRestClient
+                      .TentativeApi(new ClashBotRestClient
+                        .ApiClient('http://localhost:8080/api/v2'));
+                    const tentativeDetails = await tentativeApi.getTentativeDetails({
+                        tournamentName: times[0].tournamentName,
+                        tournamentDay: times[0].tournamentDay,
+                    });
+                    const foundTentative = tentativeDetails
+                      .find(tentativeDetail => tentativeDetail
+                        .tentativePlayers.find(player => player.id === msg.user.id));
+                    if (foundTentative) {
+                        await tentativeApi
+                          .removePlayerFromTentative(
+                            msg.member.guild.name,
+                            msg.user.id,
+                            times[0].tournamentName,
+                            times[0].tournamentDay
+                          );
                         await msg.editReply(`We have taken you off of tentative queue. tip: Use '/teams' to view current team status`);
                     } else {
+                        let opts = {
+                            'placePlayerOnTentativeRequest': new ClashBotRestClient
+                              .PlacePlayerOnTentativeRequest({
+                                  serverName       : msg.member.guild.name,
+                                  tournamentDetails: {
+                                      tournamentName: '',
+                                      tournamentDay : '',
+                                  },
+                                  playerId: msg.user.id,
+                              })
+                        };
+                        await tentativeApi.placePlayerOnTentative(opts);
                         await msg.editReply(`We placed you into the tentative queue. If you were on a team, you have been removed. tip: Use '/teams' to view current team status`);
                     }
                 } else {

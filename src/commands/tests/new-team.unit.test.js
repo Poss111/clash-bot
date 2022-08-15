@@ -31,12 +31,6 @@ function buildRegisterResponse(sampleRegisterReturn) {
     return copy;
 }
 
-function buildIneligibleResponse() {
-    let copy = JSON.parse(JSON.stringify(registerReply));
-    copy.description = 'You are already registered to the given tournament.';
-    return copy;
-}
-
 function setupTournaments(tournaments) {
     const getTournamentsMock = jest.fn();
     clashBotRestClient.TournamentApi.mockReturnValue({
