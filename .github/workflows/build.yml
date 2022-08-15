@@ -78,7 +78,7 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-          const output = `Clash Bot Workspace - Build
+          const output = `Clash Bot - Build
           #### Lint 🖌\`${{ steps.lint.outcome }}\`
           #### Test ⚙️\`${{ steps.unit.outcome }}\`
           #### Integration 📖\`${{ steps.integration.outcome }}\`
