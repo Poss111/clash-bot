@@ -9,4 +9,4 @@ describe('Error Handling', () => {
         errorHandler.handleError('test', 'Test error.', msg, userMessage, {});
         expect(msg.editReply).toHaveBeenCalledWith(userMessage + constantSuffix);
     });
-})
+});

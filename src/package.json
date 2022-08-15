@@ -7,7 +7,8 @@
     "start": "./node_modules/.bin/nodemon index.js",
     "local-start": "./node_modules/.bin/nodemon index.js | pino-pretty -t",
     "test": "./node_modules/.bin/jest unit --coverage --coverageReporters=\\\"json\\\" --coverageReporters=\\\"json-summary\\\" --coverageReporters=\\\"lcov\\\" --coverageReporters=\\\"text\\\" --silent --detectOpenHandles",
-    "integration": "./node_modules/.bin/jest int --silent"
+    "integration": "./node_modules/.bin/jest int --silent",
+    "lint": "eslint '**/*.js'  --ignore-pattern node_modules/  --ignore-pattern commands/tests/test-data"
   },
   "keywords": [],
   "author": "Daniel Poss",
@@ -27,6 +28,8 @@
     "query-string": "^7.0.1"
   },
   "devDependencies": {
+    "eslint": "^8.22.0",
+    "eslint-plugin-jest": "^26.8.2",
     "jest": "^27.4.7",
     "nock": "^13.0.11",
     "nodemon": "^2.0.8",

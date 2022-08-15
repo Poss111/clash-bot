@@ -6,14 +6,14 @@ const parseUserInfo = (interaction) => {
         userInfo = buildUserInfo(interaction.author.id, interaction.author.username, interaction.guild.name);
     }
     return userInfo;
-}
+};
 
 const buildUserInfo = (id, username, guild) => {
     return {
         id: id,
         username: username,
         guild: guild
-    }
-}
+    };
+};
 
-module.exports.parseUserInfo = parseUserInfo
+module.exports.parseUserInfo = parseUserInfo;

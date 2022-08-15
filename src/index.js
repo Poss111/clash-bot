@@ -14,14 +14,14 @@ loadBot.initializeBot()
 app.use(express.json());
 app.use(cors());
 
-app.get(`/health`, (req, res) => {
+app.get('/health', (req, res) => {
     res.json({
         status: 'Healthy'
     });
-})
+});
 
 app.listen(8082, () => {
-    logger.info(`Clash Bot Service up and running on Port ('8082')!`);
+    logger.info('Clash Bot Service up and running on Port (\'8082\')!');
 });
 
 process.on('beforeExit', () => {

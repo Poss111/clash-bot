@@ -19,7 +19,7 @@ function setupGetTournamentsMock(sampleTime) {
 beforeEach(() => {
     jest.resetAllMocks();
     jest.resetModules();
-})
+});
 
 describe('Unregister', () => {
     describe('Happy Path and edge cases', () => {
@@ -28,16 +28,16 @@ describe('Unregister', () => {
             let args = ['msi2021', '3'];
             let leagueTimes = [
                 {
-                    tournamentName: "msi2021",
-                    tournamentDay: "3",
-                    "startTime": "May 29 2021 07:00 pm PDT",
-                    "registrationTime": "May 29 2021 04:15 pm PDT"
+                    tournamentName: 'msi2021',
+                    tournamentDay: '3',
+                    'startTime': 'May 29 2021 07:00 pm PDT',
+                    'registrationTime': 'May 29 2021 04:15 pm PDT'
                 },
                 {
-                    tournamentName: "msi2021",
-                    tournamentDay: "4",
-                    "startTime": "May 30 2021 07:00 pm PDT",
-                    "registrationTime": "May 30 2021 04:15 pm PDT"
+                    tournamentName: 'msi2021',
+                    tournamentDay: '4',
+                    'startTime': 'May 30 2021 07:00 pm PDT',
+                    'registrationTime': 'May 30 2021 04:15 pm PDT'
                 }
             ];
             const getTournamentsMock = setupGetTournamentsMock(leagueTimes);
@@ -80,23 +80,23 @@ describe('Unregister', () => {
             expect(msg.editReply).toHaveBeenCalledTimes(2);
             expect(msg.editReply).toHaveBeenCalledWith(`Unregistering '${msg.user.username}' from Tournament '${leagueTimes[0].tournamentName}' on day '${leagueTimes[0].tournamentDay}'...`);
             expect(msg.editReply).toHaveBeenCalledWith(`Removed you from Team '${removeResponse.name}' for Tournament '${leagueTimes[0].tournamentName} - ${leagueTimes[0].tournamentDay}'. Please use /join or /newTeam if you would like to join again. Thank you!`);
-        })
+        });
 
         test('When a player does not exist on a team is unregistered, the player should be notified that they have not successfully removed them.', async () => {
             const msg = buildMockInteraction();
             let args = ['shurima', '3'];
             let leagueTimes = [
                 {
-                    tournamentName: "msi2021",
-                    tournamentDay: "3",
-                    "startTime": "May 29 2021 07:00 pm PDT",
-                    "registrationTime": "May 29 2021 04:15 pm PDT"
+                    tournamentName: 'msi2021',
+                    tournamentDay: '3',
+                    'startTime': 'May 29 2021 07:00 pm PDT',
+                    'registrationTime': 'May 29 2021 04:15 pm PDT'
                 },
                 {
-                    tournamentName: "msi2021",
-                    tournamentDay: "4",
-                    "startTime": "May 30 2021 07:00 pm PDT",
-                    "registrationTime": "May 30 2021 04:15 pm PDT"
+                    tournamentName: 'msi2021',
+                    tournamentDay: '4',
+                    'startTime': 'May 30 2021 07:00 pm PDT',
+                    'registrationTime': 'May 30 2021 04:15 pm PDT'
                 }
             ];
             const getTournamentsMock = setupGetTournamentsMock(leagueTimes);
@@ -130,7 +130,7 @@ describe('Unregister', () => {
             expect(msg.editReply).toHaveBeenCalledTimes(2);
             expect(msg.editReply).toHaveBeenCalledWith(`Unregistering '${msg.user.username}' from Tournament '${leagueTimes[0].tournamentName}' on day '${leagueTimes[0].tournamentDay}'...`);
             expect(msg.editReply).toHaveBeenCalledWith(`We did not find you on an existing Team for Tournament '${args[0]} - ${args[1]}'. Please use /join or /newTeam if you would like to join again. Thank you!`);
-        })
+        });
 
         test('When a player does not give which tournament and day to unregister for, the player will be sent back ' +
             'an invalid input message.', async () => {
@@ -141,7 +141,7 @@ describe('Unregister', () => {
             expect(msg.reply).toHaveBeenCalledTimes(1);
             expect(msg.reply).toHaveBeenCalledWith('Please pass the tournament and day to unregister for i.e. ' +
                 '/unregister ***msi2021*** ***2***');
-        })
+        });
 
         test('When a player gives a tournament and day that is unavailable to unregister for, the player will be sent back an invalid input message.', async () => {
             const msg = buildMockInteraction();
@@ -162,10 +162,10 @@ describe('Unregister', () => {
             });
             expect(msg.deferReply).toHaveBeenCalledTimes(1);
             expect(msg.editReply).toHaveBeenCalledTimes(1);
-            expect(msg.editReply).toHaveBeenCalledWith("Please provide an existing tournament and day to unregister for. " +
-                "Use '/team' to print a team.");
-        })
-    })
+            expect(msg.editReply).toHaveBeenCalledWith('Please provide an existing tournament and day to unregister for. ' +
+                'Use \'/team\' to print a team.');
+        });
+    });
 
     describe('Error', () => {
         test('If an error occurs while retrieving the Tournaments, the error handler will be invoked.', async () => {
@@ -206,16 +206,16 @@ describe('Unregister', () => {
             let args = ['shurima', '3'];
             let leagueTimes = [
                 {
-                    tournamentName: "msi2021",
-                    tournamentDay: "3",
-                    "startTime": "May 29 2021 07:00 pm PDT",
-                    "registrationTime": "May 29 2021 04:15 pm PDT"
+                    tournamentName: 'msi2021',
+                    tournamentDay: '3',
+                    'startTime': 'May 29 2021 07:00 pm PDT',
+                    'registrationTime': 'May 29 2021 04:15 pm PDT'
                 },
                 {
-                    tournamentName: "msi2021",
-                    tournamentDay: "4",
-                    "startTime": "May 30 2021 07:00 pm PDT",
-                    "registrationTime": "May 30 2021 04:15 pm PDT"
+                    tournamentName: 'msi2021',
+                    tournamentDay: '4',
+                    'startTime': 'May 30 2021 07:00 pm PDT',
+                    'registrationTime': 'May 30 2021 04:15 pm PDT'
                 }
             ];
             commandArgumentParser.parse.mockReturnValue({
@@ -250,4 +250,4 @@ describe('Unregister', () => {
             );
         });
     });
-})
+});

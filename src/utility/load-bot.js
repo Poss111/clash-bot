@@ -5,8 +5,8 @@ const {Routes} = require('discord-api-types/v9');
 const botCommands = require('../commands');
 const helpMenu = require('../templates/help-menu');
 const updateNotification = require('../templates/update-notification');
-const templateBuilder = require("./template-builder");
-const ClashBotRestClient = require("clash-bot-rest-client");
+const templateBuilder = require('./template-builder');
+const ClashBotRestClient = require('clash-bot-rest-client');
 const logger = require('../utility/logger');
 let channel = 'league';
 let bot = undefined;
@@ -40,7 +40,7 @@ let initializeBot = () => {
             resolve(bot);
         });
     }).catch(err => new Error(`Failed to initialize Clash-Bot to Error ('${err}')`));
-}
+};
 
 let messageHandler = async (msg) => {
     try {
@@ -49,10 +49,10 @@ let messageHandler = async (msg) => {
     } catch(error) {
         logger.error(
           { message: error.message, stack: error.stack },
-          "Failed to execute command messageHandler due to error."
+          'Failed to execute command messageHandler due to error.'
         );
     }
-}
+};
 
 let interactionHandler = async (interaction, bot) => {
     const loggerContext = {
@@ -103,11 +103,11 @@ let interactionHandler = async (interaction, bot) => {
                         'that command! Please reach out to <@299370234228506627>.');
                 }
             } catch (error) {
-                logger.error({ ...loggerContext, message: error.message, stack: error.stack }, `Failed to send error message due to error.`, error);
+                logger.error({ ...loggerContext, message: error.message, stack: error.stack }, 'Failed to send error message due to error.', error);
             }
         }
     }
-}
+};
 
 let guildCreateHandler = (guild) => {
     try {
@@ -125,7 +125,7 @@ let guildCreateHandler = (guild) => {
     } catch(error) {
         logger.error({ message: error.message, stack: error.stack }, `Failed to retrieve general channel from new guild ('${guild.name}').`);
     }
-}
+};
 
 let readyHandler = (discordBot, restrictedChannel, showRelease) => {
     logger.info(`Logged in as ${discordBot.user.tag}!`);
@@ -152,7 +152,7 @@ let readyHandler = (discordBot, restrictedChannel, showRelease) => {
           { type: 'metric' },
           `Total # of guilds using Bot ('${ discordBot.guilds.cache.size}')`);
     }, 30000);
-}
+};
 
 let setupCommands = async () => {
     let commands = Object.keys(botCommands).map(key => {
@@ -182,7 +182,7 @@ let setupCommands = async () => {
         throw new Error(err);
     }
     logger.info('Successfully updated bot commands.');
-}
+};
 
 module.exports.client = bot;
 module.exports.initializeBot = initializeBot;

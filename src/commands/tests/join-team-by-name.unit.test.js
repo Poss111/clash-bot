@@ -39,21 +39,21 @@ function setupTournaments(tournaments) {
 
 function create400HttpError() {
   return {
-    error: `No team found matching criteria ''.`,
+    error: 'No team found matching criteria \'\'.',
     headers: undefined,
     status: 400,
-    statusText: "Bad Request",
-    url: "https://localhost.com/api"
+    statusText: 'Bad Request',
+    url: 'https://localhost.com/api'
   };
 }
 
 function create500HttpError() {
   return {
-    error: `Failed to make call.`,
+    error: 'Failed to make call.',
     headers: undefined,
     status: 500,
-    statusText: "Bad Request",
-    url: "https://localhost.com/api"
+    statusText: 'Bad Request',
+    url: 'https://localhost.com/api'
   };
 }
 
@@ -98,8 +98,8 @@ describe('Join an existing Team', () => {
           expect(msg.deferReply).toHaveBeenCalledTimes(0);
           expect(msg.reply).toHaveBeenCalledTimes(1);
           expect(msg.reply).toHaveBeenCalledWith(
-            "Role, Tournament name, Tournament day, and Team are missing. You can use '/teams' to find existing teams. \n ***Usage***: /join ***Top*** ***msi2021*** ***1*** ***Pikachu***");
-      })
+            'Role, Tournament name, Tournament day, and Team are missing. You can use \'/teams\' to find existing teams. \n ***Usage***: /join ***Top*** ***msi2021*** ***1*** ***Pikachu***');
+      });
 
     test(
       'When a user requests to join a team, they are required to pass the tournament and Team Name and it is given and empty.',
@@ -109,8 +109,8 @@ describe('Join an existing Team', () => {
           expect(msg.deferReply).toHaveBeenCalledTimes(0);
           expect(msg.reply).toHaveBeenCalledTimes(1);
           expect(msg.reply).toHaveBeenCalledWith(
-            "Role, Tournament name, Tournament day, and Team are missing. You can use '/teams' to find existing teams. \n ***Usage***: /join ***Top*** ***msi2021*** ***1*** ***Pikachu***");
-      })
+            'Role, Tournament name, Tournament day, and Team are missing. You can use \'/teams\' to find existing teams. \n ***Usage***: /join ***Top*** ***msi2021*** ***1*** ***Pikachu***');
+      });
 
     test(
       'When a user requests to join a team with only the role, they are required to pass the tournament name and day and Team Name.',
@@ -122,31 +122,31 @@ describe('Join an existing Team', () => {
           expect(msg.reply).toHaveBeenCalledTimes(1);
           expect(msg.reply).toHaveBeenCalledWith(
             `Tournament name, Tournament day and Team are missing. You can use '/teams' to find existing teams. \n ***Usage***: /join ${args[0]} ***msi2021*** ***1*** ***Pikachu***`);
-      })
+      });
 
     test(
       'When a user requests to join a team with only the role and tournament name, they are required to pass the tournament day and Team Name.',
       async () => {
           let msg = buildMockInteraction();
-          let args = ['Top', 'msi2021']
+          let args = ['Top', 'msi2021'];
           await joinTeamByName.execute(msg, args);
           expect(msg.deferReply).toHaveBeenCalledTimes(0);
           expect(msg.reply).toHaveBeenCalledTimes(1);
           expect(msg.reply).toHaveBeenCalledWith(
             `Tournament day and Team are missing. You can use '/teams' to find existing teams. \n ***Usage***: /join ${args[0]} ${args[1]} ***1*** ***Pikachu***`);
-      })
+      });
 
     test(
       'When a user requests to join a team with only the role and tournament details, they are required to pass the Team Name.',
       async () => {
           let msg = buildMockInteraction();
-          let args = ['Top', 'msi2021', '1']
+          let args = ['Top', 'msi2021', '1'];
           await joinTeamByName.execute(msg, args);
           expect(msg.deferReply).toHaveBeenCalledTimes(0);
           expect(msg.reply).toHaveBeenCalledTimes(1);
           expect(msg.reply).toHaveBeenCalledWith(
             `Team is missing. You can use '/teams' to find existing teams. \n ***Usage***: /join ${args[0]} ${args[1]} ${args[2]} ***Pikachu***`);
-      })
+      });
 
     test('When a user requests to join a team with only the role and tournament details, ' +
       'they are required to pass a correct role.', async () => {
@@ -157,7 +157,7 @@ describe('Join an existing Team', () => {
         expect(msg.reply).toHaveBeenCalledTimes(1);
         expect(msg.reply).toHaveBeenCalledWith(
           `The role passed is not correct - '${args[0]}'. Please pass one of the following Top, Mid, Jg, Bot, or Supp.`);
-    })
+    });
 
     test(
       'When a user requests to join a team and they pass a role, Tournament details that does not exist, they should be notified.',
@@ -166,16 +166,16 @@ describe('Join an existing Team', () => {
           let args = ['Top', 'dne', '1', 'Sample Team'];
           const getTournamentsMock = setupTournaments([
               {
-                  tournamentName    : "msi2021",
-                  tournamentDay     : "day_3",
-                  "startTime"       : "May 29 2021 07:00 pm PDT",
-                  "registrationTime": "May 29 2021 04:15 pm PDT"
+                  tournamentName    : 'msi2021',
+                  tournamentDay     : 'day_3',
+                  'startTime'       : 'May 29 2021 07:00 pm PDT',
+                  'registrationTime': 'May 29 2021 04:15 pm PDT'
               },
               {
-                  tournamentName    : "msi2021",
-                  tournamentDay     : "day_4",
-                  "startTime"       : "May 30 2021 07:00 pm PDT",
-                  "registrationTime": "May 30 2021 04:15 pm PDT"
+                  tournamentName    : 'msi2021',
+                  tournamentDay     : 'day_4',
+                  'startTime'       : 'May 30 2021 07:00 pm PDT',
+                  'registrationTime': 'May 30 2021 04:15 pm PDT'
               }
           ]);
           await joinTeamByName.execute(msg, args);
@@ -185,19 +185,19 @@ describe('Join an existing Team', () => {
           expect(msg.editReply).toHaveBeenCalledTimes(1);
           expect(msg.editReply).toHaveBeenCalledWith(
             `The tournament you are trying to join does not exist Name '${args[1]}' Day '${args[2]}'. Please use '/times' to see valid tournaments.`);
-      })
+      });
 
     test(
       'When a user requests to join a team and they pass a Tournament and a Team they should be notified that they have successfully joined a Team.',
       async () => {
           let msg = buildMockInteraction();
-          let args = ['Top', 'msi2021', '1', 'Sample']
+          let args = ['Top', 'msi2021', '1', 'Sample'];
           const leagueTimes = [
               {
-                  tournamentName  : "msi2021",
-                  tournamentDay   : "1",
-                  startTime       : "May 29 2021 07:00 pm PDT",
-                  registrationTime: "May 29 2021 04:15 pm PDT"
+                  tournamentName  : 'msi2021',
+                  tournamentDay   : '1',
+                  startTime       : 'May 29 2021 07:00 pm PDT',
+                  registrationTime: 'May 29 2021 04:15 pm PDT'
               }
           ];
           const getTournamentsMock = setupTournaments(leagueTimes);
@@ -246,19 +246,19 @@ describe('Join an existing Team', () => {
           expect(msg.deferReply).toHaveBeenCalledTimes(1);
           expect(msg.editReply).toHaveBeenCalledTimes(1);
           expect(msg.editReply).toHaveBeenCalledWith({embeds: [copy]});
-      })
+      });
 
     test(
       'When a user requests to join a team and they pass a Tournament and a Team and no Team exists with that name, they should have a message specifying that we were unable to find one matching the criteria.',
       async () => {
           let msg = buildMockInteraction();
-          let args = ['Top', 'msi2021', '1', 'Sample']
+          let args = ['Top', 'msi2021', '1', 'Sample'];
           const leagueTimes = [
             {
-              tournamentName  : "msi2021",
-              tournamentDay   : "1",
-              startTime       : "May 29 2021 07:00 pm PDT",
-              registrationTime: "May 29 2021 04:15 pm PDT"
+              tournamentName  : 'msi2021',
+              tournamentDay   : '1',
+              startTime       : 'May 29 2021 07:00 pm PDT',
+              registrationTime: 'May 29 2021 04:15 pm PDT'
             }
           ];
           const getTournamentsMock = setupTournaments(leagueTimes);
@@ -300,8 +300,8 @@ describe('Join an existing Team', () => {
           expect(msg.deferReply).toHaveBeenCalledTimes(1);
           expect(msg.editReply).toHaveBeenCalledTimes(1);
           expect(msg.editReply).toHaveBeenCalledWith(`Failed to find an available team with the following criteria, Role '${args[0]}' Tournament Name '${args[1]}' Tournament Day '${args[2]}' Team Name '${args[3]}' or role is not available for that team`);
-      })
-  })
+      });
+  });
 
   describe('Error', () => {
     test('If an error occurs while retrieving tournaments, the error handled will be invoked.', async () => {
@@ -325,13 +325,13 @@ describe('Join an existing Team', () => {
 
     test('If an error occurs while updating Team details, the error handled will be invoked.', async () => {
       let msg = buildMockInteraction();
-      let args = ['Top', 'msi2021', '1', 'Sample']
+      let args = ['Top', 'msi2021', '1', 'Sample'];
       const leagueTimes = [
         {
-          tournamentName  : "msi2021",
-          tournamentDay   : "1",
-          startTime       : "May 29 2021 07:00 pm PDT",
-          registrationTime: "May 29 2021 04:15 pm PDT"
+          tournamentName  : 'msi2021',
+          tournamentDay   : '1',
+          startTime       : 'May 29 2021 07:00 pm PDT',
+          registrationTime: 'May 29 2021 04:15 pm PDT'
         }
       ];
       const getTournamentsMock = setupTournaments(leagueTimes);

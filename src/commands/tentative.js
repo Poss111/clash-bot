@@ -10,30 +10,30 @@ module.exports = {
     options: [
         {
             type: 3,
-            name: "tournament",
-            description: "A future tournament to register for. Check time command if you do not know the name.",
+            name: 'tournament',
+            description: 'A future tournament to register for. Check time command if you do not know the name.',
             required: true
         },
         {
             type: 4,
-            name: "day",
-            description: "A day of the tournament to register for.",
+            name: 'day',
+            description: 'A day of the tournament to register for.',
             choices: [
                 {
-                    "name": "Day 1",
-                    "value": 1
+                    'name': 'Day 1',
+                    'value': 1
                 },
                 {
-                    "name": "Day 2",
-                    "value": 2
+                    'name': 'Day 2',
+                    'value': 2
                 },
                 {
-                    "name": "Day 3",
-                    "value": 3
+                    'name': 'Day 3',
+                    'value': 3
                 },
                 {
-                    "name": "Day 4",
-                    "value": 4
+                    'name': 'Day 4',
+                    'value': 4
                 }
             ],
             required: true
@@ -50,13 +50,13 @@ module.exports = {
         try {
             let parsedArguments = commandArgumentParser.parse(args);
             if (!parsedArguments || !parsedArguments.tournamentName) {
-                await msg.reply("A Tournament Name to be tentative for is missing. " +
-                    "Please use /tentative 'tournament name' 'tournament day' " +
-                    "to use tentative. i.e. /tentative msi2021 1");
+                await msg.reply('A Tournament Name to be tentative for is missing. ' +
+                    'Please use /tentative \'tournament name\' \'tournament day\' ' +
+                    'to use tentative. i.e. /tentative msi2021 1');
             } else if (!parsedArguments.tournamentDay) {
-                await msg.reply("A Tournament Day to be tentative for is missing. Please " +
-                    "use /tentative 'tournament name' 'tournament day' to " +
-                    "use tentative. i.e. /tentative msi2021 1");
+                await msg.reply('A Tournament Day to be tentative for is missing. Please ' +
+                    'use /tentative \'tournament name\' \'tournament day\' to ' +
+                    'use tentative. i.e. /tentative msi2021 1');
             } else {
                 await msg.deferReply();
                 const tournamentApi = new ClashBotRestClient
@@ -89,7 +89,7 @@ module.exports = {
                             times[0].tournamentName,
                             times[0].tournamentDay
                           );
-                        await msg.editReply(`We have taken you off of tentative queue. tip: Use '/teams' to view current team status`);
+                        await msg.editReply('We have taken you off of tentative queue. tip: Use \'/teams\' to view current team status');
                     } else {
                         let opts = {
                             'placePlayerOnTentativeRequest': new ClashBotRestClient
@@ -103,7 +103,7 @@ module.exports = {
                               })
                         };
                         await tentativeApi.placePlayerOnTentative(opts);
-                        await msg.editReply(`We placed you into the tentative queue. If you were on a team, you have been removed. tip: Use '/teams' to view current team status`);
+                        await msg.editReply('We placed you into the tentative queue. If you were on a team, you have been removed. tip: Use \'/teams\' to view current team status');
                     }
                 } else {
                     await msg.editReply('Cannot find the tournament passed. Please check /time for an appropriate list.');

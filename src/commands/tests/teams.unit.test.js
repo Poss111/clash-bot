@@ -48,7 +48,7 @@ function buildExpectedTeamsListWithTentative(sampleRegisteredTeams, sampleTentat
     const reduce = sampleTentativeList.reduce((acc, value) => {
         const key = `${value.tournamentDetails.tournamentName} - ${value.tournamentDetails.tournamentDay}`;
         if (!acc[key]) {
-            acc[key] = []
+            acc[key] = [];
         }
         if (Array.isArray(value.tentativePlayers) && value.tentativePlayers.length > 0) {
             acc[key].push(value.tentativePlayers.map(player => player.name));
@@ -69,18 +69,18 @@ function buildExpectedTeamsListWithTentative(sampleRegisteredTeams, sampleTentat
 
 function create500HttpError() {
     return {
-        error: `Failed to make call.`,
+        error: 'Failed to make call.',
         headers: undefined,
         status: 500,
-        statusText: "Bad Request",
-        url: "https://localhost.com/api"
+        statusText: 'Bad Request',
+        url: 'https://localhost.com/api'
     };
 }
 
 beforeEach(() => {
     jest.resetAllMocks();
     jest.resetModules();
-})
+});
 
 describe('Retrieve Teams', () => {
     describe('Happy Path and edge cases', () => {
@@ -141,7 +141,7 @@ describe('Retrieve Teams', () => {
             expect(msg.deferReply).toHaveBeenCalledTimes(1);
             expect(msg.editReply).toHaveBeenCalledTimes(1);
             expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
-        })
+        });
 
         test('When multiple teams are passed back, they should be populated as individual fields in the embedded property of the reply with their corresponding tournaments.', async () => {
             let msg = buildMockInteraction();
@@ -217,7 +217,7 @@ describe('Retrieve Teams', () => {
             expect(msg.deferReply).toHaveBeenCalledTimes(1);
             expect(msg.editReply).toHaveBeenCalledTimes(1);
             expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
-        })
+        });
 
         test('When no teams are passed back, it should be populate the not existing teams message.', async () => {
             let msg = buildMockInteraction();
@@ -237,7 +237,7 @@ describe('Retrieve Teams', () => {
             expect(msg.deferReply).toHaveBeenCalledTimes(1);
             expect(msg.editReply).toHaveBeenCalledTimes(1);
             expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
-        })
+        });
 
         test('When tentative players and no teams are passed back, it should populate the tentative list with an empty teams message.', async () => {
             let msg = buildMockInteraction();
@@ -277,7 +277,7 @@ describe('Retrieve Teams', () => {
             expect(msg.deferReply).toHaveBeenCalledTimes(1);
             expect(msg.editReply).toHaveBeenCalledTimes(1);
             expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
-        })
+        });
 
         test('When multiple tentative players and a team are passed back, it should populate the tentative list with the existing team based on all the tournaments.', async () => {
             let msg = buildMockInteraction();
@@ -362,7 +362,7 @@ describe('Retrieve Teams', () => {
             expect(msg.deferReply).toHaveBeenCalledTimes(1);
             expect(msg.editReply).toHaveBeenCalledTimes(1);
             expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
-        })
+        });
 
         test('When multiple tentative players and a team are passed back and some have empty Tentative Player lists, it should populate the tentative list with the existing team based on all the tournaments.', async () => {
             let msg = buildMockInteraction();
@@ -449,8 +449,8 @@ describe('Retrieve Teams', () => {
             expect(msg.deferReply).toHaveBeenCalledTimes(1);
             expect(msg.editReply).toHaveBeenCalledTimes(1);
             expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
-        })
-    })
+        });
+    });
 
     describe('Error', () => {
         test('Error - (Retrieve All Teams) - If an error occurs, the error handler will be invoked.', async () => {
@@ -482,7 +482,7 @@ describe('Retrieve Teams', () => {
                 'Failed to retrieve the current Clash Teams status.',
                 expect.anything(),
               );
-        })
+        });
 
         test('Error - (Get Tenta- If an error occurs, the error handler will be invoked.', async () => {
             errorHandling.handleError = jest.fn();

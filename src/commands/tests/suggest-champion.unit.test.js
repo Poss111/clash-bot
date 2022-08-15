@@ -2,11 +2,11 @@ const suggestChampion = require('../suggest-champion');
 const errorHandler = require('../../utility/error-handling');
 const riotApi = require('@fightmegg/riot-api');
 const {buildMockInteraction} = require('./shared-test-utilities/shared-test-utilities.test');
-const clashBotRestClient = require("clash-bot-rest-client");
+const clashBotRestClient = require('clash-bot-rest-client');
 
 jest.mock('../../utility/error-handling');
 jest.mock('@fightmegg/riot-api');
-jest.mock("clash-bot-rest-client");
+jest.mock('clash-bot-rest-client');
 
 beforeEach(() => {
     jest.resetModules();
@@ -15,21 +15,21 @@ beforeEach(() => {
 
 function create400HttpError() {
     return {
-        error: "Failed to make call.",
+        error: 'Failed to make call.',
         headers: undefined,
         status: 400,
-        statusText: "Bad Request",
-        url: "https://localhost.com/api"
+        statusText: 'Bad Request',
+        url: 'https://localhost.com/api'
     };
 }
 
 function create500HttpError() {
     return {
-        error: "Failed to make call.",
+        error: 'Failed to make call.',
         headers: undefined,
         status: 500,
-        statusText: "Bad Request",
-        url: "https://localhost.com/api"
+        statusText: 'Bad Request',
+        url: 'https://localhost.com/api'
     };
 }
 
@@ -43,13 +43,13 @@ function prepareDDragonApiData() {
                 id: 'Aatrox'
             }
         }
-    }
+    };
     riotApi.DDragon = jest.fn().mockImplementation(() => {
         return {
             champion: {
                 all: jest.fn().mockReturnValue(expectedChampionsData)
             }
-        }
+        };
     });
 }
 
@@ -197,7 +197,7 @@ describe('Suggest Champion Command', () => {
         test('A user should not be able to add more than 5 preferred champions to their list.', async () => {
             const msg = buildMockInteraction();
             prepareDDragonApiData();
-            let args = ['Ahri']
+            let args = ['Ahri'];
             let addChampionMock = jest.fn();
             let retrieveChampions = jest.fn();
             let removeChampionMock = jest.fn();
@@ -227,28 +227,28 @@ describe('Suggest Champion Command', () => {
         test('A champion should be required to be passed as the first argument.', async () => {
             const msg = buildMockInteraction();
             let args = [];
-            await suggestChampion.execute(msg, args)
+            await suggestChampion.execute(msg, args);
             expect(msg.deferReply).not.toHaveBeenCalled();
             expect(msg.reply).toBeCalledWith('no champion name was passed. Please pass one.');
-        })
+        });
 
         test('The champion passed should be a valid League of Legends champion name.', async () => {
             const msg = buildMockInteraction();
             let args = ['DNE'];
             prepareDDragonApiData();
-            await suggestChampion.execute(msg, args)
+            await suggestChampion.execute(msg, args);
             expect(msg.deferReply).toHaveBeenCalledTimes(1);
             expect(msg.editReply).toHaveBeenCalledTimes(1);
             expect(msg.editReply).toBeCalledWith(`Champion name passed does not exist. Please validate with /champions ${args[0]}`);
-        })
-    })
+        });
+    });
 
     describe('Error', () => {
         test('If an error occurs while retrieving Champion list, the error handler will be invoked.', async () => {
             errorHandler.handleError = jest.fn();
             const msg = buildMockInteraction();
             prepareDDragonApiData();
-            let args = ['Ahri']
+            let args = ['Ahri'];
             let retrieveChampions = setupRetrieveChampionsListFailure(args);
             errorHandler.handleError = jest.fn();
             await suggestChampion.execute(msg, ['Ahri']);
@@ -329,5 +329,5 @@ describe('Suggest Champion Command', () => {
             );
         });
     });
-})
+});
 

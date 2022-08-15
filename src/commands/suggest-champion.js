@@ -1,4 +1,4 @@
-const ClashBotRestClient = require("clash-bot-rest-client");
+const ClashBotRestClient = require('clash-bot-rest-client');
 const riotApi = require('@fightmegg/riot-api');
 const timeTracker = require('../utility/time-tracker');
 const errorHandler = require('../utility/error-handling');
@@ -10,8 +10,8 @@ module.exports = {
     options: [
         {
             type: 3,
-            name: "champion-name",
-            description: "i.e. Anivia, Aatrox, Volibear, etc...",
+            name: 'champion-name',
+            description: 'i.e. Anivia, Aatrox, Volibear, etc...',
             required: true
         }
     ],

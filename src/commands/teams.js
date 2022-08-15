@@ -3,7 +3,7 @@ const teamsCard = require('../templates/teams');
 const errorHandler = require('../utility/error-handling');
 const timeTracker = require('../utility/time-tracker');
 const logger = require('../utility/logger');
-const {capitalizeFirstLetter} = require("../utility/utilities");
+const {capitalizeFirstLetter} = require('../utility/utilities');
 
 module.exports = {
     name: 'teams',
@@ -36,7 +36,7 @@ module.exports = {
             logger.info(loggerContext, `Teams returned ('${teams ? teams.length : 0}') TentativeList ('${tentative ? tentative.length : 0}')`);
 
             if (teams.length <= 0) {
-                copy.fields.push({name: 'No Existing Teams. Please register!', value: 'Emptay'})
+                copy.fields.push({name: 'No Existing Teams. Please register!', value: 'Emptay'});
             } else {
                 let counter;
                 for (counter = 0; counter < teams.length; counter++) {
@@ -65,7 +65,7 @@ module.exports = {
                     if (Array.isArray(value.tentativePlayers)
                         && value.tentativePlayers.length > 0) {
                         if (!acc[key]) {
-                            acc[key] = []
+                            acc[key] = [];
                         }
                         acc[key].push(value.tentativePlayers
                           .map(player => player.name));

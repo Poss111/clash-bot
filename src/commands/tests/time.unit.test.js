@@ -15,7 +15,7 @@ const expectedTierTimeFormat = 'h:mm a z';
 beforeEach(() => {
     jest.resetAllMocks();
     jest.resetModules();
-})
+});
 
 function buildExpectedTournamentTimesResponse(sampleTime) {
     let copy = JSON.parse(JSON.stringify(clashTimeMenu));
@@ -40,7 +40,7 @@ function buildExpectedTournamentTimesResponse(sampleTime) {
             tierThreeTime: tierThreeTime,
             tierTwoTime: tierTwoTime,
             tierOneTime: tierOneTime
-        }
+        };
         copy.fields.push(templateBuilder.buildMessage(timeCopy, expectedPayload));
     });
     return copy;
@@ -84,7 +84,7 @@ describe('League Clash Times', () => {
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledWith({embeds: [copy]});
-    })
+    });
 
     test('When league times returns as undefined, there should be a no times available message returned.', async () => {
         let msg = buildMockInteraction();
@@ -96,7 +96,7 @@ describe('League Clash Times', () => {
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledWith({embeds: [copy]});
-    })
+    });
 
     test('When league times returns as empty, there should be a no times available message returned.', async () => {
         let msg = buildMockInteraction();
@@ -108,7 +108,7 @@ describe('League Clash Times', () => {
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledWith({embeds: [copy]});
-    })
+    });
 
     test('When there are more than 4 tournaments returned, then it should be trimmed to only work with 4.', async () => {
         let msg = buildMockInteraction();
@@ -153,6 +153,6 @@ describe('League Clash Times', () => {
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledWith({embeds: [copy]});
-    })
+    });
 
-})
+});

@@ -1,6 +1,6 @@
 const helpMenu = require('../templates/help-menu.js');
 const timeTracker = require('../utility/time-tracker');
-const errorHandling = require("../utility/error-handling");
+const errorHandling = require('../utility/error-handling');
 
 module.exports = {
     name: 'help',

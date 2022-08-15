@@ -7,4 +7,4 @@ module.exports.buildMessage = (template, data) => {
         stringTemplate = stringTemplate.replace(new RegExp(`:${entry[0]}`, 'g'), entry[1]);
     });
     return JSON.parse(stringTemplate);
-}
+};

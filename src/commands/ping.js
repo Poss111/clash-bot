@@ -1,5 +1,5 @@
 const timeTracker = require('../utility/time-tracker');
-const errorHandling = require("../utility/error-handling");
+const errorHandling = require('../utility/error-handling');
 module.exports = {
     name: 'ping',
     description: 'Ping!',

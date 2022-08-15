@@ -9,7 +9,7 @@ jest.mock('clash-bot-rest-client');
 beforeEach(() => {
   jest.resetAllMocks();
   jest.resetModules();
-})
+});
 
 function setupExpectedSuccessfulSubscription(expectedSubscriptions, expectedSubscriptionResponse) {
   let retrieveUserSubscriptionsMock = jest.fn();
@@ -81,7 +81,7 @@ describe('Subscribe', () => {
         expect(msg.editReply).toHaveBeenCalledWith(
           'You have subscribed. You will receive a notification the Monday before ' +
           'a Clash Tournament weekend. If you want to unsubscribe at any time please use /unsubscribe');
-      })
+      });
 
     test(
       'When a user requests to subscribe and the subscription returns true initially, they should have their '
@@ -103,8 +103,8 @@ describe('Subscribe', () => {
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledWith('You are already subscribed.');
-      })
-  })
+      });
+  });
 
   describe('Error', () => {
     test(

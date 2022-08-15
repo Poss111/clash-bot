@@ -1,10 +1,10 @@
-const unsubscribe = require('../unsubscribe')
+const unsubscribe = require('../unsubscribe');
 const errorHandling = require('../../utility/error-handling');
 const {buildMockInteraction} = require('./shared-test-utilities/shared-test-utilities.test');
-const clashBotRestClient = require("clash-bot-rest-client");
+const clashBotRestClient = require('clash-bot-rest-client');
 
 jest.mock('../../utility/error-handling');
-jest.mock("clash-bot-rest-client");
+jest.mock('clash-bot-rest-client');
 
 beforeEach(() => {
     jest.resetModules();
@@ -75,7 +75,7 @@ describe('Unsubscribe', () => {
             expect(msg.deferReply).toHaveBeenCalledTimes(1);
             expect(msg.editReply).toHaveBeenCalledTimes(1);
             expect(msg.editReply).toHaveBeenCalledWith('You have successfully unsubscribed.');
-        })
+        });
 
         test('When a user requests to unsubscribe and they were not subscribed to begin with, they should have a message letting them know they were not subscribed.', async () => {
             const expectedSubscriptions = [
@@ -102,8 +102,8 @@ describe('Unsubscribe', () => {
             expect(msg.deferReply).toHaveBeenCalledTimes(1);
             expect(msg.editReply).toHaveBeenCalledTimes(1);
             expect(msg.editReply).toHaveBeenCalledWith('No subscription was found.');
-        })
-    })
+        });
+    });
 
     describe('Error', () => {
         test('When an error occurs while trying to retrieve subscriptions, the user should be notified.', async () => {

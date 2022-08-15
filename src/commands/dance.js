@@ -2,7 +2,7 @@ const throttleHandling = require('../utility/throttle-handling');
 const timeTracker = require('../utility/time-tracker');
 const wait = require('util').promisify(setTimeout);
 const logger = require('../utility/logger');
-const errorHandling = require("../utility/error-handling");
+const errorHandling = require('../utility/error-handling');
 
 module.exports = {
     name: 'dance',
@@ -30,7 +30,7 @@ module.exports = {
                     '\\0.0|',
                     '|0.0|',
                     '_0.0|'
-                ]
+                ];
                 await msg.editReply(messages[0]);
                 await wait(1000);
                 await msg.editReply(messages[1]);

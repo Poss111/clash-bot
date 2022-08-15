@@ -8,7 +8,7 @@ const helpMenu = require('../../templates/help-menu');
 const updateNotification = require('../../templates/update-notification');
 const loadBot = require('../load-bot');
 const { buildMockInteraction, create404HttpError, create500HttpError} = require('../../commands/tests/shared-test-utilities/shared-test-utilities.test');
-const templateBuilder = require("../template-builder");
+const templateBuilder = require('../template-builder');
 const clashBotRestClient = require('clash-bot-rest-client');
 
 jest.mock(discordModulePath);
@@ -22,7 +22,7 @@ beforeEach(() => {
     delete process.env.INTEGRATION_TEST;
     delete process.env.TOKEN;
     delete process.env.CLIENT_ID;
-})
+});
 
 describe('Load Bot - All', () => {
     describe('Load Bot', () => {
@@ -35,8 +35,8 @@ describe('Load Bot - All', () => {
             REST.mockImplementation(() => {
                 return {
                     setToken: () => restMock
-                }
-            })
+                };
+            });
             let loginMockObject = jest.fn().mockResolvedValue(jest.fn());
             let expectedCommandsPayload = Object.keys(botCommands).map(key => {
                 let payload = { name: botCommands[key].name, description: botCommands[key].description};
@@ -67,10 +67,10 @@ describe('Load Bot - All', () => {
                 expect([...actualEvents.keys()])
                     .toEqual(['ready', 'guildCreate', 'messageCreate', 'interactionCreate']);
                 expect(botSetup).toBeTruthy();
-            })
-        })
+            });
+        });
 
-    })
+    });
 
     describe('Load Bot - INTEGRATION_TEST', () => {
         test('Loading the bot should call all expected event listeners if it is integration role.', () => {
@@ -83,7 +83,7 @@ describe('Load Bot - All', () => {
             REST.mockImplementation(() => {
                 return {
                     setToken: () => restMock
-                }
+                };
             });
             let expectedCommandsPayload = Object.keys(botCommands).map(key => {
                 let payload = { name: botCommands[key].name, description: botCommands[key].description};
@@ -114,9 +114,9 @@ describe('Load Bot - All', () => {
                 expect([...actualEvents.keys()])
                     .toEqual(['ready', 'guildCreate', 'messageCreate', 'interactionCreate']);
                 expect(botSetup).toBeTruthy();
-            })
-        })
-    })
+            });
+        });
+    });
 
     describe('Login Bot - LOCAL', () => {
 
@@ -131,7 +131,7 @@ describe('Load Bot - All', () => {
             REST.mockImplementation(() => {
                 return {
                     setToken: () => restMock
-                }
+                };
             });
             let expectedCommandsPayload = Object.keys(botCommands).map(key => {
                 let payload = { name: botCommands[key].name, description: botCommands[key].description};
@@ -162,9 +162,9 @@ describe('Load Bot - All', () => {
                 expect([...actualEvents.keys()])
                     .toEqual(['ready', 'guildCreate', 'messageCreate', 'interactionCreate']);
                 expect(botSetup).toBeTruthy();
-            })
-        })
-    })
+            });
+        });
+    });
 
     describe('Events', () => {
 
@@ -180,8 +180,8 @@ describe('Load Bot - All', () => {
                 expect(mockDiscordMessage.channel.send).toBeCalledTimes(1);
                 expect(mockDiscordMessage.channel.send).toHaveBeenCalledWith('Living in the past I see. ' +
                     'Try out our new slash commands! Just type /teams');
-            })
-        })
+            });
+        });
 
         describe('CommandInteraction', () => {
             test('When a Command Interaction event is received, no command should be executed if it does not match.', async () => {
@@ -189,21 +189,21 @@ describe('Load Bot - All', () => {
                 msg.options = {};
                 msg.commandName = 'not-found';
                 let mockCommands = new Map();
-                mockCommands.set('help', {execute: jest.fn()})
+                mockCommands.set('help', {execute: jest.fn()});
                 let mockDiscordBot = {
                     commands: mockCommands
                 };
                 await loadBot.interactionHandler(msg, mockDiscordBot);
                 expect(msg.reply).toBeCalledTimes(0);
                 expect(mockDiscordBot.commands.get('help').execute).toBeCalledTimes(0);
-            })
+            });
 
             test('When a Command Interaction event is received, the message should execute the expected command.', async () => {
                 let msg = buildMockInteraction();
                 msg.options = {};
                 msg.commandName = 'help';
                 let mockCommands = new Map();
-                mockCommands.set('help', {execute: jest.fn()})
+                mockCommands.set('help', {execute: jest.fn()});
                 let mockDiscordBot = {
                     commands: mockCommands
                 };
@@ -234,7 +234,7 @@ describe('Load Bot - All', () => {
                 msg.options = {};
                 msg.commandName = 'help';
                 let mockCommands = new Map();
-                mockCommands.set('help', {execute: jest.fn()})
+                mockCommands.set('help', {execute: jest.fn()});
                 let mockDiscordBot = {
                     commands: mockCommands
                 };
@@ -246,7 +246,7 @@ describe('Load Bot - All', () => {
                         name: msg.user.name,
                         serverName: msg.member.guild.name
                     }
-                }
+                };
                 clashBotRestClient.CreateUserRequest
                   .mockReturnValue(expectedRequest.createUserRequest);
                 clashBotRestClient.UserApi.mockReturnValue({
@@ -273,7 +273,7 @@ describe('Load Bot - All', () => {
                 msg.options = {};
                 msg.commandName = 'help';
                 let mockCommands = new Map();
-                mockCommands.set('help', {execute: jest.fn()})
+                mockCommands.set('help', {execute: jest.fn()});
                 let mockDiscordBot = {
                     commands: mockCommands
                 };
@@ -318,7 +318,7 @@ describe('Load Bot - All', () => {
                         name: msg.user.name,
                         serverName: msg.member.guild.name
                     }
-                }
+                };
                 clashBotRestClient.CreateUserRequest
                   .mockReturnValue(expectedRequest.createUserRequest);
                 clashBotRestClient.UserApi.mockReturnValue({
@@ -334,7 +334,7 @@ describe('Load Bot - All', () => {
                 expect(msg.reply).toBeCalledWith('there was an error trying to execute that command! ' +
                     'Please reach out to <@299370234228506627>.');
                 expect(mockDiscordBot.commands.get('help').execute).not.toHaveBeenCalled();
-            })
+            });
 
             test('When a Command Interaction event is received, and fails to execute the command. A message replying to the Bot owner should be sent.', async () => {
                 let msg = buildMockInteraction();
@@ -373,8 +373,8 @@ describe('Load Bot - All', () => {
                 expect(msg.reply).toBeCalledWith('there was an error trying to execute that command! ' +
                     'Please reach out to <@299370234228506627>.');
                 expect(mockDiscordBot.commands.get('help').execute).toBeCalledTimes(1);
-            })
-        })
+            });
+        });
 
         describe('Guild Create', () => {
             test('When a guild create event is sent, a help-menu should be displayed on only the general channel.', () => {
@@ -396,7 +396,7 @@ describe('Load Bot - All', () => {
                 expect(mockGuildObject.channels.cache[0].send).toBeCalledTimes(1);
                 expect(mockGuildObject.channels.cache[0].send).toBeCalledWith({embeds: [helpMenu]});
                 expect(mockGuildObject.channels.cache[1].send).toBeCalledTimes(0);
-            })
+            });
 
             test('When a guild create event is sent, do not send a message if no channel with the name of general is found.', () => {
                 let mockGuildObject = {
@@ -411,15 +411,15 @@ describe('Load Bot - All', () => {
                 };
                 loadBot.guildCreateHandler(mockGuildObject);
                 expect(mockGuildObject.channels.cache[0].send).toBeCalledTimes(0);
-            })
+            });
 
             test('When a guild create event is sent, and an error occurs then the error should be handled gracefully.', () => {
                 let mockGuildObject = {
                     name: 'New Guild',
                 };
                 expect(() => loadBot.guildCreateHandler(mockGuildObject)).not.toThrow();
-            })
-        })
+            });
+        });
 
         describe('Ready', () => {
             test('When the bot is ready, it should send out an embedded message to only the league channels about the discord bot having an update and to check the Releases page.', () => {
@@ -457,8 +457,8 @@ describe('Load Bot - All', () => {
                             },
                         ]
                     }
-                }
-                process.env.DISCORD_BOT_RELEASE_TITLE = "v1.0.4"
+                };
+                process.env.DISCORD_BOT_RELEASE_TITLE = 'v1.0.4';
                 loadBot.readyHandler(mockDiscordBot, 'league', true);
 
                 let copy = JSON.parse(JSON.stringify(updateNotification));
@@ -468,7 +468,7 @@ describe('Load Bot - All', () => {
                 expect(mockDiscordBot.guilds.cache[1].channels.cache[0].send).toBeCalledTimes(0);
                 expect(mockDiscordBot.guilds.cache[1].channels.cache[1].send).toBeCalledTimes(1);
                 expect(mockDiscordBot.guilds.cache[1].channels.cache[1].send).toBeCalledWith({ embeds: [ copy ]});
-            })
+            });
 
             test('When the bot is ready, if an error occurs while sending to a guild, it should print it out and continue with the rest.', () => {
                 let mockDiscordBot = {
@@ -514,8 +514,8 @@ describe('Load Bot - All', () => {
                             },
                         ]
                     }
-                }
-                process.env.DISCORD_BOT_RELEASE_TITLE = "v1.0.4"
+                };
+                process.env.DISCORD_BOT_RELEASE_TITLE = 'v1.0.4';
                 loadBot.readyHandler(mockDiscordBot, 'league', true);
 
                 let copy = JSON.parse(JSON.stringify(updateNotification));
@@ -526,7 +526,7 @@ describe('Load Bot - All', () => {
                 expect(mockDiscordBot.guilds.cache[1].channels.cache[0].send).toBeCalledTimes(0);
                 expect(mockDiscordBot.guilds.cache[1].channels.cache[1].send).toBeCalledTimes(1);
                 expect(mockDiscordBot.guilds.cache[1].channels.cache[1].send).toBeCalledWith({ embeds: [ copy ]});
-            })
+            });
 
             test('When the integration test argument is given, then the ready command should not send the update.', () => {
                 let mockDiscordBot = {
@@ -563,12 +563,12 @@ describe('Load Bot - All', () => {
                             },
                         ]
                     }
-                }
+                };
                 loadBot.readyHandler(mockDiscordBot, 'league', false);
                 expect(mockDiscordBot.guilds.cache[0].channels.cache[0].send).toBeCalledTimes(0);
                 expect(mockDiscordBot.guilds.cache[1].channels.cache[0].send).toBeCalledTimes(0);
                 expect(mockDiscordBot.guilds.cache[1].channels.cache[1].send).toBeCalledTimes(0);
-            })
-        })
-    })
+            });
+        });
+    });
 });

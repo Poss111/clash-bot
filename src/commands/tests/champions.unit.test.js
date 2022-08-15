@@ -31,7 +31,7 @@ describe('Champions Command', () => {
         expect(createDmResponse.send).toHaveBeenCalledWith(expectedArguments);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledWith({ content: 'Check your DMs.', ephemeral: true});
-    })
+    });
 
     test('The champions command should return a specific champion if one is passed.', async () => {
         const msg = buildMockInteraction();
@@ -53,7 +53,7 @@ describe('Champions Command', () => {
         expect(createDmResponse.send).toHaveBeenCalledWith(expectedArguments);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledWith({ content: 'Check your DMs.', ephemeral: true});
-    })
+    });
 
     test('The champions command should return a specific champion if one is partially passed.', async () => {
         const msg = buildMockInteraction();
@@ -75,7 +75,7 @@ describe('Champions Command', () => {
         expect(createDmResponse.send).toHaveBeenCalledWith(expectedArguments);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledWith({ content: 'Check your DMs.', ephemeral: true});
-    })
+    });
 
     test('The champions command should return a specific champion if one is in a different case is passed.', async () => {
         const msg = buildMockInteraction();
@@ -97,7 +97,7 @@ describe('Champions Command', () => {
         expect(createDmResponse.send).toHaveBeenCalledWith(expectedArguments);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledWith({ content: 'Check your DMs.', ephemeral: true});
-    })
+    });
 
     test('If the champion they specified is not found, then send a response to let them know.', async () => {
         const msg = buildMockInteraction();
@@ -107,8 +107,8 @@ describe('Champions Command', () => {
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledWith('Could not find the champion specified.');
-    })
-})
+    });
+});
 
 function buildExpectedChampionList() {
     return buildExpectedChampionReturn(['Aatrox', 'Ahri', 'Akali', 'Alistar', 'Anivia']);

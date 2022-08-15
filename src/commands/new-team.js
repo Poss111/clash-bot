@@ -5,64 +5,72 @@ const registerReply = require('../templates/register-reply');
 const {parseUserInfo} = require('../services/user-information-service-impl');
 const logger = require('../utility/logger');
 
+const buildTournamentDetails = (team) => {
+    return {
+        name: 'Tournament Details',
+        value: `${team.tournament.tournamentName} Day ${team.tournament.tournamentDay}`,
+        inline: true
+    };
+};
+
 module.exports = {
     name: 'new-team',
     description: 'Used to create a new Team for an available Clash Tournament.',
     options: [
         {
             type: 3,
-            name: "role",
-            description: "Top, Mid, Jg, Bot, or Supp",
+            name: 'role',
+            description: 'Top, Mid, Jg, Bot, or Supp',
             choices: [
                 {
-                    "name": "Top",
-                    "value": "Top"
+                    'name': 'Top',
+                    'value': 'Top'
                 },
                 {
-                    "name": "Middle",
-                    "value": "Mid"
+                    'name': 'Middle',
+                    'value': 'Mid'
                 },
                 {
-                    "name": "Jungle",
-                    "value": "Jg"
+                    'name': 'Jungle',
+                    'value': 'Jg'
                 },
                 {
-                    "name": "Bottom",
-                    "value": "Bot"
+                    'name': 'Bottom',
+                    'value': 'Bot'
                 },
                 {
-                    "name": "Supp",
-                    "value": "Supp"
+                    'name': 'Supp',
+                    'value': 'Supp'
                 }
             ],
             required: true
         },
         {
             type: 3,
-            name: "tournament",
-            description: "A future tournament to register for. Check time command if you do not know the name.",
+            name: 'tournament',
+            description: 'A future tournament to register for. Check time command if you do not know the name.',
             required: true
         },
         {
             type: 4,
-            name: "day",
-            description: "A day of the tournament to register for.",
-            "choices": [
+            name: 'day',
+            description: 'A day of the tournament to register for.',
+            'choices': [
                 {
-                    "name": "Day 1",
-                    "value": 1
+                    'name': 'Day 1',
+                    'value': 1
                 },
                 {
-                    "name": "Day 2",
-                    "value": 2
+                    'name': 'Day 2',
+                    'value': 2
                 },
                 {
-                    "name": "Day 3",
-                    "value": 3
+                    'name': 'Day 3',
+                    'value': 3
                 },
                 {
-                    "name": "Day 4",
-                    "value": 4
+                    'name': 'Day 4',
+                    'value': 4
                 }
             ],
             required: true
@@ -79,7 +87,7 @@ module.exports = {
         try {
             const userInfo = parseUserInfo(msg);
             if (!args || args.length === 0) {
-                await msg.reply("The role to join a new Team with is missing. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: /newTeam ***Top***");
+                await msg.reply('The role to join a new Team with is missing. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: /newTeam ***Top***');
             } else {
                 let role = args[0];
                 let roleNotMatching = false;
@@ -103,7 +111,7 @@ module.exports = {
                         roleNotMatching = true;
                 }
                 if (roleNotMatching) {
-                    await msg.reply(`The role passed is not correct - '${role}'. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: /newTeam ***Top***`)
+                    await msg.reply(`The role passed is not correct - '${role}'. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: /newTeam ***Top***`);
                 } else {
                     await msg.deferReply();
                     const request = {};
@@ -132,21 +140,13 @@ module.exports = {
                               'Failed to find any tournaments to attempt to register to.',
                               loggerContext);
                         } else {
-                            let returnMessage = `We were unable to find a Tournament with '${args[1]}'`
+                            let returnMessage = `We were unable to find a Tournament with '${args[1]}'`;
                             if (args[2]) {
                                 returnMessage = returnMessage + ` and '${args[2]}'`;
                             }
                             await msg.editReply(returnMessage + '. Please try again.');
                         }
                     } else {
-                        function buildTournamentDetails(team) {
-                            return {
-                                name: 'Tournament Details',
-                                value: `${team.tournament.tournamentName} Day ${team.tournament.tournamentDay}`,
-                                inline: true
-                            };
-                        }
-
                         logger.info(loggerContext, `Create new Team User with TournamentName ('${filteredClashTimes[0].tournamentName}') TournamentDay ('${filteredClashTimes[0].tournamentDay}') Role ('${args[0]}')`);
 
                         const teamApi = new ClashBotRestClient
@@ -189,4 +189,4 @@ module.exports = {
             timeTracker.endExecution(this.name, startTime);
         }
     }
-}
+};

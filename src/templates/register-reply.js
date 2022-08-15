@@ -1,9 +1,9 @@
 module.exports = {
-    title: "Registration",
+    title: 'Registration',
     color: 0x071A32,
-    description: "You have been successfully registered! Here are your details below",
+    description: 'You have been successfully registered! Here are your details below',
     fields: [],
     footer: {
-        text: "Made by Daniel Poss (aka Roïdräge) - https://github.com/Poss111"
+        text: 'Made by Daniel Poss (aka Roïdräge) - https://github.com/Poss111'
     }
-}
+};

@@ -12,7 +12,7 @@ jest.mock('clash-bot-rest-client');
 beforeEach(() => {
     jest.resetAllMocks();
     jest.resetModules();
-})
+});
 
 function buildRegisterResponse(sampleRegisterReturn) {
     let copy = JSON.parse(JSON.stringify(registerReply));
@@ -82,11 +82,11 @@ function setupSuccessfulCreateNewTeamRequest(args, msg, leagueTimes) {
 
 function create500HttpError() {
     return {
-        error: `Failed to make call.`,
+        error: 'Failed to make call.',
         headers: undefined,
         status: 500,
-        statusText: "Bad Request",
-        url: "https://localhost.com/api"
+        statusText: 'Bad Request',
+        url: 'https://localhost.com/api'
     };
 }
 
@@ -97,16 +97,16 @@ describe('New Team', () => {
             const args = ['Top'];
             let leagueTimes = [
                 {
-                    tournamentName: "msi2021",
-                    tournamentDay: "day_3",
-                    "startTime": "May 29 2021 07:00 pm PDT",
-                    "registrationTime": "May 29 2021 04:15 pm PDT"
+                    tournamentName: 'msi2021',
+                    tournamentDay: 'day_3',
+                    'startTime': 'May 29 2021 07:00 pm PDT',
+                    'registrationTime': 'May 29 2021 04:15 pm PDT'
                 },
                 {
-                    tournamentName: "msi2021",
-                    tournamentDay: "day_4",
-                    "startTime": "May 30 2021 07:00 pm PDT",
-                    "registrationTime": "May 30 2021 04:15 pm PDT"
+                    tournamentName: 'msi2021',
+                    tournamentDay: 'day_4',
+                    'startTime': 'May 30 2021 07:00 pm PDT',
+                    'registrationTime': 'May 30 2021 04:15 pm PDT'
                 }
             ];
             const getTournamentsMock = setupTournaments(leagueTimes);
@@ -126,8 +126,8 @@ describe('New Team', () => {
             expect(msg.deferReply).toHaveBeenCalledTimes(1);
             expect(msg.editReply).toHaveBeenCalledTimes(2);
             expect(msg.editReply).toHaveBeenCalledWith(`Registering '${msg.user.username}' for the first available tournament as '${args[0]}' that you are not already registered to...`);
-            expect(msg.editReply).toHaveBeenCalledWith({embeds: [copy]})
-        })
+            expect(msg.editReply).toHaveBeenCalledWith({embeds: [copy]});
+        });
 
         test('If a user is registering with an undefined array for args, then a reply stating that the user needs ' +
             'to pass the role he wants to register with.', async () => {
@@ -138,8 +138,8 @@ describe('New Team', () => {
             expect(msg.deferReply).not.toHaveBeenCalled();
             expect(msg.editReply).not.toHaveBeenCalled();
             expect(msg.reply).toHaveBeenCalledTimes(1);
-            expect(msg.reply).toHaveBeenCalledWith(`The role to join a new Team with is missing. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: /newTeam ***Top***`);
-        })
+            expect(msg.reply).toHaveBeenCalledWith('The role to join a new Team with is missing. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: /newTeam ***Top***');
+        });
 
         test('If a user is registering with an invalid role type (not Top, Mid, Jg, Bot, or Supp for args, then a reply stating that the user needs to pass the role he wants to register with.', async () => {
             let msg = buildMockInteraction();
@@ -151,7 +151,7 @@ describe('New Team', () => {
             expect(msg.editReply).not.toHaveBeenCalled();
             expect(msg.reply).toHaveBeenCalledTimes(1);
             expect(msg.reply).toHaveBeenCalledWith(`The role passed is not correct - '${rolePassed}'. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: /newTeam ***Top***`);
-        })
+        });
 
         test('If a user is registering with an array for args, then a reply stating that the user needs to pass the role he wants to register with.', async () => {
             let msg = buildMockInteraction();
@@ -161,8 +161,8 @@ describe('New Team', () => {
             expect(msg.deferReply).not.toHaveBeenCalled();
             expect(msg.editReply).not.toHaveBeenCalled();
             expect(msg.reply).toHaveBeenCalledTimes(1);
-            expect(msg.reply).toHaveBeenCalledWith(`The role to join a new Team with is missing. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: /newTeam ***Top***`);
-        })
+            expect(msg.reply).toHaveBeenCalledWith('The role to join a new Team with is missing. Please pass one of the following Top, Mid, Jg, Bot, or Supp.\n ***Usage***: /newTeam ***Top***');
+        });
 
         test('If a user requests a specific tournament that does not exist, they should receive a response letting them know we were unable to find a tournament.', async () => {
             let msg = buildMockInteraction();
@@ -179,7 +179,7 @@ describe('New Team', () => {
             expect(msg.editReply).toHaveBeenCalledTimes(2);
             expect(msg.editReply).toHaveBeenCalledWith(`Registering '${msg.user.username}' for Tournament '${args[1]}' as '${args[0]}'...`);
             expect(msg.editReply).toHaveBeenCalledWith(`We were unable to find a Tournament with '${args[1]}'. Please try again.`);
-        })
+        });
 
         test('If a user requests a specific tournament that does not exist and the list is empty, they should receive a response letting them know we were unable to find a tournament.', async () => {
             let msg = buildMockInteraction();
@@ -196,7 +196,7 @@ describe('New Team', () => {
             expect(msg.editReply).toHaveBeenCalledTimes(2);
             expect(msg.editReply).toHaveBeenCalledWith(`Registering '${msg.user.username}' for Tournament '${args[1]}' as '${args[0]}'...`);
             expect(msg.editReply).toHaveBeenCalledWith(`We were unable to find a Tournament with '${args[1]}'. Please try again.`);
-        })
+        });
 
         test('If a user requests a specific tournament name and day that does not exist and the list is empty, they should receive a response letting them know we were unable to find a tournament.', async () => {
             let msg = buildMockInteraction();
@@ -214,8 +214,8 @@ describe('New Team', () => {
             expect(msg.editReply).toHaveBeenCalledTimes(2);
             expect(msg.editReply).toHaveBeenCalledWith(`Registering '${msg.user.username}' for Tournament '${args[1]}' on day '${args[2]}' as '${args[0]}'...`);
             expect(msg.editReply).toHaveBeenCalledWith(`We were unable to find a Tournament with '${args[1]}' and '${args[2]}'. Please try again.`);
-        })
-    })
+        });
+    });
 
     describe('Error', () => {
         test('If an error occurs while retrieving Tournaments, the error handler will be invoked.', async () => {
@@ -247,14 +247,14 @@ describe('New Team', () => {
               'Failed to register you to team.',
               expect.anything(),
             );
-        })
+        });
 
         test('If a user does not request a specific tournament that does not exist and the list is empty, they should receive a response letting them know we were unable to find a tournament.', async () => {
             let msg = buildMockInteraction();
             errorHandling.handleError = jest.fn();
             const args = ['Top'];
             commandArgumentParser.parse.mockReturnValue({});
-            const getTournamentsMock = setupTournaments([])
+            const getTournamentsMock = setupTournaments([]);
             await newTeam.execute(msg, args);
             expect(getTournamentsMock).toHaveBeenCalledTimes(1);
             expect(getTournamentsMock).toHaveBeenCalledWith({});
@@ -268,6 +268,6 @@ describe('New Team', () => {
               msg, 'Failed to find any tournaments to attempt to register to.',
               expect.anything(),
             );
-        })
-    })
-})
+        });
+    });
+});

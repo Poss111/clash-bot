@@ -3,7 +3,7 @@ const championTemplate = require('../templates/champion-description');
 const templateBuilder = require('../utility/template-builder');
 const riotApi = require('@fightmegg/riot-api');
 const logger = require('../utility/logger');
-const errorHandling = require("../utility/error-handling");
+const errorHandling = require('../utility/error-handling');
 
 module.exports = {
     name: 'champions',
@@ -11,8 +11,8 @@ module.exports = {
     options: [
         {
             type: 3,
-            name: "champion-name",
-            description: "i.e. Anivia, Aatrox, Volibear, etc...",
+            name: 'champion-name',
+            description: 'i.e. Anivia, Aatrox, Volibear, etc...',
             required: false
         }
     ],
@@ -40,7 +40,7 @@ module.exports = {
                 for (let i = 0; i < (championKeys.length > 5 ? 5 : championKeys.length); i++) {
                     let championName = championKeys[i];
                     let championData = await ddragon.champion.byName({championName: championName});
-                    logger.info(loggerContext, `Creating message for => ('${championName}')`)
+                    logger.info(loggerContext, `Creating message for => ('${championName}')`);
                     embeddedMessages.push(templateBuilder.buildMessage(championTemplate, {
                         championName: championName,
                         championTitle: championData.data[championName].title,
@@ -54,7 +54,7 @@ module.exports = {
                 await dmChannel.send({ embeds: embeddedMessages });
                 await msg.editReply({ content: 'Check your DMs.', ephemeral: true});
             } else {
-                await msg.editReply('Could not find the champion specified.')
+                await msg.editReply('Could not find the champion specified.');
             }
         } catch(error) {
             await errorHandling.handleError(
