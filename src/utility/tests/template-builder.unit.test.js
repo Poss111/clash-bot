@@ -12,21 +12,21 @@ describe('Build message from JSON Object and template', () => {
         };
 
         let template = {
-            title: ":championName - :championTitle",
-            description: ":Blurb",
+            title: ':championName - :championTitle',
+            description: ':Blurb',
             color: null,
             fields: [
                 {
-                    name: "Type",
-                    value: ":tagOne - :tagTwo"
+                    name: 'Type',
+                    value: ':tagOne - :tagTwo'
                 },
                 {
-                    name: ":championName - :championTitle",
-                    value: ":Blurb"
+                    name: ':championName - :championTitle',
+                    value: ':Blurb'
                 }
             ],
             thumbnail: {
-                url: "http://ddragon.leagueoflegends.com/cdn/img/champion/loading/:imageUrl"
+                url: 'http://ddragon.leagueoflegends.com/cdn/img/champion/loading/:imageUrl'
             }
         };
 
@@ -37,25 +37,25 @@ describe('Build message from JSON Object and template', () => {
         expect(actualMessage.fields[1].name).toEqual(`${data.championName} - ${data.championTitle}`);
         expect(actualMessage.fields[1].value).toEqual(data.Blurb);
         expect(actualMessage.thumbnail.url).toContain(data.imageUrl);
-    })
+    });
 
     test('I should return with an empty object if no template is passed.', () => {
         expect(templateBuilder.buildMessage(undefined, {})).toEqual({});
-    })
+    });
 
     test('I should return with an the template if an empty data is passed.', () => {
         let template = {
-            title: ":championName - :championTitle",
-            description: ":Blurb",
+            title: ':championName - :championTitle',
+            description: ':Blurb',
             color: null,
             fields: [
                 {
-                    name: "Type",
-                    value: ":tagOne - :tagTwo"
+                    name: 'Type',
+                    value: ':tagOne - :tagTwo'
                 }
             ],
             thumbnail: {
-                url: "http://ddragon.leagueoflegends.com/cdn/img/champion/loading/:imageUrl"
+                url: 'http://ddragon.leagueoflegends.com/cdn/img/champion/loading/:imageUrl'
             }
         };
         expect(templateBuilder.buildMessage(template, {})).toEqual(template);
@@ -63,19 +63,19 @@ describe('Build message from JSON Object and template', () => {
 
     test('I should return with an the template if no data is passed.', () => {
         let template = {
-            title: ":championName - :championTitle",
-            description: ":Blurb",
+            title: ':championName - :championTitle',
+            description: ':Blurb',
             color: null,
             fields: [
                 {
-                    name: "Type",
-                    value: ":tagOne - :tagTwo"
+                    name: 'Type',
+                    value: ':tagOne - :tagTwo'
                 }
             ],
             thumbnail: {
-                url: "http://ddragon.leagueoflegends.com/cdn/img/champion/loading/:imageUrl"
+                url: 'http://ddragon.leagueoflegends.com/cdn/img/champion/loading/:imageUrl'
             }
         };
         expect(templateBuilder.buildMessage(template)).toEqual({});
     });
-})
+});

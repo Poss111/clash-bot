@@ -1,87 +1,154 @@
-const unsubscribe = require('../unsubscribe')
-const userServiceImpl = require('../../services/user-service-impl');
+const unsubscribe = require('../unsubscribe');
 const errorHandling = require('../../utility/error-handling');
 const {buildMockInteraction} = require('./shared-test-utilities/shared-test-utilities.test');
+const clashBotRestClient = require('clash-bot-rest-client');
 
-jest.mock('../../services/user-service-impl');
 jest.mock('../../utility/error-handling');
+jest.mock('clash-bot-rest-client');
 
 beforeEach(() => {
     jest.resetModules();
     jest.resetAllMocks();
-})
+});
+
+function setupExpectedSuccessfulUnsubscription(expectedSubscriptions, expectedSubscriptionResponse) {
+    let retrieveUserSubscriptionsMock = jest.fn();
+    let unsubscribeUserMock = jest.fn();
+    clashBotRestClient.UserApi.mockReturnValue({
+        retrieveUserSubscriptions: retrieveUserSubscriptionsMock.mockResolvedValue(
+          expectedSubscriptions),
+        unsubscribeUser            : unsubscribeUserMock.mockResolvedValue(expectedSubscriptionResponse)
+    });
+    return {retrieveUserSubscriptionsMock, unsubscribeUserMock};
+}
+
+function setupFailedRetrieveSubscriptions() {
+    let retrieveUserSubscriptionsMock = jest.fn();
+    clashBotRestClient.UserApi.mockReturnValue({
+        retrieveUserSubscriptions: retrieveUserSubscriptionsMock.mockRejectedValue(
+          new Error('Something went wrong.'))
+    });
+    errorHandling.handleError = jest.fn();
+    return retrieveUserSubscriptionsMock;
+}
+
+function setupFailedUnsubscribe(expectedSubscriptions) {
+    let retrieveUserSubscriptionsMock = jest.fn();
+    let unsubscribeUserMock = jest.fn();
+    clashBotRestClient.UserApi.mockReturnValue({
+        retrieveUserSubscriptions: retrieveUserSubscriptionsMock.mockResolvedValue(
+          expectedSubscriptions),
+        unsubscribeUser            : unsubscribeUserMock.mockRejectedValue(
+          new Error('Something went wrong.'))
+    });
+    errorHandling.handleError = jest.fn();
+    return {retrieveUserSubscriptionsMock, unsubscribeUserMock};
+}
 
 describe('Unsubscribe', () => {
+    describe('Happy Path and edge cases', () => {
+        test('When a user requests to unsubscribe, they should have their ServerName and Id passed along to be persisted then responded with a message letting them know it was successful.', async () => {
+            const expectedSubscriptions = [
+              {
+                  key: 'UpcomingClashTournamentDiscordDM',
+                  isOn: true
+              }
+            ];
+            const expectedSubscriptionsResponse = [
+                {
+                    key: 'UpcomingClashTournamentDiscordDM',
+                    isOn: false
+                }
+            ];
+            const msg = buildMockInteraction();
+            let {
+                retrieveUserSubscriptionsMock,
+                unsubscribeUserMock
+            } = setupExpectedSuccessfulUnsubscription(expectedSubscriptions, expectedSubscriptionsResponse);
 
-    test('When a user requests to unsubscribe, they should have their ServerName and Id passed along to be persisted then responded with a message letting them know it was successful.', async () => {
-        const expectedPreferredChampions = [];
-        const expectedSubscriptions = { 'UpcomingClashTournamentDiscordDM': true };
-        const msg = buildMockInteraction();
+            await unsubscribe.execute(msg);
 
-        const mockGetUserResponse = {
-            id: msg.user.id,
-            playerName:  msg.user.username,
-            serverName:  msg.member.guild.name,
-            preferredChampions: expectedPreferredChampions,
-            subscriptions: expectedSubscriptions
-        };
-        let updatedUserDetails = JSON.parse(JSON.stringify(mockGetUserResponse));
-        updatedUserDetails.subscriptions.UpcomingClashTournamentDiscordDM = false;
+            expect(retrieveUserSubscriptionsMock).toBeCalledTimes(1);
+            expect(retrieveUserSubscriptionsMock).toBeCalledWith(msg.user.id);
+            expect(unsubscribeUserMock).toBeCalledTimes(1);
+            expect(unsubscribeUserMock).toBeCalledWith(msg.user.id);
+            expect(msg.deferReply).toHaveBeenCalledTimes(1);
+            expect(msg.editReply).toHaveBeenCalledTimes(1);
+            expect(msg.editReply).toHaveBeenCalledWith('You have successfully unsubscribed.');
+        });
 
-        userServiceImpl.getUserDetails.mockResolvedValue(mockGetUserResponse);
-        userServiceImpl.postUserDetails.mockResolvedValue(updatedUserDetails);
+        test('When a user requests to unsubscribe and they were not subscribed to begin with, they should have a message letting them know they were not subscribed.', async () => {
+            const expectedSubscriptions = [
+                {
+                    key: 'UpcomingClashTournamentDiscordDM',
+                    isOn: false
+                }
+            ];
+            const msg = buildMockInteraction();
 
-        await unsubscribe.execute(msg);
+            let {
+                retrieveUserSubscriptionsMock,
+                unsubscribeUserMock
+            } = setupExpectedSuccessfulUnsubscription(
+              expectedSubscriptions,
+              [],
+            );
 
-        expect(userServiceImpl.getUserDetails).toBeCalledTimes(1);
-        expect(userServiceImpl.getUserDetails).toBeCalledWith(msg.user.id);
-        expect(userServiceImpl.postUserDetails).toBeCalledTimes(1);
-        expect(userServiceImpl.postUserDetails).toBeCalledWith(msg.user.id, msg.user.username,
-            msg.member.guild.name, expectedPreferredChampions, { UpcomingClashTournamentDiscordDM: false });
-        expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledWith('You have successfully unsubscribed.');
-    })
+            await unsubscribe.execute(msg);
 
-    test('When a user requests to unsubscribe and they were not subscribed to begin with, they should have a message letting them know they were not subscribed.', async () => {
-        const expectedPreferredChampions = [];
-        const expectedSubscriptions = { 'UpcomingClashTournamentDiscordDM': false };
-        const msg = buildMockInteraction();
+            expect(retrieveUserSubscriptionsMock).toBeCalledTimes(1);
+            expect(retrieveUserSubscriptionsMock).toBeCalledWith(msg.user.id);
+            expect(unsubscribeUserMock).not.toHaveBeenCalled();
+            expect(msg.deferReply).toHaveBeenCalledTimes(1);
+            expect(msg.editReply).toHaveBeenCalledTimes(1);
+            expect(msg.editReply).toHaveBeenCalledWith('No subscription was found.');
+        });
+    });
 
-        const mockGetUserResponse = {
-            id: msg.user.id,
-            playerName: msg.user.username,
-            serverName: msg.member.guild.name,
-            preferredChampions: expectedPreferredChampions,
-            subscriptions: expectedSubscriptions
-        };
+    describe('Error', () => {
+        test('When an error occurs while trying to retrieve subscriptions, the user should be notified.', async () => {
+            const msg = buildMockInteraction();
+            const retrieveUserSubscriptionsMock
+              = setupFailedRetrieveSubscriptions();
+            await unsubscribe.execute(msg);
+            expect(retrieveUserSubscriptionsMock).toBeCalledTimes(1);
+            expect(retrieveUserSubscriptionsMock).toBeCalledWith(msg.user.id);
+            expect(errorHandling.handleError).toHaveBeenCalledTimes(1);
+            expect(errorHandling.handleError)
+              .toHaveBeenCalledWith(
+                unsubscribe.name,
+                new Error('Something went wrong.'),
+                msg,
+                'Failed to unsubscribe.',
+                expect.anything(),
+              );
+        });
 
-        userServiceImpl.getUserDetails.mockResolvedValue(mockGetUserResponse);
-
-        await unsubscribe.execute(msg);
-
-        expect(userServiceImpl.getUserDetails).toBeCalledTimes(1);
-        expect(userServiceImpl.getUserDetails).toBeCalledWith(msg.user.id);
-        expect(userServiceImpl.postUserDetails).not.toHaveBeenCalled();
-        expect(msg.deferReply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledTimes(1);
-        expect(msg.editReply).toHaveBeenCalledWith('No subscription was found.');
-    })
-})
-
-describe('Error', () => {
-
-    test('When an error occurs while trying to subscribe, the user should be notified.', async () => {
-        const msg = buildMockInteraction();
-
-        userServiceImpl.getUserDetails.mockRejectedValue('Something went wrong.');
-
-        await unsubscribe.execute(msg);
-
-        expect(userServiceImpl.getUserDetails).toBeCalledTimes(1);
-        expect(userServiceImpl.getUserDetails).toBeCalledWith(msg.user.id);
-        expect(errorHandling.handleError).toHaveBeenCalledTimes(1);
-        expect(errorHandling.handleError).toHaveBeenCalledWith(unsubscribe.name, 'Something went wrong.',
-            msg, 'Failed to unsubscribe.');
-    })
-})
+        test('When an error occurs while trying to unsubscribe, the user should be notified.', async () => {
+            const msg = buildMockInteraction();
+            const {
+                retrieveUserSubscriptionsMock,
+                unsubscribeUserMock
+            } = setupFailedUnsubscribe(
+              [
+                    {
+                        key: 'UpcomingClashTournamentDiscordDM',
+                        isOn: true
+                    }]);
+            await unsubscribe.execute(msg);
+            expect(retrieveUserSubscriptionsMock).toBeCalledTimes(1);
+            expect(retrieveUserSubscriptionsMock).toBeCalledWith(msg.user.id);
+            expect(unsubscribeUserMock).toBeCalledTimes(1);
+            expect(unsubscribeUserMock).toBeCalledWith(msg.user.id);
+            expect(errorHandling.handleError).toHaveBeenCalledTimes(1);
+            expect(errorHandling.handleError)
+              .toHaveBeenCalledWith(
+                  unsubscribe.name,
+                  new Error('Something went wrong.'),
+                  msg,
+                  'Failed to unsubscribe.',
+                  expect.anything(),
+              );
+        });
+    });
+});

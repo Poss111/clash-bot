@@ -2,7 +2,8 @@ const timeTracker = require('../utility/time-tracker');
 const championTemplate = require('../templates/champion-description');
 const templateBuilder = require('../utility/template-builder');
 const riotApi = require('@fightmegg/riot-api');
-const logger = require('pino')();
+const logger = require('../utility/logger');
+const errorHandling = require('../utility/error-handling');
 
 module.exports = {
     name: 'champions',
@@ -10,12 +11,18 @@ module.exports = {
     options: [
         {
             type: 3,
-            name: "champion-name",
-            description: "i.e. Anivia, Aatrox, Volibear, etc...",
+            name: 'champion-name',
+            description: 'i.e. Anivia, Aatrox, Volibear, etc...',
             required: false
         }
     ],
     async execute(msg, args) {
+        const loggerContext = {
+            command: this.name,
+            user: msg.user.id,
+            username: msg.user.username,
+            server: msg.member ? msg.member.guild.name : {}
+        };
         const startTime = process.hrtime.bigint();
         try {
             const ddragon = new riotApi.DDragon();
@@ -23,17 +30,17 @@ module.exports = {
             let champions = await ddragon.champion.all();
             let championKeys = Object.keys(champions.data);
             if (Array.isArray(args) && args[0]) {
-                logger.info(`Filtering champion list for ('${args[0]}')`);
+                logger.info(loggerContext, `Filtering champion list for ('${args[0]}')`);
                 championKeys = championKeys.filter(championName => championName.toLowerCase().includes(args[0].toLowerCase()));
             }
             if (championKeys.length > 0) {
-                logger.info(`Number of Champions returned ('${championKeys.length}')`);
-                logger.info(`List of Champion Keys returned ('${championKeys}')`);
+                logger.info(loggerContext, `Number of Champions returned ('${championKeys.length}')`);
+                logger.info(loggerContext, `List of Champion Keys returned ('${championKeys}')`);
                 let embeddedMessages = [];
                 for (let i = 0; i < (championKeys.length > 5 ? 5 : championKeys.length); i++) {
                     let championName = championKeys[i];
                     let championData = await ddragon.champion.byName({championName: championName});
-                    logger.info(`Creating message for => ('${championName}')`)
+                    logger.info(loggerContext, `Creating message for => ('${championName}')`);
                     embeddedMessages.push(templateBuilder.buildMessage(championTemplate, {
                         championName: championName,
                         championTitle: championData.data[championName].title,
@@ -47,8 +54,15 @@ module.exports = {
                 await dmChannel.send({ embeds: embeddedMessages });
                 await msg.editReply({ content: 'Check your DMs.', ephemeral: true});
             } else {
-                await msg.editReply('Could not find the champion specified.')
+                await msg.editReply('Could not find the champion specified.');
             }
+        } catch(error) {
+            await errorHandling.handleError(
+              this.name,
+              error,
+              msg,
+              'Failed to find champions.',
+              loggerContext);
         } finally {
             timeTracker.endExecution(this.name, startTime);
         }

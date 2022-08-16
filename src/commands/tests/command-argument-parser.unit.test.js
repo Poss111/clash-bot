@@ -7,13 +7,13 @@ describe('Command Argument Parser', () => {
         let commands = commandArgumentParser.parse(args);
 
         expect(commands).toEqual({});
-    })
+    });
 
     test('When undefined is passed, it should be an empty object.', () => {
         let commands = commandArgumentParser.parse(undefined);
 
         expect(commands).toEqual({});
-    })
+    });
 
     test('When argument tournament name is passed as first argument, it should be parsed into and object and used.', () => {
         let args = ['msi2021'];
@@ -23,7 +23,7 @@ describe('Command Argument Parser', () => {
         expect(commands).toEqual({
             tournamentName: args[0]
         });
-    })
+    });
 
     test('When argument tournament day and tournament name are passed as arguments, it should be parsed into and object and used.', () => {
         let args = ['2', 'msi2021'];
@@ -34,7 +34,7 @@ describe('Command Argument Parser', () => {
             tournamentName: args[1],
             tournamentDay: args[0]
         });
-    })
+    });
 
     test('When argument tournament number is passed as first argument, it should be parsed into and object and used.', () => {
         let args = ['2'];
@@ -44,7 +44,7 @@ describe('Command Argument Parser', () => {
         expect(commands).toEqual({
             tournamentDay: args[0]
         });
-    })
+    });
 
     test('Test out all possible orders of list of acceptable arrangement arguments for array, should be parsed in the expected order.', () => {
         let args = ['msi2021', '23'];
@@ -53,8 +53,8 @@ describe('Command Argument Parser', () => {
                 let copy = JSON.parse(JSON.stringify(args));
                 let expectedTournamentName = copy[0];
                 let expectedTournamentDay = copy[1];
-                swapOne = copy[i];
-                swapTwo = copy[j];
+                let swapOne = copy[i];
+                let swapTwo = copy[j];
                 copy[j] = swapOne;
                 copy[i] = swapTwo;
                 let commands = commandArgumentParser.parse(copy);
@@ -65,5 +65,5 @@ describe('Command Argument Parser', () => {
                 });
             }
         }
-    })
-})
+    });
+});

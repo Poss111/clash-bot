@@ -1,19 +1,28 @@
-const timeTracker = require('../utility/time-tracker');
-const userServiceImpl = require('../services/user-service-impl');
-const errorHandler = require('../utility/error-handling');
+const ClashBotRestClient = require('clash-bot-rest-client');
 const riotApi = require('@fightmegg/riot-api');
+const timeTracker = require('../utility/time-tracker');
+const errorHandler = require('../utility/error-handling');
+const logger = require('../utility/logger');
+const {client} = require('../utility/rest-api-utilities');
+
 module.exports = {
     name: 'suggest-champion',
     description: 'Adds or removes a champion to the players preferred Champions list.',
     options: [
         {
             type: 3,
-            name: "champion-name",
-            description: "i.e. Anivia, Aatrox, Volibear, etc...",
+            name: 'champion-name',
+            description: 'i.e. Anivia, Aatrox, Volibear, etc...',
             required: true
         }
     ],
     async execute(msg, args) {
+        const loggerContext = {
+            command: this.name,
+            user: msg.user.id,
+            username: msg.user.username,
+            server: msg.member ? msg.member.guild.name : {}
+        };
         const startTime = process.hrtime.bigint();
         try {
             if (Array.isArray(args) && args.length < 1) {
@@ -22,31 +31,48 @@ module.exports = {
                 await msg.deferReply();
                 let ddragon = new riotApi.DDragon();
                 let championData = await ddragon.champion.all();
-                if (Object.keys(championData.data).find(record => record === args[0])) {
-                    let userDetails = await userServiceImpl.getUserDetails(msg.user.id);
-                    if (!Array.isArray(userDetails.preferredChampions)
-                        || userDetails.preferredChampions.length <= 4) {
-                        if (!userDetails.preferredChampions) {
-                            userDetails.preferredChampions = [args[0]]
-                        } else if (userDetails.preferredChampions.includes(args[0])) {
-                            userDetails.preferredChampions =
-                                userDetails.preferredChampions.filter(record => record != args[0]);
-                        } else {
-                            userDetails.preferredChampions.push(args[0]) ;
-                        }
-                        let updatedUserDetails = await userServiceImpl.postUserDetails(msg.user.id, msg.user.username,
-                            userDetails.serverName, userDetails.preferredChampions, userDetails.subscriptions);
-                        await msg.editReply(`Successfully updated your preferred champions list, here are your current Champions: '${updatedUserDetails.preferredChampions}'`);
+                let lowerCasedArg = args[0].toLowerCase();
+                logger.info(loggerContext, `Trying to suggest Champion ('${args[0]}')...`);
+                if (Object.keys(championData.data)
+                  .find(record => record.toLowerCase() === lowerCasedArg)) {
+                    const userApi = new ClashBotRestClient
+                      .UserApi(client());
+                    const listOfChampions = await userApi.retrieveListOfUserPreferredChampions(msg.user.id);
+                    logger.info(loggerContext, `Current list of Champions ('${listOfChampions}')...`);
+                    let response;
+                    if (listOfChampions.includes(args[0].toLowerCase())) {
+                        response = await userApi.removeFromListOfPreferredChampions(
+                          msg.user.id,
+                          lowerCasedArg,
+                        );
                     } else {
-                        await msg.editReply('Sorry! You cannot have more than 5 champions in your list. ' +
-                            'Please remove by passing a champion in your list and then try adding again. Thank you!')
+                        response = await userApi.addToListOfPreferredChampions(
+                          msg.user.id,
+                          {
+                              addToListOfPreferredChampionsRequest:
+                                new ClashBotRestClient.AddToListOfPreferredChampionsRequest(lowerCasedArg)
+                          },
+                        );
                     }
+                    await msg.editReply(
+                      `Successfully updated your preferred champions list, here are your current Champions: '${response}'`);
                 } else {
                     await msg.editReply(`Champion name passed does not exist. Please validate with /champions ${args[0]}`);
                 }
             }
-        } catch (err) {
-            await errorHandler.handleError(this.name, err, msg, 'Failed to update the Users preferred Champions list.');
+        } catch (error) {
+            if (error.status === 400) {
+                logger.error({ ...loggerContext, error });
+                await msg.editReply('Sorry! You cannot have more than 5 champions in your list. ' +
+                  'Please remove by passing a champion in your list and then try adding again. Thank you!');
+            } else {
+                await errorHandler.handleError(
+                  this.name,
+                  error,
+                  msg,
+                  'Failed to update the Users preferred Champions list.',
+                  loggerContext);
+            }
         } finally {
             timeTracker.endExecution(this.name, startTime);
         }

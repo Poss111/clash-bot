@@ -1,9 +1,9 @@
-const logger = require('pino')();
+const logger = require('../utility/logger');
 
 class TimeTracker {
     endExecution(command, startTime) {
         const totalTimeInMilliseconds = (process.hrtime.bigint() - startTime)/1000000n;
-        logger.info(`Command ('${command}') => Total time ${totalTimeInMilliseconds}ms`)
+        logger.info({ command, executionTime: totalTimeInMilliseconds });
         return totalTimeInMilliseconds;
     }
 }

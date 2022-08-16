@@ -1,7 +1,7 @@
 let findTournament = (tournamentName, dayNumber) => {
     let filter;
     if (tournamentName) {
-        tournamentName = tournamentName.toLowerCase()
+        tournamentName = tournamentName.toLowerCase();
         filter = (data) => data.tournamentName.toLowerCase().includes(tournamentName);
         if (tournamentName && !isNaN(dayNumber)) {
             filter = (data) => data.tournamentName.toLowerCase().includes(tournamentName)
@@ -9,6 +9,8 @@ let findTournament = (tournamentName, dayNumber) => {
         }
     }
     return filter;
-}
+};
 
-module.exports.findTournament = findTournament;
+module.exports = {
+    findTournament
+};

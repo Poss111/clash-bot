@@ -33,4 +33,4 @@ test('Should not dance when throttled and should not return a message if a notif
     dance.execute(msg);
     expect(msg.deferReply).not.toHaveBeenCalled();
     expect(msg.editReply).toHaveBeenCalledTimes(1);
-})
+});

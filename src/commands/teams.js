@@ -1,36 +1,54 @@
-const clashBotTeamsServiceImpl = require('../services/teams-service-impl');
-const tentativeServiceImpl = require('../services/tentative-service-impl');
+const ClashBotRestClient = require('clash-bot-rest-client');
 const teamsCard = require('../templates/teams');
 const errorHandler = require('../utility/error-handling');
 const timeTracker = require('../utility/time-tracker');
+const logger = require('../utility/logger');
+const {capitalizeFirstLetter} = require('../utility/utilities');
+const {client} = require('../utility/rest-api-utilities');
 
 module.exports = {
     name: 'teams',
     description: 'Used to return response of the current Clash team status.',
     execute: async function (msg) {
+        const loggerContext = {
+            command: this.name,
+            user: msg.user.id,
+            username: msg.user.username,
+            server: msg.member ? msg.member.guild.name : {}
+        };
         const startTime = process.hrtime.bigint();
-        await msg.deferReply();
-        await Promise.all([tentativeServiceImpl.retrieveTentativeListForServer(msg.member.guild.name),
-            clashBotTeamsServiceImpl.retrieveActiveTeamsForServer(msg.member.guild.name)]).then(data => {
-            let tentative = data[0];
-            let teams = data[1];
+        try {
+            await msg.deferReply();
+            logger.info(loggerContext, 'Retrieving Team details for User.');
+            const apiClient = client();
+            const tentativeApi = new ClashBotRestClient.TentativeApi(apiClient);
+            const teamApi = new ClashBotRestClient.TeamApi(apiClient);
+            const responses = await Promise.all([
+                tentativeApi.getTentativeDetails(msg.member.guild.name),
+                teamApi.getTeam(msg.member.guild.name),
+            ]);
+            let tentative = responses[0];
+            let teams = responses[1];
             let copy = JSON.parse(JSON.stringify(teamsCard));
 
+            logger.info(loggerContext, `Teams returned ('${teams ? teams.length : 0}') TentativeList ('${tentative ? tentative.length : 0}')`);
+
             if (teams.length <= 0) {
-                copy.fields.push({name: 'No Existing Teams. Please register!', value: 'Emptay'})
+                copy.fields.push({name: 'No Existing Teams. Please register!', value: 'Emptay'});
             } else {
                 let counter;
                 for (counter = 0; counter < teams.length; counter++) {
-                    if (teams[counter].playersDetails && teams[counter].playersDetails.length > 0) {
+                    if (teams[counter].playerDetails) {
                         copy.fields.push({
-                            name: teams[counter].teamName,
-                            value: teams[counter].playersDetails
-                                .map(record => `${record.role} - ${record.name}`).join('\n'),
+                            name: capitalizeFirstLetter(teams[counter].name),
+                            value: Object.entries(teams[counter].playerDetails)
+                                .map(record => `${record[0]} - ${record[1].name}`)
+                              .join('\n'),
                             inline: true
                         });
                         copy.fields.push({
                             name: 'Tournament Details',
-                            value: `${teams[counter].tournamentDetails.tournamentName} Day ${teams[counter].tournamentDetails.tournamentDay}`,
+                            value: `${teams[counter].tournament.tournamentName} Day ${teams[counter].tournament.tournamentDay}`,
                             inline: true
                         });
                         if (counter < teams.length - 1) {
@@ -42,12 +60,13 @@ module.exports = {
             if (tentative && tentative.length > 0) {
                 const reduce = tentative.reduce((acc, value) => {
                     const key = `${value.tournamentDetails.tournamentName} - ${value.tournamentDetails.tournamentDay}`;
-                    if (!acc[key]) {
-                        acc[key] = []
-                    }
                     if (Array.isArray(value.tentativePlayers)
                         && value.tentativePlayers.length > 0) {
-                        acc[key].push(value.tentativePlayers);
+                        if (!acc[key]) {
+                            acc[key] = [];
+                        }
+                        acc[key].push(value.tentativePlayers
+                          .map(player => player.name));
                     }
                     return acc;
                 }, {});
@@ -61,10 +80,17 @@ module.exports = {
                 }
                 copy.fields.push({name: 'Tentative Queue', value: message});
             }
-            msg.editReply({embeds: [ copy ]});
-        }).catch(err => errorHandler.handleError(this.name, err, msg, 'Failed to retrieve the current Clash Teams status.'))
-            .finally(() => {
-                timeTracker.endExecution(this.name, startTime);
-            });
+            await msg.editReply({embeds: [ copy ]});
+        } catch(error) {
+            await errorHandler.handleError(
+              this.name,
+              error,
+              msg,
+              'Failed to retrieve the current Clash Teams status.',
+              loggerContext
+            );
+        } finally{
+            timeTracker.endExecution(this.name, startTime);
+        }
     },
 };

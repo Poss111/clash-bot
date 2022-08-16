@@ -5,9 +5,10 @@ const {Routes} = require('discord-api-types/v9');
 const botCommands = require('../commands');
 const helpMenu = require('../templates/help-menu');
 const updateNotification = require('../templates/update-notification');
-const userServiceImpl = require('../services/user-service-impl');
-const templateBuilder = require("./template-builder");
-const logger = require('pino')();
+const templateBuilder = require('./template-builder');
+const ClashBotRestClient = require('clash-bot-rest-client');
+const logger = require('../utility/logger');
+const {client} = require('../utility/rest-api-utilities');
 let channel = 'league';
 let bot = undefined;
 
@@ -40,33 +41,57 @@ let initializeBot = () => {
             resolve(bot);
         });
     }).catch(err => new Error(`Failed to initialize Clash-Bot to Error ('${err}')`));
-}
+};
 
 let messageHandler = async (msg) => {
     try {
         if (msg.channel)
         msg.channel.send('Living in the past I see. Try out our new slash commands! Just type /teams');
-    } catch(err) {
-        logger.error(`Failed to execute command 'messageHandler' due to error.`, err);
+    } catch(error) {
+        logger.error(
+          { message: error.message, stack: error.stack },
+          'Failed to execute command messageHandler due to error.'
+        );
     }
-}
+};
 
 let interactionHandler = async (interaction, bot) => {
+    const loggerContext = {
+        command: 'interactionHandler',
+        user: interaction.user ? interaction.user.id : 0,
+        username: interaction.user ? interaction.user.username : '',
+        server: interaction.member ? interaction.member.guild.name : {}
+    };
     if (interaction.isCommand()) {
         let args = [];
         if (interaction.options.data) {
          args = interaction.options.data.map(data => data.value);
         }
 
+        logger.info(loggerContext, `('${interaction.user.username}') called command: ('${interaction.commandName}')`);
+
         if (!bot.commands.has(interaction.commandName)) return;
 
         try {
-            console.info(`('${interaction.user.username}') called command: ('${interaction.commandName}')`);
-            await userServiceImpl.postVerifyUser(interaction.user.id,
-                interaction.user.username, interaction.member.guild.name);
+            const userApi = new ClashBotRestClient.UserApi(client());
+            try {
+                await userApi.getUser(interaction.user.id);
+            } catch(error) {
+                if (error.status === 404) {
+                    await userApi.createUser({
+                        createUserRequest: new ClashBotRestClient.CreateUserRequest(
+                            interaction.user.id,
+                            interaction.user.username,
+                            interaction.member.guild.name
+                        )
+                    });
+                } else {
+                    throw error;
+                }
+            }
             await bot.commands.get(interaction.commandName).execute(interaction, args);
         } catch (error) {
-            logger.error(`Failed to execute command ('${bot.commands.get(interaction.commandName).name}') due to error.`, error);
+            logger.error({ ...loggerContext, message: error.message, stack: error.stack }, `Failed to execute command ('${bot.commands.get(interaction.commandName).name}') due to error.`, error);
             try {
                 if (interaction.deferred
                     || interaction.replied) {
@@ -77,11 +102,11 @@ let interactionHandler = async (interaction, bot) => {
                         'that command! Please reach out to <@299370234228506627>.');
                 }
             } catch (error) {
-                logger.error(`Failed to send error message due to error.`, error);
+                logger.error({ ...loggerContext, message: error.message, stack: error.stack }, 'Failed to send error message due to error.', error);
             }
         }
     }
-}
+};
 
 let guildCreateHandler = (guild) => {
     try {
@@ -91,14 +116,15 @@ let guildCreateHandler = (guild) => {
             .then(() => {
                 logger.info(`Successfully sent message to new guild ('${guild.name}')`);
             })
-            .catch((err) => {
-                logger.error(`Failed to send create message to new guild ('${guild.name}') due to error.`, err);
+            .catch((error) => {
+                logger
+                  .error({ message: error.message, stack: error.stack }, `Failed to send create message to new guild ('${guild.name}') due to error.`);
             });
     }
     } catch(error) {
-        logger.error(`Failed to retrieve general channel from new guild ('${guild.name}').` , error);
+        logger.error({ message: error.message, stack: error.stack }, `Failed to retrieve general channel from new guild ('${guild.name}').`);
     }
-}
+};
 
 let readyHandler = (discordBot, restrictedChannel, showRelease) => {
     logger.info(`Logged in as ${discordBot.user.tag}!`);
@@ -113,15 +139,18 @@ let readyHandler = (discordBot, restrictedChannel, showRelease) => {
                     filter.send({
                         embeds: [updateMessage]
                     });
-                } catch (err) {
-                    logger.error('Failed to send update notification due to error.', err);
+                } catch (error) {
+                    logger.error({ message: error.message, stack: error.stack }, 'Failed to send update notification due to error.');
                 }
                 logger.info(`Successfully sent Bot update message to ('${guildKey}')...`);
             }
         });
     }
-    logger.info(`Total # of guilds using Bot ('${ discordBot.guilds.cache.size}')`);
-}
+    logger.info(
+      { type: 'metric' },
+      `Total # of guilds using Bot ('${ discordBot.guilds.cache.size}')`
+    );
+};
 
 let setupCommands = async () => {
     let commands = Object.keys(botCommands).map(key => {
@@ -151,7 +180,7 @@ let setupCommands = async () => {
         throw new Error(err);
     }
     logger.info('Successfully updated bot commands.');
-}
+};
 
 module.exports.client = bot;
 module.exports.initializeBot = initializeBot;

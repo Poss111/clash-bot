@@ -6,4 +6,4 @@ test('ping will return with a pong for the message.', () => {
     ping.execute(msg);
     expect(msg.reply).toHaveBeenCalledTimes(1);
     expect(msg.reply).toHaveBeenCalledWith('pong');
-})
+});

@@ -15,17 +15,28 @@ services:
       - LANGUAGE=en_US:en
       - LC_ALL=en_US.UTF-8
   clash-bot-discord-bot-service-data-setup:
-    image: "poss11111/clash-bot-service:latest"
+    image: "poss11111/clash-bot-webapp-service:latest"
     command: "node integration/integration-setup.js"
     container_name: clash-bot-discord-bot-service-data-setup
     environment:
       - INTEGRATION_TEST=true
       - HOST=dynamodb-local-bot
   clash-bot-service-bot:
-    image: "poss11111/clash-bot-service:latest"
-    container_name: clash-bot-service-bot
+    image: 'poss11111/clash-bot-webapp-service:latest'
+    container_name: clash-bot-webapp-service
     ports:
       - "0.0.0.0:80:80"
     environment:
       - INTEGRATION_TEST=true
       - HOST=dynamodb-local-bot
+      - WS_SERVICE_HOSTNAME=ws://clash-bot-ws-service:8081
+      - PORT=80
+      - LOGGER_LEVEL=info
+  clash-bot-local-ws-service:
+    image: 'poss11111/clash-bot-ws-service:latest'
+    container_name: clash-bot-ws-service
+    ports:
+      - "8081:8081"
+    environment:
+      - PORT=8081
+      - LOGGER_LEVEL=info

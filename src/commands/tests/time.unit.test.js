@@ -1,12 +1,12 @@
 const time = require('../time');
-const tournamentsServiceImpl = require('../../services/tournaments-service-impl');
 const clashTimeMenu = require('../../templates/clash-times-menu');
 const clashTimeFields = require('../../templates/clash-time-fields');
 const templateBuilder = require('../../utility/template-builder');
 const {buildMockInteraction} = require('./shared-test-utilities/shared-test-utilities.test');
 const moment = require('moment-timezone');
+const clashBotRestClient = require('clash-bot-rest-client');
 
-jest.mock('../../services/tournaments-service-impl');
+jest.mock('clash-bot-rest-client');
 
 const expectedDateFormat = 'MMMM DD yyyy hh:mm a z';
 const expectedTournamentFormat = 'MMMM DD yyyy';
@@ -15,7 +15,7 @@ const expectedTierTimeFormat = 'h:mm a z';
 beforeEach(() => {
     jest.resetAllMocks();
     jest.resetModules();
-})
+});
 
 function buildExpectedTournamentTimesResponse(sampleTime) {
     let copy = JSON.parse(JSON.stringify(clashTimeMenu));
@@ -40,7 +40,7 @@ function buildExpectedTournamentTimesResponse(sampleTime) {
             tierThreeTime: tierThreeTime,
             tierTwoTime: tierTwoTime,
             tierOneTime: tierOneTime
-        }
+        };
         copy.fields.push(templateBuilder.buildMessage(timeCopy, expectedPayload));
     });
     return copy;
@@ -56,6 +56,14 @@ function buildExpectedNoTimesAvailableResponse() {
     return copy;
 }
 
+function setupGetTournamentsMock(sampleTime) {
+    let getTournamentsMock = jest.fn();
+    clashBotRestClient.TournamentApi.mockReturnValue({
+        getTournaments: getTournamentsMock.mockResolvedValue(sampleTime)
+    });
+    return getTournamentsMock;
+}
+
 describe('League Clash Times', () => {
 
     test('When league times returns successfully, there should be a formatted time for each available clash and tier returned.', async () => {
@@ -69,34 +77,38 @@ describe('League Clash Times', () => {
             }
         ];
         let copy = buildExpectedTournamentTimesResponse(sampleTime);
-        tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(sampleTime);
+        let getTournamentsMock = setupGetTournamentsMock(sampleTime);
         await time.execute(msg);
-        expect(tournamentsServiceImpl.retrieveAllActiveTournaments).toHaveBeenCalledTimes(1);
+        expect(getTournamentsMock).toHaveBeenCalledTimes(1);
+        expect(getTournamentsMock).toHaveBeenCalledWith({});
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledWith({embeds: [copy]});
-    })
+    });
 
     test('When league times returns as undefined, there should be a no times available message returned.', async () => {
         let msg = buildMockInteraction();
         let copy = buildExpectedNoTimesAvailableResponse();
-        tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(undefined);
+        let getTournamentsMock = setupGetTournamentsMock(undefined);
         await time.execute(msg);
-        expect(tournamentsServiceImpl.retrieveAllActiveTournaments).toHaveBeenCalledTimes(1);
+        expect(getTournamentsMock).toHaveBeenCalledTimes(1);
+        expect(getTournamentsMock).toHaveBeenCalledWith({});
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledWith({embeds: [copy]});
-    })
+    });
 
     test('When league times returns as empty, there should be a no times available message returned.', async () => {
         let msg = buildMockInteraction();
         let copy = buildExpectedNoTimesAvailableResponse();
-        tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue([]);
+        let getTournamentsMock = setupGetTournamentsMock([]);
         await time.execute(msg);
+        expect(getTournamentsMock).toHaveBeenCalledTimes(1);
+        expect(getTournamentsMock).toHaveBeenCalledWith({});
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledWith({embeds: [copy]});
-    })
+    });
 
     test('When there are more than 4 tournaments returned, then it should be trimmed to only work with 4.', async () => {
         let msg = buildMockInteraction();
@@ -134,12 +146,13 @@ describe('League Clash Times', () => {
         ];
         let copy = buildExpectedTournamentTimesResponse(sampleTime);
         copy.fields = copy.fields.slice(0,4);
-        tournamentsServiceImpl.retrieveAllActiveTournaments.mockResolvedValue(sampleTime);
+        let getTournamentsMock = setupGetTournamentsMock(sampleTime);
         await time.execute(msg);
-        expect(tournamentsServiceImpl.retrieveAllActiveTournaments).toHaveBeenCalledTimes(1);
+        expect(getTournamentsMock).toHaveBeenCalledTimes(1);
+        expect(getTournamentsMock).toHaveBeenCalledWith({});
         expect(msg.deferReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledTimes(1);
         expect(msg.editReply).toHaveBeenCalledWith({embeds: [copy]});
-    })
+    });
 
-})
+});
