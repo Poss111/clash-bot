@@ -92,7 +92,10 @@ module.exports = {
             }
         } catch (error) {
             if (error.status === 400) {
-                logger.error({...loggerContext, ...error});
+                logger.error({
+                    ...loggerContext,
+                    error: { status: error.status, body: error.body, response: error.response }}
+                );
                 await msg.editReply(`We did not find you on an existing Team for Tournament '${args[0]} - ${args[1]}'. Please use /join or /newTeam if you would like to join again. Thank you!`);
             } else {
                 await errorHandler.handleError(
