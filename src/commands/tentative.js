@@ -79,6 +79,15 @@ module.exports = {
                       .find(tentativeDetail => tentativeDetail
                         .tentativePlayers.find(player => player.id === msg.user.id));
                     if (foundTentative) {
+                        logger.debug({
+                            ...loggerContext,
+                            request: {
+                                serverName: msg.member.guild.name,
+                                id: msg.user.id,
+                                tournament: times[0].tournamentName,
+                                tournamentDay: times[0].tournamentDay
+                            }
+                        }, 'Request to Delete Tentative.');
                         await tentativeApi
                           .removePlayerFromTentative(
                             msg.member.guild.name,
@@ -93,12 +102,13 @@ module.exports = {
                               .PlacePlayerOnTentativeRequest({
                                   serverName       : msg.member.guild.name,
                                   tournamentDetails: {
-                                      tournamentName: '',
-                                      tournamentDay : '',
+                                      tournamentName: times[0].tournamentName,
+                                      tournamentDay : times[0].tournamentDay,
                                   },
                                   playerId: msg.user.id,
                               })
                         };
+                        logger.debug({ ...loggerContext, request: opts }, 'Request to Post Tentative.');
                         await tentativeApi.placePlayerOnTentative(opts);
                         await msg.editReply('We placed you into the tentative queue. If you were on a team, you have been removed. tip: Use \'/teams\' to view current team status');
                     }
