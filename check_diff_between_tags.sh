@@ -7,14 +7,10 @@ do
   if [[ "$i" == *"src/"*  && !$srcCode ]];
   then
     srcCode=true
-  else
-    srcCode=false
   fi
   if [[ "$i" == *"tfe/"* && !$tfCode ]];
   then
     tfCode=true
-  else
-    tfCode=false
   fi
 done
 
