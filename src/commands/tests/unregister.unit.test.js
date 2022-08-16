@@ -43,7 +43,8 @@ describe('Unregister', () => {
             const getTournamentsMock = setupGetTournamentsMock(leagueTimes);
             commandArgumentParser.parse.mockReturnValue({
                 tournamentDay: args[1],
-                tournamentName: args[0], createNewTeam: false
+                tournamentName: args[0],
+                createNewTeam: false
             });
             const removeResponse = {
                 name: 'abra',
@@ -54,8 +55,40 @@ describe('Unregister', () => {
                     tournamentDay: leagueTimes[0].tournamentDay,
                 }
             };
+            const sampleTeamTwoPlayers = [
+                {
+                    name: 'abra',
+                    serverName: msg.member.guild.name,
+                    playerDetails: {
+                        Top: {
+                            id: 1,
+                            name: 'Roïdräge',
+                            champions: ['Volibear', 'Ornn', 'Sett'],
+                            role: 'Top'
+                        },
+                        Bot: {
+                            id: msg.user.id,
+                            name: msg.user.username,
+                            champions: ['Lucian'],
+                            role: 'Bot'
+                        },
+                        Jg: {
+                            id: 3,
+                            name: 'Pepe Conrad',
+                            champions: ['Lucian'],
+                            role: 'Jg'
+                        }
+                    },
+                    tournament: {
+                        tournamentName: 'awesome_sauce',
+                        tournamentDay: '1'
+                    }
+                }
+            ];
             const removePlayerFromTeamMock = jest.fn();
+            const getTeamMock = jest.fn();
             clashBotRestClient.TeamApi.mockReturnValue({
+                getTeam: getTeamMock.mockResolvedValue(sampleTeamTwoPlayers),
                 removePlayerFromTeam: removePlayerFromTeamMock
                   .mockResolvedValue(removeResponse)
             });
@@ -66,11 +99,19 @@ describe('Unregister', () => {
                 tournament: args[0],
                 day: args[1],
             });
+            expect(getTeamMock).toHaveBeenCalledTimes(1);
+            expect(getTeamMock)
+              .toHaveBeenCalledWith(
+                msg.member.guild.name,
+                {
+                    tournament: leagueTimes[0].tournamentName,
+                    day: leagueTimes[0].tournamentDay,
+                });
             expect(removePlayerFromTeamMock)
               .toHaveBeenCalledTimes(1);
             expect(removePlayerFromTeamMock)
               .toHaveBeenCalledWith(
-                undefined,
+                sampleTeamTwoPlayers[0].name,
                 msg.member.guild.name,
                 leagueTimes[0].tournamentName,
                 leagueTimes[0].tournamentDay,
@@ -80,6 +121,92 @@ describe('Unregister', () => {
             expect(msg.editReply).toHaveBeenCalledTimes(2);
             expect(msg.editReply).toHaveBeenCalledWith(`Unregistering '${msg.user.username}' from Tournament '${leagueTimes[0].tournamentName}' on day '${leagueTimes[0].tournamentDay}'...`);
             expect(msg.editReply).toHaveBeenCalledWith(`Removed you from Team '${removeResponse.name}' for Tournament '${leagueTimes[0].tournamentName} - ${leagueTimes[0].tournamentDay}'. Please use /join or /newTeam if you would like to join again. Thank you!`);
+        });
+
+        test('Error - (When player does not belong to a Team) - When a player does not exist on a team is unregistered, the player should be notified that the have not Team to unregister from.', async () => {
+            const msg = buildMockInteraction();
+            let args = ['msi2021', '3'];
+            let leagueTimes = [
+                {
+                    tournamentName: 'msi2021',
+                    tournamentDay: '3',
+                    'startTime': 'May 29 2021 07:00 pm PDT',
+                    'registrationTime': 'May 29 2021 04:15 pm PDT'
+                },
+                {
+                    tournamentName: 'msi2021',
+                    tournamentDay: '4',
+                    'startTime': 'May 30 2021 07:00 pm PDT',
+                    'registrationTime': 'May 30 2021 04:15 pm PDT'
+                }
+            ];
+            const getTournamentsMock = setupGetTournamentsMock(leagueTimes);
+            commandArgumentParser.parse.mockReturnValue({
+                tournamentDay: args[1],
+                tournamentName: args[0],
+                createNewTeam: false
+            });
+            const removeResponse = {
+                name: 'abra',
+                playerDetails: {},
+                serverName: msg.member.guild.name,
+                tournament: {
+                    tournamentName: leagueTimes[0].tournamentName,
+                    tournamentDay: leagueTimes[0].tournamentDay,
+                }
+            };
+            const sampleTeamTwoPlayers = [
+                {
+                    name: 'abra',
+                    serverName: msg.member.guild.name,
+                    playerDetails: {
+                        Top: {
+                            id: 1,
+                            name: 'Roïdräge',
+                            champions: ['Volibear', 'Ornn', 'Sett'],
+                            role: 'Top'
+                        },
+                        Jg: {
+                            id: 3,
+                            name: 'Pepe Conrad',
+                            champions: ['Lucian'],
+                            role: 'Jg'
+                        }
+                    },
+                    tournament: {
+                        tournamentName: 'awesome_sauce',
+                        tournamentDay: '1'
+                    }
+                }
+            ];
+            const removePlayerFromTeamMock = jest.fn();
+            const getTeamMock = jest.fn();
+            clashBotRestClient.TeamApi.mockReturnValue({
+                getTeam: getTeamMock.mockResolvedValue(sampleTeamTwoPlayers),
+                removePlayerFromTeam: removePlayerFromTeamMock
+                  .mockResolvedValue(removeResponse)
+            });
+            await unregister.execute(msg, args);
+            expect(errorHandling.handleError).not.toHaveBeenCalled();
+            expect(getTournamentsMock).toHaveBeenCalledTimes(1);
+            expect(getTournamentsMock).toHaveBeenCalledWith({
+                tournament: args[0],
+                day: args[1],
+            });
+            expect(getTeamMock).toHaveBeenCalledTimes(1);
+            expect(getTeamMock)
+              .toHaveBeenCalledWith(
+                msg.member.guild.name,
+                {
+                    tournament: leagueTimes[0].tournamentName,
+                    day: leagueTimes[0].tournamentDay,
+                });
+            expect(removePlayerFromTeamMock)
+              .not.toHaveBeenCalled();
+            expect(msg.deferReply).toHaveBeenCalledTimes(1);
+            expect(msg.editReply).toHaveBeenCalledTimes(2);
+            expect(msg.editReply).toHaveBeenCalledWith(`Unregistering '${msg.user.username}' from Tournament '${leagueTimes[0].tournamentName}' on day '${leagueTimes[0].tournamentDay}'...`);
+            expect(msg.editReply).toHaveBeenCalledWith(`You do not belong to any of the Teams for Tournament '${leagueTimes[0].tournamentName}' on day '${leagueTimes[0].tournamentDay}'.`);
         });
 
         test('When a player does not exist on a team is unregistered, the player should be notified that they have not successfully removed them.', async () => {
@@ -104,8 +231,40 @@ describe('Unregister', () => {
                 tournamentName: args[0],
                 tournamentDay: args[1], createNewTeam: false
             });
+            const sampleTeamTwoPlayers = [
+                {
+                    name: 'abra',
+                    serverName: msg.member.guild.name,
+                    playerDetails: {
+                        Top: {
+                            id: 1,
+                            name: 'Roïdräge',
+                            champions: ['Volibear', 'Ornn', 'Sett'],
+                            role: 'Top'
+                        },
+                        Bot: {
+                            id: msg.user.id,
+                            name: msg.user.username,
+                            champions: ['Lucian'],
+                            role: 'Bot'
+                        },
+                        Jg: {
+                            id: 3,
+                            name: 'Pepe Conrad',
+                            champions: ['Lucian'],
+                            role: 'Jg'
+                        }
+                    },
+                    tournament: {
+                        tournamentName: 'awesome_sauce',
+                        tournamentDay: '1'
+                    }
+                }
+            ];
             const removePlayerFromTeamMock = jest.fn();
+            const getTeamMock = jest.fn();
             clashBotRestClient.TeamApi.mockReturnValue({
+                getTeam: getTeamMock.mockResolvedValue(sampleTeamTwoPlayers),
                 removePlayerFromTeam: removePlayerFromTeamMock
                   .mockRejectedValue(create400HttpError())
             });
@@ -116,11 +275,19 @@ describe('Unregister', () => {
                 tournament: args[0],
                 day: args[1],
             });
+            expect(getTeamMock).toHaveBeenCalledTimes(1);
+            expect(getTeamMock)
+              .toHaveBeenCalledWith(
+                msg.member.guild.name,
+                {
+                    tournament: leagueTimes[0].tournamentName,
+                    day: leagueTimes[0].tournamentDay,
+                });
             expect(removePlayerFromTeamMock)
               .toHaveBeenCalledTimes(1);
             expect(removePlayerFromTeamMock)
               .toHaveBeenCalledWith(
-                undefined,
+                sampleTeamTwoPlayers[0].name,
                 msg.member.guild.name,
                 leagueTimes[0].tournamentName,
                 leagueTimes[0].tournamentDay,
@@ -200,6 +367,96 @@ describe('Unregister', () => {
             );
         });
 
+        test('If an error occurs while retrieving Teams, the error handler will be invoked.', async () => {
+            const msg = buildMockInteraction();
+            errorHandling.handleError = jest.fn();
+            let args = ['shurima', '3'];
+            let leagueTimes = [
+                {
+                    tournamentName: 'msi2021',
+                    tournamentDay: '3',
+                    'startTime': 'May 29 2021 07:00 pm PDT',
+                    'registrationTime': 'May 29 2021 04:15 pm PDT'
+                },
+                {
+                    tournamentName: 'msi2021',
+                    tournamentDay: '4',
+                    'startTime': 'May 30 2021 07:00 pm PDT',
+                    'registrationTime': 'May 30 2021 04:15 pm PDT'
+                }
+            ];
+            commandArgumentParser.parse.mockReturnValue({
+                tournamentName: args[0],
+                tournamentDay: args[1],
+                createNewTeam: false
+            });
+            const sampleTeamTwoPlayers = [
+                {
+                    name: 'abra',
+                    serverName: msg.member.guild.name,
+                    playerDetails: {
+                        Top: {
+                            id: 1,
+                            name: 'Roïdräge',
+                            champions: ['Volibear', 'Ornn', 'Sett'],
+                            role: 'Top'
+                        },
+                        Bot: {
+                            id: msg.user.id,
+                            name: msg.user.username,
+                            champions: ['Lucian'],
+                            role: 'Bot'
+                        },
+                        Jg: {
+                            id: 3,
+                            name: 'Pepe Conrad',
+                            champions: ['Lucian'],
+                            role: 'Jg'
+                        }
+                    },
+                    tournament: {
+                        tournamentName: 'awesome_sauce',
+                        tournamentDay: '1'
+                    }
+                }
+            ];
+            let getTournamentsMock = jest.fn();
+            clashBotRestClient.TournamentApi.mockReturnValue({
+                getTournaments: getTournamentsMock.mockResolvedValue(leagueTimes)
+            });
+            const removePlayerFromTeamMock = jest.fn();
+            const getTeamMock = jest.fn();
+            clashBotRestClient.TeamApi.mockReturnValue({
+                getTeam: getTeamMock.mockRejectedValue(create500HttpError()),
+                removePlayerFromTeam: removePlayerFromTeamMock
+                  .mockRejectedValue(create500HttpError())
+            });
+            await unregister.execute(msg, args);
+            expect(getTournamentsMock).toHaveBeenCalledTimes(1);
+            expect(getTournamentsMock).toHaveBeenCalledWith({
+                tournament: args[0],
+                day: args[1],
+            });
+            expect(getTeamMock).toHaveBeenCalledTimes(1);
+            expect(getTeamMock)
+              .toHaveBeenCalledWith(
+                msg.member.guild.name,
+                {
+                    tournament: leagueTimes[0].tournamentName,
+                    day: leagueTimes[0].tournamentDay,
+                });
+            expect(msg.deferReply).toHaveBeenCalledTimes(1);
+            expect(msg.editReply).toHaveBeenCalledWith(`Unregistering '${msg.user.username}' from Tournament '${leagueTimes[0].tournamentName}' on day '${leagueTimes[0].tournamentDay}'...`);
+            expect(errorHandling.handleError).toHaveBeenCalledTimes(1);
+            expect(errorHandling.handleError).toHaveBeenCalledWith(
+              unregister.name,
+              create500HttpError(),
+              msg,
+              'Failed to unregister you.',
+              expect.anything(),
+            );
+        });
+
         test('If an error occurs while removing a Player from a Team, the error handler will be invoked.', async () => {
             const msg = buildMockInteraction();
             errorHandling.handleError = jest.fn();
@@ -223,12 +480,44 @@ describe('Unregister', () => {
                 tournamentDay: args[1],
                 createNewTeam: false
             });
+            const sampleTeamTwoPlayers = [
+                {
+                    name: 'abra',
+                    serverName: msg.member.guild.name,
+                    playerDetails: {
+                        Top: {
+                            id: 1,
+                            name: 'Roïdräge',
+                            champions: ['Volibear', 'Ornn', 'Sett'],
+                            role: 'Top'
+                        },
+                        Bot: {
+                            id: msg.user.id,
+                            name: msg.user.username,
+                            champions: ['Lucian'],
+                            role: 'Bot'
+                        },
+                        Jg: {
+                            id: 3,
+                            name: 'Pepe Conrad',
+                            champions: ['Lucian'],
+                            role: 'Jg'
+                        }
+                    },
+                    tournament: {
+                        tournamentName: 'awesome_sauce',
+                        tournamentDay: '1'
+                    }
+                }
+            ];
             let getTournamentsMock = jest.fn();
             clashBotRestClient.TournamentApi.mockReturnValue({
                 getTournaments: getTournamentsMock.mockResolvedValue(leagueTimes)
             });
             const removePlayerFromTeamMock = jest.fn();
+            const getTeamMock = jest.fn();
             clashBotRestClient.TeamApi.mockReturnValue({
+                getTeam: getTeamMock.mockResolvedValue(sampleTeamTwoPlayers),
                 removePlayerFromTeam: removePlayerFromTeamMock
                   .mockRejectedValue(create500HttpError())
             });
@@ -238,6 +527,14 @@ describe('Unregister', () => {
                 tournament: args[0],
                 day: args[1],
             });
+            expect(getTeamMock).toHaveBeenCalledTimes(1);
+            expect(getTeamMock)
+              .toHaveBeenCalledWith(
+                msg.member.guild.name,
+                {
+                    tournament: leagueTimes[0].tournamentName,
+                    day: leagueTimes[0].tournamentDay,
+                });
             expect(msg.deferReply).toHaveBeenCalledTimes(1);
             expect(msg.editReply).toHaveBeenCalledWith(`Unregistering '${msg.user.username}' from Tournament '${leagueTimes[0].tournamentName}' on day '${leagueTimes[0].tournamentDay}'...`);
             expect(errorHandling.handleError).toHaveBeenCalledTimes(1);
