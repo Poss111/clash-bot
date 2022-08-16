@@ -390,36 +390,6 @@ describe('Unregister', () => {
                 tournamentDay: args[1],
                 createNewTeam: false
             });
-            const sampleTeamTwoPlayers = [
-                {
-                    name: 'abra',
-                    serverName: msg.member.guild.name,
-                    playerDetails: {
-                        Top: {
-                            id: 1,
-                            name: 'Roïdräge',
-                            champions: ['Volibear', 'Ornn', 'Sett'],
-                            role: 'Top'
-                        },
-                        Bot: {
-                            id: msg.user.id,
-                            name: msg.user.username,
-                            champions: ['Lucian'],
-                            role: 'Bot'
-                        },
-                        Jg: {
-                            id: 3,
-                            name: 'Pepe Conrad',
-                            champions: ['Lucian'],
-                            role: 'Jg'
-                        }
-                    },
-                    tournament: {
-                        tournamentName: 'awesome_sauce',
-                        tournamentDay: '1'
-                    }
-                }
-            ];
             let getTournamentsMock = jest.fn();
             clashBotRestClient.TournamentApi.mockReturnValue({
                 getTournaments: getTournamentsMock.mockResolvedValue(leagueTimes)
