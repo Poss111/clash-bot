@@ -107,10 +107,13 @@ describe('Tentative Command', () => {
                 day: args[1],
             });
             expect(getTentativeMock).toHaveBeenCalledTimes(1);
-            expect(getTentativeMock).toHaveBeenCalledWith({
+            expect(getTentativeMock).toHaveBeenCalledWith(
+              msg.member.guild.name,
+              {
                 tournamentName: args[0],
                 tournamentDay: args[1],
-            });
+              }
+            );
             expect(placePlayerOnTentativeMock).toHaveBeenCalledTimes(1);
             expect(placePlayerOnTentativeMock)
               .toHaveBeenCalledWith(expectedRequest);
@@ -183,10 +186,12 @@ describe('Tentative Command', () => {
                 day: args[1],
             });
             expect(getTentativeMock).toHaveBeenCalledTimes(1);
-            expect(getTentativeMock).toHaveBeenCalledWith({
+            expect(getTentativeMock).toHaveBeenCalledWith(
+              msg.member.guild.name,
+              {
                 tournamentName: leagueTimes[0].tournamentName,
                 tournamentDay: leagueTimes[0].tournamentDay,
-            });
+              });
             expect(placePlayerOnTentativeMock)
               .not
               .toHaveBeenCalled();
@@ -355,7 +360,9 @@ describe('Tentative Command', () => {
                 day: args[1],
             });
             expect(getTentativeMock).toHaveBeenCalledTimes(1);
-            expect(getTentativeMock).toHaveBeenCalledWith({
+            expect(getTentativeMock).toHaveBeenCalledWith(
+              msg.member.guild.name,
+              {
                 tournamentName: args[0],
                 tournamentDay: args[1],
             });
@@ -435,7 +442,9 @@ describe('Tentative Command', () => {
                 day: args[1],
             });
             expect(getTentativeMock).toHaveBeenCalledTimes(1);
-            expect(getTentativeMock).toHaveBeenCalledWith({
+            expect(getTentativeMock).toHaveBeenCalledWith(
+              msg.member.guild.name,
+              {
                 tournamentName: args[0],
                 tournamentDay: args[1],
             });
@@ -520,7 +529,9 @@ describe('Tentative Command', () => {
                 day: args[1],
             });
             expect(getTentativeMock).toHaveBeenCalledTimes(1);
-            expect(getTentativeMock).toHaveBeenCalledWith({
+            expect(getTentativeMock).toHaveBeenCalledWith(
+              msg.member.guild.name,
+              {
                 tournamentName: args[0],
                 tournamentDay: args[1],
             });

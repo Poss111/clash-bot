@@ -71,10 +71,13 @@ module.exports = {
                 logger.info(loggerContext, `Total found Tournaments ('${Array.isArray(times) ? times.length : 0}')`);
                 if (Array.isArray(times) && times.length > 0) {
                     const tentativeApi = new ClashBotRestClient.TentativeApi(client());
-                    const tentativeDetails = await tentativeApi.getTentativeDetails({
+                    const tentativeDetails = await tentativeApi.getTentativeDetails(
+                      msg.member.guild.name,
+                      {
                         tournamentName: times[0].tournamentName,
                         tournamentDay: times[0].tournamentDay,
-                    });
+                      }
+                    );
                     const foundTentative = tentativeDetails
                       .find(tentativeDetail => tentativeDetail
                         .tentativePlayers.find(player => player.id === msg.user.id));
