@@ -32,7 +32,7 @@ module.exports = {
             let copy = JSON.parse(JSON.stringify(teamsCard));
 
             logger.info(loggerContext, `Teams returned ('${teams ? teams.length : 0}') TentativeList ('${tentative ? tentative.length : 0}')`);
-
+            logger.debug({ ...loggerContext, response: responses }, 'Response from Tentative and Team Api.');
             if (teams.length <= 0) {
                 copy.fields.push({name: 'No Existing Teams. Please register!', value: 'Emptay'});
             } else {
@@ -80,6 +80,7 @@ module.exports = {
                 }
                 copy.fields.push({name: 'Tentative Queue', value: message});
             }
+            logger.debug({ ...loggerContext, discordMsg: { embeds: [ copy ] }}, 'Message to be sent to the User.');
             await msg.editReply({embeds: [ copy ]});
         } catch(error) {
             await errorHandler.handleError(

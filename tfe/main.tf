@@ -423,6 +423,10 @@ resource "aws_ecs_task_definition" "clash-bot-discord-bot-task-def" {
           "name" : "PORT",
           "value" : "8080"
         },
+        {
+          "name" : "LOGGER_LEVEL",
+          "value" : "debug"
+        },
       ]
       secrets = [
         {
