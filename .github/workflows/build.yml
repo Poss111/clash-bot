@@ -71,7 +71,7 @@ jobs:
     - name: Parse Lint output
       id: parse-lint-output
       run: |
-        OUTPUT=$(cat ./output-linting.txt)
+        OUTPUT=$(cat ../output-linting.txt)
         OUTPUT="${OUTPUT//'%'/'%25'}"
         OUTPUT="${OUTPUT//$'\n'/'%0A'}"
         OUTPUT="${OUTPUT//$'\r'/'%0D'}"
@@ -80,7 +80,7 @@ jobs:
     - name: Parse Test output
       id: parse-test-output
       run: |
-        OUTPUT=$(cat ./output-unit.txt)
+        OUTPUT=$(cat ../output-unit.txt)
         OUTPUT="${OUTPUT//'%'/'%25'}"
         OUTPUT="${OUTPUT//$'\n'/'%0A'}"
         OUTPUT="${OUTPUT//$'\r'/'%0D'}"
@@ -89,7 +89,7 @@ jobs:
     - name: Parse Integration output
       id: parse-integration-output
       run: |
-        OUTPUT=$(cat ./output-integration.txt)
+        OUTPUT=$(cat ../output-integration.txt)
         OUTPUT="${OUTPUT//'%'/'%25'}"
         OUTPUT="${OUTPUT//$'\n'/'%0A'}"
         OUTPUT="${OUTPUT//$'\r'/'%0D'}"
