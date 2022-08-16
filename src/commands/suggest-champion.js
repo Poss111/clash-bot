@@ -62,7 +62,10 @@ module.exports = {
             }
         } catch (error) {
             if (error.status === 400) {
-                logger.error({ ...loggerContext, error });
+                logger.error({
+                    ...loggerContext,
+                    error: { status: error.status, body: error.body, response: error.response }}
+                );
                 await msg.editReply('Sorry! You cannot have more than 5 champions in your list. ' +
                   'Please remove by passing a champion in your list and then try adding again. Thank you!');
             } else {

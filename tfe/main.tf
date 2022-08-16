@@ -468,6 +468,7 @@ resource "aws_ecs_service" "clash-bot-discord-bot-service" {
   task_definition                    = aws_ecs_task_definition.clash-bot-discord-bot-task-def.arn
   desired_count                      = var.app_count
   launch_type                        = "FARGATE"
+  force_new_deployment               = true
   deployment_minimum_healthy_percent = 0
   deployment_maximum_percent         = 100
 

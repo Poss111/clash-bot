@@ -63,14 +63,27 @@ module.exports = {
                     logger.info(loggerContext, `Found ('${times ? times.length : 0}') Tournaments.`);
                     await msg.editReply(`Unregistering '${msg.user.username}' from Tournament '${times[0].tournamentName}' on day '${times[0].tournamentDay}'...`);
                     const teamApi = new ClashBotRestClient.TeamApi(client());
-                    const response = await teamApi.removePlayerFromTeam(
-                      undefined,
+                    const teams = await teamApi.getTeam(
                       msg.member.guild.name,
-                      times[0].tournamentName,
-                      times[0].tournamentDay,
-                      msg.user.id
+                      {
+                          tournament: times[0].tournamentName,
+                          day: times[0].tournamentDay,
+                      }
                     );
-                    await msg.editReply(`Removed you from Team '${response.name}' for Tournament '${response.tournament.tournamentName} - ${response.tournament.tournamentDay}'. Please use /join or /newTeam if you would like to join again. Thank you!`);
+                    const foundTeam = teams.find(team => Object.entries(team.playerDetails)
+                      .find(entry => entry[1].id === msg.user.id));
+                    if (foundTeam) {
+                        const response = await teamApi.removePlayerFromTeam(
+                          foundTeam.name,
+                          msg.member.guild.name,
+                          times[0].tournamentName,
+                          times[0].tournamentDay,
+                          msg.user.id
+                        );
+                        await msg.editReply(`Removed you from Team '${response.name}' for Tournament '${times[0].tournamentName} - ${times[0].tournamentDay}'. Please use /join or /newTeam if you would like to join again. Thank you!`);
+                    } else {
+                        await msg.editReply(`You do not belong to any of the Teams for Tournament '${times[0].tournamentName}' on day '${times[0].tournamentDay}'.`);
+                    }
                 } else {
                     logger.info(loggerContext, `Unable to find a Tournament based on Tournament ('${parsedArguments.tournamentName}') Day ('${parsedArguments.tournamentDay}').`);
                     await msg.editReply('Please provide an existing tournament and day to unregister for. ' +
@@ -79,7 +92,10 @@ module.exports = {
             }
         } catch (error) {
             if (error.status === 400) {
-                logger.error({...loggerContext, ...error});
+                logger.error({
+                    ...loggerContext,
+                    error: { status: error.status, body: error.body, response: error.response }}
+                );
                 await msg.editReply(`We did not find you on an existing Team for Tournament '${args[0]} - ${args[1]}'. Please use /join or /newTeam if you would like to join again. Thank you!`);
             } else {
                 await errorHandler.handleError(

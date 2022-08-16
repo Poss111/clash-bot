@@ -78,7 +78,9 @@ module.exports = {
                         message = message.concat('\n');
                     }
                 }
-                copy.fields.push({name: 'Tentative Queue', value: message});
+                if (message !== '') {
+                    copy.fields.push({name: 'Tentative Queue', value: message});
+                }
             }
             logger.debug({ ...loggerContext, discordMsg: { embeds: [ copy ] }}, 'Message to be sent to the User.');
             await msg.editReply({embeds: [ copy ]});

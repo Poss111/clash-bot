@@ -166,7 +166,10 @@ module.exports = {
             }
         } catch (error) {
             if (error.status === 400) {
-                logger.error({ ...loggerContext, ...error });
+                logger.error({
+                    ...loggerContext,
+                    error: { status: error.status, body: error.body, response: error.response }}
+                );
                 await msg.editReply(`Failed to find an available team with the following criteria, Role '${args[0]}' Tournament Name '${args[1]}' Tournament Day '${args[2]}' Team Name '${args[3]}' or role is not available for that team`);
             } else {
                 await errorHandling.handleError(

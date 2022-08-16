@@ -450,6 +450,86 @@ describe('Retrieve Teams', () => {
             expect(msg.editReply).toHaveBeenCalledTimes(1);
             expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
         });
+
+        test('When multiple tentative records and a team are passed back and all have empty Tentative Player lists, it should populate with the existing team based on all the tournaments.', async () => {
+            let msg = buildMockInteraction();
+            const sampleTeamTwoPlayers = [
+                {
+                    name: 'abra',
+                    playerDetails: {
+                        Top: {
+                            id: 1,
+                            name: 'Roïdräge',
+                            champions: ['Volibear', 'Ornn', 'Sett'],
+                            role: 'Top'
+                        },
+                        Bot: {
+                            id: 2,
+                            name: 'TheIncentive',
+                            champions: ['Lucian'],
+                            role: 'Bot'
+                        },
+                        Jg: {
+                            id: 3,
+                            name: 'Pepe Conrad',
+                            champions: ['Lucian'],
+                            role: 'Jg'
+                        }
+                    },
+                    tournament: {
+                        tournamentName: 'awesome_sauce',
+                        tournamentDay: '1'
+                    }
+                }
+            ];
+            let sampleTentativeList = [{
+                serverName: msg.member.guild.name,
+                tournamentDetails: {
+                    tournamentName: 'awesome_sauce',
+                    tournamentDay: '1'
+                },
+                tentativePlayers: []
+            }, {
+                serverName: msg.member.guild.name,
+                tournamentDetails: {
+                    tournamentName: 'awesome_sauce',
+                    tournamentDay: '2'
+                },
+                tentativePlayers: []
+            }, {
+                serverName: msg.member.guild.name,
+                tournamentDetails: {
+                    tournamentName: 'awesome_sauce',
+                    tournamentDay: '3'
+                },
+                tentativePlayers: []
+            }];
+
+            let parsedResponse = [{ ...sampleTeamTwoPlayers[0] }];
+            parsedResponse[0].name = 'Abra';
+
+            const getTentativeDetailsMock = jest.fn();
+            clashBotRestClient.TentativeApi.mockReturnValue({
+                getTentativeDetails: getTentativeDetailsMock
+                  .mockResolvedValue(sampleTentativeList)
+            });
+            const getTeamMock = jest.fn();
+            clashBotRestClient.TeamApi.mockReturnValue({
+                getTeam: getTeamMock.mockResolvedValue(sampleTeamTwoPlayers)
+            });
+            let copy = buildExpectedTeamsResponse(parsedResponse);
+            await teams.execute(msg);
+            expect(errorHandling.handleError).not.toHaveBeenCalled();
+            expect(getTentativeDetailsMock).toHaveBeenCalledTimes(1);
+            expect(getTentativeDetailsMock)
+              .toHaveBeenCalledWith(msg.member.guild.name);
+            expect(getTeamMock).toHaveBeenCalledTimes(1);
+            expect(getTeamMock)
+              .toHaveBeenCalledWith(msg.member.guild.name);
+            expect(msg.deferReply).toHaveBeenCalledTimes(1);
+            expect(msg.editReply).toHaveBeenCalledTimes(1);
+            expect(msg.editReply).toHaveBeenCalledWith({ embeds: [ copy ]});
+        });
     });
 
     describe('Error', () => {
