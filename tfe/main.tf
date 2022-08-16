@@ -418,7 +418,11 @@ resource "aws_ecs_task_definition" "clash-bot-discord-bot-task-def" {
         {
           "name" : "DISCORD_BOT_RELEASE_TITLE",
           "value" : var.release_title
-        }
+        },
+        {
+          "name" : "PORT",
+          "value" : "8080"
+        },
       ]
       secrets = [
         {
