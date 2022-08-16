@@ -80,7 +80,7 @@ module.exports = {
                           times[0].tournamentDay,
                           msg.user.id
                         );
-                        await msg.editReply(`Removed you from Team '${response.name}' for Tournament '${response.tournament.tournamentName} - ${response.tournament.tournamentDay}'. Please use /join or /newTeam if you would like to join again. Thank you!`);
+                        await msg.editReply(`Removed you from Team '${response.name}' for Tournament '${times[0].tournamentName} - ${times[0].tournamentDay}'. Please use /join or /newTeam if you would like to join again. Thank you!`);
                     } else {
                         await msg.editReply(`You do not belong to any of the Teams for Tournament '${times[0].tournamentName}' on day '${times[0].tournamentDay}'.`);
                     }

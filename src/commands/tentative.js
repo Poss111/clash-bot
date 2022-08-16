@@ -102,14 +102,13 @@ module.exports = {
                     } else {
                         let opts = {
                             'placePlayerOnTentativeRequest': new ClashBotRestClient
-                              .PlacePlayerOnTentativeRequest({
-                                  serverName       : msg.member.guild.name,
-                                  tournamentDetails: {
+                              .PlacePlayerOnTentativeRequest(
+                                  msg.member.guild.name,
+                                  {
                                       tournamentName: times[0].tournamentName,
                                       tournamentDay : times[0].tournamentDay,
                                   },
-                                  playerId: msg.user.id,
-                              })
+                                  msg.user.id),
                         };
                         logger.debug({ ...loggerContext, request: opts }, 'Request to Post Tentative.');
                         await tentativeApi.placePlayerOnTentative(opts);

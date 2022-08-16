@@ -4,7 +4,7 @@ class ErrorHandling {
     async handleError(command, error, msg, userMessage, loggerContext) {
         if (error.status) {
             logger.error({ ...loggerContext,
-                error: { status: error.status, message: error.message, stack: error.stack }
+                error: { status: error.status, body: error.body, response: error.response }
             });
         } else {
             logger.error({ ...loggerContext, error: { message: error.message, stack: error.stack } });
