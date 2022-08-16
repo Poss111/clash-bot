@@ -49,19 +49,46 @@ jobs:
 
     - name: Run Linting
       id: lint
-      run: npm run-script lint
+      run: npm run-script lint >> ../output-linting.txt 2>&1
 
     - name: Run unit tests
       id: unit
-      run: npm test
+      run: npm test -- --no-color --silent 2> ../output-unit.txt
 
     - name: Start App container
       run: docker-compose up -d
 
     - name: Run integration tests on Local DynamoDb
       id: integration
-      run: npm run integration
+      run: npm run integration -- --no-color --silent 2> ../output-integration.txt
       timeout-minutes: 2
+
+    - name: Parse Lint output
+      id: parse-lint-output
+      run: |
+        OUTPUT=$(cat ./output-linting.txt)
+        OUTPUT="${OUTPUT//'%'/'%25'}"
+        OUTPUT="${OUTPUT//$'\n'/'%0A'}"
+        OUTPUT="${OUTPUT//$'\r'/'%0D'}"
+        echo "::set-output name=stdout::$OUTPUT"
+
+    - name: Parse Test output
+      id: parse-test-output
+      run: |
+        OUTPUT=$(cat ./output-unit.txt)
+        OUTPUT="${OUTPUT//'%'/'%25'}"
+        OUTPUT="${OUTPUT//$'\n'/'%0A'}"
+        OUTPUT="${OUTPUT//$'\r'/'%0D'}"
+        echo "::set-output name=stdout::$OUTPUT"
+
+    - name: Parse Integration output
+      id: parse-integration-output
+      run: |
+        OUTPUT=$(cat ./output-integration.txt)
+        OUTPUT="${OUTPUT//'%'/'%25'}"
+        OUTPUT="${OUTPUT//$'\n'/'%0A'}"
+        OUTPUT="${OUTPUT//$'\r'/'%0D'}"
+        echo "::set-output name=stdout::$OUTPUT"
 
     - uses: actions/upload-artifact@v2
       with:
@@ -72,9 +99,9 @@ jobs:
       uses: actions/github-script@v6.1.0
       if: github.event_name == 'pull_request'
       env:
-        LINT: "Lint\n${{ steps.lint.outputs.stdout }}"
-        UNIT: "Unit\n${{ steps.unit.outputs.stdout }}"
-        INTEGRATION: "Integration\n${{ steps.integration.outputs.stdout }}"
+        LINT: "Lint\n${{ steps.parse-lint-output.outputs.stdout }}"
+        UNIT: "Unit\n${{ steps.parse-test-output.outputs.stdout }}"
+        INTEGRATION: "Integration\n${{ steps.parse-integration-output.outputs.stdout }}"
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
