@@ -49,10 +49,12 @@ jobs:
 
     - name: Run Linting
       id: lint
+      continue-on-error: true
       run: npm run-script lint >> ../output-linting.txt 2>&1
 
     - name: Run unit tests
       id: unit
+      continue-on-error: true
       run: npm test -- --no-color --silent 2> ../output-unit.txt
 
     - name: Start App container
@@ -60,6 +62,9 @@ jobs:
 
     - name: Run integration tests on Local DynamoDb
       id: integration
+      continue-on-error: true
+      env:
+        SERVICE_URL: 'http://localhost:80/api/v2'
       run: npm run integration -- --no-color --silent 2> ../output-integration.txt
       timeout-minutes: 2
 
@@ -151,6 +156,10 @@ jobs:
         title: 'Clash Bot Build Notification'
         message: 'Github build failed!'
         message-color: '16711680'
+
+    - name: Fail Cases
+      if: steps.lint.outcome == 'failure' || steps.unit.outcome == 'failure' || steps.integration.outcome == 'failure'
+      run: exit 1
 
     - name: Build Succeeded Discord Webhook
       uses: Poss111/discord-hook-action@v1.6.8

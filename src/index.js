@@ -1,5 +1,5 @@
 const loadBot = require('./utility/load-bot');
-const logger = require('pino')();
+const logger = require('./utility/logger');
 const express = require('express');
 const cors = require('cors');
 const app = express();
@@ -20,8 +20,10 @@ app.get('/health', (req, res) => {
     });
 });
 
-app.listen(8082, () => {
-    logger.info('Clash Bot Service up and running on Port (\'8082\')!');
+app.listen(process.env.PORT ? process.env.PORT : 8082, () => {
+    logger.info(
+      `Clash Bot Service up and running on Port ('${process.env.PORT ? process.env.PORT : 8082}')!`
+    );
 });
 
 process.on('beforeExit', () => {

@@ -3,6 +3,7 @@ const errorHandler = require('../utility/error-handling');
 const timeTracker = require('../utility/time-tracker');
 const commandArgumentParser = require('./command-argument-parser');
 const logger = require('../utility/logger');
+const {client} = require('../utility/rest-api-utilities');
 
 module.exports = {
     name: 'tentative',
@@ -59,9 +60,7 @@ module.exports = {
                     'use tentative. i.e. /tentative msi2021 1');
             } else {
                 await msg.deferReply();
-                const tournamentApi = new ClashBotRestClient
-                  .TournamentApi(new ClashBotRestClient
-                    .ApiClient('http://localhost:8080/api/v2'));
+                const tournamentApi = new ClashBotRestClient.TournamentApi(client());
                 const request = {};
                 if (parsedArguments.tournamentName) {
                     request.tournament = parsedArguments.tournamentName;
@@ -71,9 +70,7 @@ module.exports = {
                 let times = await tournamentApi.getTournaments(request);
                 logger.info(loggerContext, `Total found Tournaments ('${Array.isArray(times) ? times.length : 0}')`);
                 if (Array.isArray(times) && times.length > 0) {
-                    const tentativeApi = new ClashBotRestClient
-                      .TentativeApi(new ClashBotRestClient
-                        .ApiClient('http://localhost:8080/api/v2'));
+                    const tentativeApi = new ClashBotRestClient.TentativeApi(client());
                     const tentativeDetails = await tentativeApi.getTentativeDetails({
                         tournamentName: times[0].tournamentName,
                         tournamentDay: times[0].tournamentDay,

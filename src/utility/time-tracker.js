@@ -1,4 +1,4 @@
-const logger = require('pino')();
+const logger = require('../utility/logger');
 
 class TimeTracker {
     endExecution(command, startTime) {

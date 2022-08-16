@@ -4,6 +4,7 @@ const errorHandler = require('../utility/error-handling');
 const timeTracker = require('../utility/time-tracker');
 const logger = require('../utility/logger');
 const {capitalizeFirstLetter} = require('../utility/utilities');
+const {client} = require('../utility/rest-api-utilities');
 
 module.exports = {
     name: 'teams',
@@ -19,12 +20,9 @@ module.exports = {
         try {
             await msg.deferReply();
             logger.info(loggerContext, 'Retrieving Team details for User.');
-            const tentativeApi = new ClashBotRestClient
-              .TentativeApi(new ClashBotRestClient
-                .ApiClient('http://localhost:8080/api/v2'));
-            const teamApi = new ClashBotRestClient
-              .TeamApi(new ClashBotRestClient
-                .ApiClient('http://localhost:8080/api/v2'));
+            const apiClient = client();
+            const tentativeApi = new ClashBotRestClient.TentativeApi(apiClient);
+            const teamApi = new ClashBotRestClient.TeamApi(apiClient);
             const responses = await Promise.all([
                 tentativeApi.getTentativeDetails(msg.member.guild.name),
                 teamApi.getTeam(msg.member.guild.name),

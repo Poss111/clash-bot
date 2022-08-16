@@ -8,6 +8,7 @@ const updateNotification = require('../templates/update-notification');
 const templateBuilder = require('./template-builder');
 const ClashBotRestClient = require('clash-bot-rest-client');
 const logger = require('../utility/logger');
+const {client} = require('../utility/rest-api-utilities');
 let channel = 'league';
 let bot = undefined;
 
@@ -72,9 +73,7 @@ let interactionHandler = async (interaction, bot) => {
         if (!bot.commands.has(interaction.commandName)) return;
 
         try {
-            const userApi = new ClashBotRestClient
-              .UserApi(new ClashBotRestClient
-                .ApiClient('http://localhost:8080/api/v2'));
+            const userApi = new ClashBotRestClient.UserApi(client());
             try {
                 await userApi.getUser(interaction.user.id);
             } catch(error) {
@@ -147,11 +146,10 @@ let readyHandler = (discordBot, restrictedChannel, showRelease) => {
             }
         });
     }
-    // setInterval(() => {
-    //     logger.info(
-    //       { type: 'metric' },
-    //       `Total # of guilds using Bot ('${ discordBot.guilds.cache.size}')`);
-    // }, 30000);
+    logger.info(
+      { type: 'metric' },
+      `Total # of guilds using Bot ('${ discordBot.guilds.cache.size}')`
+    );
 };
 
 let setupCommands = async () => {

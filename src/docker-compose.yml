@@ -15,7 +15,7 @@ services:
       - LANGUAGE=en_US:en
       - LC_ALL=en_US.UTF-8
   clash-bot-discord-bot-service-data-setup:
-    image: "poss11111/clash-bot-service:latest"
+    image: "poss11111/clash-bot-webapp-service:latest"
     command: "node integration/integration-setup.js"
     container_name: clash-bot-discord-bot-service-data-setup
     environment:

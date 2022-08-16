@@ -4,6 +4,7 @@ const timeTracker = require('../utility/time-tracker');
 const registerReply = require('../templates/register-reply');
 const {parseUserInfo} = require('../services/user-information-service-impl');
 const logger = require('../utility/logger');
+const {client} = require('../utility/rest-api-utilities');
 
 const buildTournamentDetails = (team) => {
     return {
@@ -126,9 +127,7 @@ module.exports = {
                     } else {
                         await msg.editReply(`Registering '${userInfo.username}' for the first available tournament as '${role}' that you are not already registered to...`);
                     }
-                    const tournamentApi = new ClashBotRestClient
-                      .TournamentApi(new ClashBotRestClient
-                        .ApiClient('http://localhost:8080/api/v2'));
+                    const tournamentApi = new ClashBotRestClient.TournamentApi(client());
                     let filteredClashTimes = await tournamentApi.getTournaments(request);
                     if (!filteredClashTimes
                         || !filteredClashTimes.length) {
@@ -149,9 +148,7 @@ module.exports = {
                     } else {
                         logger.info(loggerContext, `Create new Team User with TournamentName ('${filteredClashTimes[0].tournamentName}') TournamentDay ('${filteredClashTimes[0].tournamentDay}') Role ('${args[0]}')`);
 
-                        const teamApi = new ClashBotRestClient
-                          .TeamApi(new ClashBotRestClient
-                            .ApiClient('http://localhost:8080/api/v2'));
+                        const teamApi = new ClashBotRestClient.TeamApi(client());
                         let opts = {
                             createNewTeamRequest:
                               {
