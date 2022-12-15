@@ -416,6 +416,10 @@ resource "aws_ecs_task_definition" "clash-bot-discord-bot-task-def" {
       }
       environment = [
         {
+          "name" : "SHOW_RELEASE_MESSAGE",
+          "value" : "true"
+        },
+        {
           "name" : "DISCORD_BOT_RELEASE_TITLE",
           "value" : var.release_title
         },
