@@ -6,9 +6,9 @@ const botCommands = require('../commands');
 const helpMenu = require('../templates/help-menu');
 const updateNotification = require('../templates/update-notification');
 const templateBuilder = require('./template-builder');
-const ClashBotRestClient = require('clash-bot-rest-client');
+// const ClashBotRestClient = require('clash-bot-rest-client');
 const logger = require('../utility/logger');
-const {client} = require('../utility/rest-api-utilities');
+// const {client} = require('../utility/rest-api-utilities');
 let channel = 'league';
 let bot = undefined;
 
@@ -64,7 +64,7 @@ let interactionHandler = async (interaction) => {
     };
     if (interaction.isCommand()) {
         try {
-            await interaction.editReply('Clash Bot is shutting down! :( It has been a great run with you all! '
+            await interaction.reply('Clash Bot is shutting down! :( It has been a great run with you all! '
               + 'If you would like to see Clash Bot again please feel free to '
               + 'donate any amount to this [Paypal](https://www.paypal.com/paypalme/poss11111).');
         } catch (error) {
