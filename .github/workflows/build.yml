@@ -20,7 +20,7 @@ jobs:
     - uses: FranzDiebold/github-env-vars-action@v2.1.0
 
     - name: Build Start Discord Webhook
-      uses: Poss111/discord-hook-action@v1.6.8
+      uses: Poss111/discord-hook-action@v1.6.13
       with:
         discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
         title: 'Clash Bot Build Notification'
@@ -149,7 +149,7 @@ jobs:
 #          })
 
     - name: Build Failed Discord Webhook
-      uses: Poss111/discord-hook-action@v1.6.8
+      uses: Poss111/discord-hook-action@v1.6.13
       if: ${{ failure() }}
       with:
         discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
@@ -162,7 +162,7 @@ jobs:
 #      run: exit 1
 
     - name: Build Succeeded Discord Webhook
-      uses: Poss111/discord-hook-action@v1.6.8
+      uses: Poss111/discord-hook-action@v1.6.13
       if: ${{ success() }}
       with:
         discord-hook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
