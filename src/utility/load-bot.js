@@ -55,7 +55,7 @@ let messageHandler = async (msg) => {
     }
 };
 
-let interactionHandler = async (interaction, bot) => {
+let interactionHandler = async (interaction) => {
     const loggerContext = {
         command: 'interactionHandler',
         user: interaction.user ? interaction.user.id : 0,
@@ -63,47 +63,12 @@ let interactionHandler = async (interaction, bot) => {
         server: interaction.member ? interaction.member.guild.name : {}
     };
     if (interaction.isCommand()) {
-        let args = [];
-        if (interaction.options.data) {
-         args = interaction.options.data.map(data => data.value);
-        }
-
-        logger.info(loggerContext, `('${interaction.user.username}') called command: ('${interaction.commandName}')`);
-
-        if (!bot.commands.has(interaction.commandName)) return;
-
         try {
-            const userApi = new ClashBotRestClient.UserApi(client());
-            try {
-                await userApi.getUser(interaction.user.id);
-            } catch(error) {
-                if (error.status === 404) {
-                    await userApi.createUser({
-                        createUserRequest: new ClashBotRestClient.CreateUserRequest(
-                            interaction.user.id,
-                            interaction.user.username,
-                            interaction.member.guild.name
-                        )
-                    });
-                } else {
-                    throw error;
-                }
-            }
-            await bot.commands.get(interaction.commandName).execute(interaction, args);
+            await interaction.editReply('Clash Bot is shutting down! :( It has been a great run with you all! '
+              + 'If you would like to see Clash Bot again please feel free to '
+              + 'donate any amount to this [Paypal](https://www.paypal.com/paypalme/poss11111).');
         } catch (error) {
-            logger.error({ ...loggerContext, message: error.message, stack: error.stack }, `Failed to execute command ('${bot.commands.get(interaction.commandName).name}') due to error.`, error);
-            try {
-                if (interaction.deferred
-                    || interaction.replied) {
-                    await interaction.editReply('there was an error trying to execute ' +
-                        'that command! Please reach out to <@299370234228506627>.');
-                } else {
-                    await interaction.reply('there was an error trying to execute ' +
-                        'that command! Please reach out to <@299370234228506627>.');
-                }
-            } catch (error) {
-                logger.error({ ...loggerContext, message: error.message, stack: error.stack }, 'Failed to send error message due to error.', error);
-            }
+            logger.error({ ...loggerContext, message: error.message, stack: error.stack }, 'Failed to send error message due to error.', error);
         }
     }
 };

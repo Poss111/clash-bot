@@ -1,6 +1,10 @@
 # Clash Bot
 [![CI](https://github.com/Poss111/clash-bot/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/Poss111/clash-bot/actions/workflows/build.yml)
 
+# :(
+
+Clash Bot is shutting down due to maintainence costs! If you liked Clash Bot and what it provided, please donate to this [Paypal](https://www.paypal.com/paypalme/poss11111).
+
 # Slash commands are here!
 Make sure you make full use of these. They can be viewed by typing / in any guild the bot belongs to.
 
