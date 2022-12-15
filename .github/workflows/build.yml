@@ -47,106 +47,106 @@ jobs:
     - name: Install Dependencies
       run: npm i
 
-    - name: Run Linting
-      id: lint
-      continue-on-error: true
-      run: npm run-script lint >> ../output-linting.txt 2>&1
+#    - name: Run Linting
+#      id: lint
+#      continue-on-error: true
+#      run: npm run-script lint >> ../output-linting.txt 2>&1
 
-    - name: Run unit tests
-      id: unit
-      continue-on-error: true
-      run: npm test -- --no-color --silent 2> ../output-unit.txt
+#    - name: Run unit tests
+#      id: unit
+#      continue-on-error: true
+#      run: npm test -- --no-color --silent 2> ../output-unit.txt
 
-    - name: Start App container
-      run: docker-compose up -d
+#    - name: Start App container
+#      run: docker-compose up -d
 
-    - name: Run integration tests on Local DynamoDb
-      id: integration
-      continue-on-error: true
-      env:
-        SERVICE_URL: 'http://localhost:80/api/v2'
-      run: npm run integration -- --no-color --silent 2> ../output-integration.txt
-      timeout-minutes: 2
+#    - name: Run integration tests on Local DynamoDb
+#      id: integration
+#      continue-on-error: true
+#      env:
+#        SERVICE_URL: 'http://localhost:80/api/v2'
+#      run: npm run integration -- --no-color --silent 2> ../output-integration.txt
+#      timeout-minutes: 2
 
-    - name: Parse Lint output
-      id: parse-lint-output
-      run: |
-        OUTPUT=$(cat ../output-linting.txt)
-        OUTPUT="${OUTPUT//'%'/'%25'}"
-        OUTPUT="${OUTPUT//$'\n'/'%0A'}"
-        OUTPUT="${OUTPUT//$'\r'/'%0D'}"
-        echo "::set-output name=stdout::$OUTPUT"
+#    - name: Parse Lint output
+#      id: parse-lint-output
+#      run: |
+#        OUTPUT=$(cat ../output-linting.txt)
+#        OUTPUT="${OUTPUT//'%'/'%25'}"
+#        OUTPUT="${OUTPUT//$'\n'/'%0A'}"
+#        OUTPUT="${OUTPUT//$'\r'/'%0D'}"
+#        echo "::set-output name=stdout::$OUTPUT"
+#
+#    - name: Parse Test output
+#      id: parse-test-output
+#      run: |
+#        OUTPUT=$(cat ../output-unit.txt)
+#        OUTPUT="${OUTPUT//'%'/'%25'}"
+#        OUTPUT="${OUTPUT//$'\n'/'%0A'}"
+#        OUTPUT="${OUTPUT//$'\r'/'%0D'}"
+#        echo "::set-output name=stdout::$OUTPUT"
+#
+#    - name: Parse Integration output
+#      id: parse-integration-output
+#      run: |
+#        OUTPUT=$(cat ../output-integration.txt)
+#        OUTPUT="${OUTPUT//'%'/'%25'}"
+#        OUTPUT="${OUTPUT//$'\n'/'%0A'}"
+#        OUTPUT="${OUTPUT//$'\r'/'%0D'}"
+#        echo "::set-output name=stdout::$OUTPUT"
 
-    - name: Parse Test output
-      id: parse-test-output
-      run: |
-        OUTPUT=$(cat ../output-unit.txt)
-        OUTPUT="${OUTPUT//'%'/'%25'}"
-        OUTPUT="${OUTPUT//$'\n'/'%0A'}"
-        OUTPUT="${OUTPUT//$'\r'/'%0D'}"
-        echo "::set-output name=stdout::$OUTPUT"
+#    - uses: actions/upload-artifact@v2
+#      with:
+#        name: coverage-artifact
+#        path: coverage
 
-    - name: Parse Integration output
-      id: parse-integration-output
-      run: |
-        OUTPUT=$(cat ../output-integration.txt)
-        OUTPUT="${OUTPUT//'%'/'%25'}"
-        OUTPUT="${OUTPUT//$'\n'/'%0A'}"
-        OUTPUT="${OUTPUT//$'\r'/'%0D'}"
-        echo "::set-output name=stdout::$OUTPUT"
-
-    - uses: actions/upload-artifact@v2
-      with:
-        name: coverage-artifact
-        path: coverage
-
-    - name: Update Pull Request
-      uses: actions/github-script@v6.1.0
-      if: github.event_name == 'pull_request'
-      env:
-        LINT: "Lint\n${{ steps.parse-lint-output.outputs.stdout }}"
-        UNIT: "Unit\n${{ steps.parse-test-output.outputs.stdout }}"
-        INTEGRATION: "Integration\n${{ steps.parse-integration-output.outputs.stdout }}"
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const output = `Clash Bot - Build
-          #### Lint 🖌\`${{ steps.lint.outcome }}\`
-          #### Test ⚙️\`${{ steps.unit.outcome }}\`
-          #### Integration 📖\`${{ steps.integration.outcome }}\`
-          
-          <details><summary>Show Lint Report</summary>
-
-          \`\`\`\n
-          ${process.env.LINT}
-          \`\`\`
-
-          </details>
-          
-          <details><summary>Show Unit Test Report</summary>
-
-          \`\`\`\n
-          ${process.env.UNIT}
-          \`\`\`
-
-          </details>
-          
-          <details><summary>Show Integration Test Report</summary>
-
-          \`\`\`\n
-          ${process.env.INTEGRATION}
-          \`\`\`
-
-          </details>
-          
-          *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
-
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: output
-          })
+#    - name: Update Pull Request
+#      uses: actions/github-script@v6.1.0
+#      if: github.event_name == 'pull_request'
+#      env:
+#        LINT: "Lint\n${{ steps.parse-lint-output.outputs.stdout }}"
+#        UNIT: "Unit\n${{ steps.parse-test-output.outputs.stdout }}"
+#        INTEGRATION: "Integration\n${{ steps.parse-integration-output.outputs.stdout }}"
+#      with:
+#        github-token: ${{ secrets.GITHUB_TOKEN }}
+#        script: |
+#          const output = `Clash Bot - Build
+#          #### Lint 🖌\`${{ steps.lint.outcome }}\`
+#          #### Test ⚙️\`${{ steps.unit.outcome }}\`
+#          #### Integration 📖\`${{ steps.integration.outcome }}\`
+#
+#          <details><summary>Show Lint Report</summary>
+#
+#          \`\`\`\n
+#          ${process.env.LINT}
+#          \`\`\`
+#
+#          </details>
+#
+#          <details><summary>Show Unit Test Report</summary>
+#
+#          \`\`\`\n
+#          ${process.env.UNIT}
+#          \`\`\`
+#
+#          </details>
+#
+#          <details><summary>Show Integration Test Report</summary>
+#
+#          \`\`\`\n
+#          ${process.env.INTEGRATION}
+#          \`\`\`
+#
+#          </details>
+#
+#          *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+#
+#          github.rest.issues.createComment({
+#            issue_number: context.issue.number,
+#            owner: context.repo.owner,
+#            repo: context.repo.repo,
+#            body: output
+#          })
 
     - name: Build Failed Discord Webhook
       uses: Poss111/discord-hook-action@v1.6.8
@@ -157,9 +157,9 @@ jobs:
         message: 'Github build failed!'
         message-color: '16711680'
 
-    - name: Fail Cases
-      if: steps.lint.outcome == 'failure' || steps.unit.outcome == 'failure' || steps.integration.outcome == 'failure'
-      run: exit 1
+#    - name: Fail Cases
+#      if: steps.lint.outcome == 'failure' || steps.unit.outcome == 'failure' || steps.integration.outcome == 'failure'
+#      run: exit 1
 
     - name: Build Succeeded Discord Webhook
       uses: Poss111/discord-hook-action@v1.6.8
